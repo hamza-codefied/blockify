@@ -1,0 +1,65 @@
+/* Make tab items stretch equally across the full width */
+.custom-tabs .ant-tabs-nav-list {
+  width: 100%;
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+/* Center each tab label */
+.custom-tabs .ant-tabs-tab {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin: 0 !important;
+  padding: 12px 0 !important;
+}
+
+/* Remove any extra spacing/padding on nav */
+.custom-tabs .ant-tabs-nav {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Red underline for active tab */
+.custom-tabs .ant-tabs-ink-bar {
+  background-color: #00b894 !important;
+  height: 3px !important;
+  border-radius: 4px;
+}
+
+/* Optional: spacing and alignment */
+.custom-tabs .ant-tabs-nav::before {
+  border: none !important; /* remove default bottom border */
+}
+
+/* ============ Responsive Tabs ============ */
+.custom-tabs .ant-tabs-nav-list {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scrollbar-width: none; /* Firefox */
+}
+.custom-tabs .ant-tabs-nav-list::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+/* Smaller paddings for tiny screens */
+@media (max-width: 480px) {
+  .custom-tabs .ant-tabs-tab {
+    padding: 6px 8px !important;
+  }
+
+  .custom-tabs .ant-tabs-tab-btn {
+    font-size: 13px !important;
+  }
+}
+
+/* For ultra small (320px) screens */
+@media (max-width: 360px) {
+  .custom-tabs .ant-tabs-tab {
+    padding: 4px 6px !important;
+  }
+
+  .custom-tabs .ant-tabs-nav-list {
+    justify-content: space-between !important;
+  }
+}

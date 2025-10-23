@@ -1,0 +1,93 @@
+/* ===== Scrollable Table Wrapper ===== */
+.grades-wrapper {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.grades-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.grades-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+/* Keep layout stable */
+.grades-header,
+.ant-list-item {
+  min-width: 500px;
+}
+
+/* ===== Add Button Styling ===== */
+.add-grade-btn {
+  background-color: #00b894 !important;
+  color: white !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  padding: 4px 16px !important;
+  transition: background 0.3s ease;
+}
+.add-grade-btn:hover {
+  background-color: #019a7d !important;
+}
+
+/* ===== Responsive Filters/Spacing ===== */
+@media (max-width: 768px) {
+  .ant-card {
+    padding: 12px !important;
+  }
+
+  .grades-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ===== Table Column Width Control ===== */
+.grades-header .ant-col:nth-child(1),
+.ant-list-item .ant-col:nth-child(1) {
+  width: 200px !important; /* Grade */
+}
+.grades-header .ant-col:nth-child(2),
+.ant-list-item .ant-col:nth-child(2) {
+  width: 160px !important; /* Students */
+}
+.grades-header .ant-col:nth-child(3),
+.ant-list-item .ant-col:nth-child(3) {
+  width: 160px !important; /* Sessions */
+}
+.grades-header .ant-col:nth-child(4),
+.ant-list-item .ant-col:nth-child(4) {
+  width: 100px !important; /* Action */
+}
+
+/* ===== Responsive Adjustments for Smaller Screens ===== */
+@media (max-width: 480px) {
+  .ant-card {
+    padding: 8px !important;
+  }
+
+  .grades-header,
+  .ant-list-item {
+    min-width: 650px !important;
+  }
+
+  .ant-typography,
+  .ant-tag {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .ant-typography,
+  .ant-tag {
+    font-size: 12px !important;
+  }
+
+  .grades-header,
+  .ant-list-item {
+    min-width: 600px !important;
+  }
+}

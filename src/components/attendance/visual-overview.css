@@ -1,0 +1,118 @@
+/* ===== Scrollable Table Wrapper ===== */
+.visual-overview-wrapper {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.visual-overview-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.visual-overview-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+/* Keep layout stable */
+.visual-overview-header,
+.ant-list-item {
+  min-width: 850px;
+}
+
+/* ===== Filters and Controls ===== */
+@media (max-width: 768px) {
+  /* Stack filters vertically */
+  .ant-space {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .ant-input,
+  .ant-select {
+    width: 100% !important;
+  }
+
+  .ant-card {
+    padding: 12px !important;
+  }
+
+  .visual-overview-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ===== Table Column Width Control ===== */
+.visual-overview-header .ant-col:nth-child(1),
+.ant-list-item .ant-col:nth-child(1) {
+  width: 180px !important; /* Name */
+}
+.visual-overview-header .ant-col:nth-child(2),
+.ant-list-item .ant-col:nth-child(2) {
+  width: 220px !important; /* Contact */
+}
+.visual-overview-header .ant-col:nth-child(3),
+.ant-list-item .ant-col:nth-child(3) {
+  width: 150px !important; /* Grade */
+}
+.visual-overview-header .ant-col:nth-child(4),
+.ant-list-item .ant-col:nth-child(4) {
+  width: 140px !important; /* Attendance */
+}
+.visual-overview-header .ant-col:nth-child(5),
+.ant-list-item .ant-col:nth-child(5) {
+  width: 100px !important; /* Time */
+}
+
+/* ===== Responsive Adjustments for Smaller Screens ===== */
+@media (max-width: 480px) {
+  .ant-card {
+    padding: 8px !important;
+  }
+
+  /* Maintain scrollable layout */
+  .visual-overview-header,
+  .ant-list-item {
+    min-width: 800px !important;
+  }
+
+  /* Reduce padding + text slightly */
+  .ant-list-item {
+    padding: 10px 12px !important;
+  }
+
+  .ant-typography,
+  .ant-tag {
+    font-size: 13px !important;
+  }
+
+  .ant-avatar {
+    width: 34px !important;
+    height: 34px !important;
+  }
+}
+
+/* ===== 360px and Below ===== */
+@media (max-width: 360px) {
+  .ant-typography,
+  .ant-tag {
+    font-size: 12px !important;
+  }
+
+  .ant-list-item {
+    padding: 8px 10px !important;
+  }
+
+  .visual-overview-header,
+  .ant-list-item {
+    min-width: 750px !important;
+  }
+
+  .ant-avatar {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}

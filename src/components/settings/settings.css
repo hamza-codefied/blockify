@@ -1,0 +1,39 @@
+/* When switch is OFF — make handle green */
+.ant-switch:not(.ant-switch-checked) .ant-switch-handle::before {
+  background-color: #00b894 !important;
+}
+
+/* When switch is ON — keep handle white */
+.ant-switch-checked .ant-switch-handle::before {
+  background-color: #fff !important;
+}
+
+/* Optional: green hover ring */
+.ant-switch {
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.2) !important;
+}
+
+/* Optional: smoother transitions */
+.ant-switch {
+  transition: all 0.3s ease-in-out;
+}
+
+.custom-settings-modal .ant-modal-content {
+  border-radius: 8px;
+}
+.custom-settings-modal .ant-modal-body {
+  padding: 16px;
+}
+.custom-settings-modal label {
+  display: block;
+  margin-bottom: 8px;
+}
+.custom-settings-modal .ant-switch {
+  margin-left: 10px;
+}
+@media (max-width: 768px) {
+  .custom-settings-modal {
+    width: 90% !important;
+    margin: 0 auto;
+  }
+}

@@ -1,0 +1,15 @@
+/* Input, Select, TimePicker — when focused */
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused {
+  border-color: #00b894 !important; /* red border when focused */
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important; /* soft red glow */
+}
+
+/* Input, Select, TimePicker — when hovered */
+.ant-input:hover,
+.ant-select-selector:hover,
+.ant-picker:hover {
+  border-color: #00b894 !important; /* red border when hovered */
+}

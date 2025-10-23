@@ -1,0 +1,158 @@
+@media (max-width: 640px) {
+  .ant-table {
+    font-size: 12px;
+  }
+  .ant-table-cell {
+    padding: 8px 6px !important;
+  }
+  .ant-input-affix-wrapper {
+    width: 100% !important;
+  }
+}
+
+.custom-tab-btn {
+  transition: all 0.25s ease;
+}
+
+/* Hover on active tab → darker green */
+.custom-tab-btn.active-tab:hover {
+  background-color: #009e7a !important; /* darker green */
+  color: #fff !important;
+}
+
+/* Optional: subtle shadow on hover */
+.custom-tab-btn:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== Scrollable Wrapper ===== */
+.user-management-wrapper {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.user-management-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+.user-management-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+.user-management-header,
+.ant-list-item {
+  min-width: 900px;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+  .ant-space {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .ant-input,
+  .ant-select {
+    width: 100% !important;
+  }
+
+  .ant-card {
+    padding: 12px !important;
+  }
+
+  .user-management-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ===== Column Widths ===== */
+.user-management-header .ant-col:nth-child(1),
+.ant-list-item .ant-col:nth-child(1) {
+  width: 200px !important;
+}
+.user-management-header .ant-col:nth-child(2),
+.ant-list-item .ant-col:nth-child(2) {
+  width: 220px !important;
+}
+.user-management-header .ant-col:nth-child(3),
+.ant-list-item .ant-col:nth-child(3) {
+  width: 140px !important;
+}
+.user-management-header .ant-col:nth-child(4),
+.ant-list-item .ant-col:nth-child(4) {
+  width: 200px !important;
+}
+.user-management-header .ant-col:nth-child(5),
+.ant-list-item .ant-col:nth-child(5) {
+  width: 200px !important;
+}
+.user-management-header .ant-col:nth-child(6),
+.ant-list-item .ant-col:nth-child(6) {
+  width: 100px !important;
+}
+
+/* ===== Small Screens ===== */
+@media (max-width: 480px) {
+  .ant-list-item {
+    padding: 10px 12px !important;
+  }
+  .ant-typography,
+  .ant-tag {
+    font-size: 13px !important;
+  }
+  .ant-avatar {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .user-management-header,
+  .ant-list-item {
+    min-width: 850px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .ant-typography,
+  .ant-tag {
+    font-size: 12px !important;
+  }
+  .user-management-header,
+  .ant-list-item {
+    min-width: 780px !important;
+  }
+  .ant-avatar {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+/* === Input focus: green border, green glow, keep text black === */
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #00b894 !important;
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.2) !important;
+  color: #000 !important; /* Text stays black */
+}
+
+/* === Select focus: green border, green glow, text black === */
+.ant-select-focused .ant-select-selector {
+  border-color: #00b894 !important;
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.2) !important;
+  color: #000 !important;
+}
+
+/* === Button focus: green border + glow === */
+.ant-btn:focus,
+.ant-btn-focused {
+  border-color: #00b894 !important;
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.2) !important;
+  color: #000 !important;
+}
+
+/* === Also prevent AntD Select text from turning blue === */
+.ant-select-selector input {
+  color: #000 !important;
+}

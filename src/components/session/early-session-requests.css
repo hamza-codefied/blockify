@@ -1,0 +1,143 @@
+/* ===== Scrollable List Wrapper ===== */
+.early-session-wrapper {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.early-session-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.early-session-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+/* Keep layout stable */
+.early-session-header,
+.ant-list-item {
+  min-width: 700px;
+}
+
+/* ===== Table Column Width Control ===== */
+.early-session-header .ant-col:nth-child(1),
+.ant-list-item .ant-col:nth-child(1) {
+  width: 220px !important; /* Name */
+}
+
+.early-session-header .ant-col:nth-child(2),
+.ant-list-item .ant-col:nth-child(2) {
+  width: 160px !important; /* Grade */
+}
+
+.early-session-header .ant-col:nth-child(3),
+.ant-list-item .ant-col:nth-child(3) {
+  width: 140px !important; /* Time */
+}
+
+.early-session-header .ant-col:nth-child(4),
+.ant-list-item .ant-col:nth-child(4) {
+  width: 140px !important; /* Action */
+}
+
+/* ===== View Button ===== */
+.view-request-btn {
+  color: #00b894;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.view-request-btn:hover {
+  text-decoration: underline;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+  .ant-card {
+    padding: 12px !important;
+  }
+
+  .early-session-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .early-session-header,
+  .ant-list-item {
+    min-width: 650px !important;
+  }
+
+  .ant-typography,
+  .ant-tag {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-card {
+    padding: 8px !important;
+  }
+
+  .early-session-header,
+  .ant-list-item {
+    min-width: 600px !important;
+  }
+
+  .ant-avatar {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .ant-typography,
+  .ant-tag {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .early-session-header,
+  .ant-list-item {
+    min-width: 550px !important;
+  }
+
+  .ant-avatar {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .ant-typography,
+  .ant-tag {
+    font-size: 11.5px !important;
+  }
+}
+
+.custom-radio {
+  appearance: none;
+  border: 2px solid #00b894;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-radio:checked {
+  border: 2px solid #00b894;
+  background-color: #00b894;
+}
+
+.custom-radio:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: #00b894;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
