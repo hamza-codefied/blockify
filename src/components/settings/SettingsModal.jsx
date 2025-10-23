@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Modal, Switch, Input, Button } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
 import './settings.css';
+import { Link } from 'react-router-dom';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState(null); // null until loaded
@@ -227,7 +228,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
           </p>
         </div>
 
-        <p className='text-red-700 text-[16px] font-bold'>Logout</p>
+        <Link
+          to='/'
+          className='text-red-700 hover:text-red-800 focus:text-red-800 text-[16px] font-bold'
+        >
+          Logout
+        </Link>
 
         {/* 🔹 Added Save Button */}
         <div className='flex justify-end mt-4'>

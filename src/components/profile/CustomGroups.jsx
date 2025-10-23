@@ -88,7 +88,7 @@ export const CustomGroups = () => {
           marginTop: 22,
           boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
         }}
-        className='w-full lg:w-1/3 bg-white rounded-xl shadow-lg'
+        className='w-full lg:w-1/3 bg-white rounded-xl shadow-lg border-2 border-gray-200'
       >
         {/* ===== Header ===== */}
         <Row justify='space-between' align='middle' gutter={[16, 16]}>

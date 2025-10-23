@@ -9,8 +9,12 @@ import {
   ResponsiveContainer,
   Rectangle,
 } from 'recharts';
+import { Select } from 'antd';
+import { useState } from 'react';
 
 export const SessionChart = () => {
+  const [grade, setGrade] = useState('9th Grade');
+
   const chartData = [
     { day: 'Monday\n13-Oct', inSession: 120, notInSession: 30 },
     { day: 'Tuesday\n14-Oct', inSession: 125, notInSession: 30 },
@@ -28,11 +32,20 @@ export const SessionChart = () => {
         <h2 className='text-lg font-semibold text-gray-800'>
           Session - By Grade
         </h2>
-        <select className='border border-gray-300 rounded-md p-1 text-sm'>
-          <option>9th Grade</option>
-          <option>10th Grade</option>
-          <option>11th Grade</option>
-        </select>
+
+        <Select
+          value={grade}
+          onChange={setGrade}
+          size='small'
+          style={{
+            width: 140,
+          }}
+          options={[
+            { value: '9th Grade', label: '9th Grade' },
+            { value: '10th Grade', label: '10th Grade' },
+            { value: '11th Grade', label: '11th Grade' },
+          ]}
+        />
       </div>
 
       {/* Chart */}
@@ -40,7 +53,7 @@ export const SessionChart = () => {
         <BarChart
           data={chartData}
           margin={{ top: 10, right: 30, left: 0, bottom: 5 }}
-          barCategoryGap='25%' // controls gap between groups
+          barCategoryGap='25%'
         >
           <CartesianGrid strokeDasharray='3 3' vertical={false} />
           <XAxis dataKey='day' tick={{ fontSize: 12 }} />
@@ -53,16 +66,15 @@ export const SessionChart = () => {
               paddingTop: '10px',
               display: 'flex',
               justifyContent: 'center',
-              gap: '40px', // ✅ spacing between legend items
+              gap: '40px',
             }}
           />
 
-          {/* Two separate bars, not stacked */}
           <Bar
             dataKey='inSession'
             fill='#144fbe'
-            radius={[8, 8, 0, 0]} // rounded top corners
-            barSize={10} // thinner bar width
+            radius={[8, 8, 0, 0]}
+            barSize={10}
             name='Students in Session'
             activeBar={<Rectangle fill='#144fbe' stroke='#144fbe' />}
           />

@@ -172,6 +172,7 @@ export default function VisualOverview() {
               onChange={e => setSearch(e.target.value)}
               allowClear
               style={{ width: 180, borderRadius: 8 }}
+              className='hover:!border-[#00b894]'
             />
             {['Grade', 'Attendance', 'Arrival', 'Sessions'].map(label => (
               <Select
@@ -250,13 +251,13 @@ export default function VisualOverview() {
                     <div className='flex flex-col'>
                       <a
                         href={`mailto:${student.email}`}
-                        className='hover:underline text-sm md:text-base'
+                        className='text-inherit hover:text-[#00B894]'
                       >
                         {student.email}
                       </a>
                       <a
                         href={`tel:${student.contact.replace(/\D/g, '')}`}
-                        className='hover:underline text-sm md:text-base'
+                        className='text-inherit hover:text-[#00B894]'
                       >
                         {student.contact}
                       </a>

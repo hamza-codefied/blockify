@@ -19,7 +19,6 @@ import {
   UploadOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-// import '@/components/userManagement/user-management.css';
 import { MdPhone } from 'react-icons/md';
 import { FaEnvelope } from 'react-icons/fa';
 import { RiDeleteBinLine } from 'react-icons/ri';
@@ -34,15 +33,13 @@ export const UserManagement = () => {
   const [search, setSearch] = useState('');
   const [isMobileView, setIsMobileView] = useState(false);
 
-  // ✅ Detect screen width dynamically
   useEffect(() => {
     const handleResize = () => setIsMobileView(window.innerWidth < 1024);
-    handleResize(); // Run once on mount
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Dummy data
   const dummyStudents = Array.from({ length: 10 }).map((_, i) => ({
     id: i + 1,
     name: 'Andrews',
@@ -68,12 +65,10 @@ export const UserManagement = () => {
   }));
 
   const data = activeTab === 'students' ? dummyStudents : dummyManagers;
-
   const filteredData = data.filter(item =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // ✅ Table Columns
   const studentColumns = [
     {
       title: 'Name',
@@ -92,11 +87,21 @@ export const UserManagement = () => {
         <div>
           <div className='flex items-center gap-1'>
             <MdPhone className='text-[#00B894] w-4 h-4' />
-            {record.contact}
+            <a
+              href={`tel:${record.contact}`}
+              className='text-inherit hover:text-[#00B894]'
+            >
+              {record.contact}
+            </a>
           </div>
           <div className='flex items-center gap-1 text-gray-600'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
-            {record.email}
+            <a
+              href={`mailto:${record.email}`}
+              className='text-inherit hover:text-[#00B894]'
+            >
+              {record.email}
+            </a>
           </div>
         </div>
       ),
@@ -112,11 +117,21 @@ export const UserManagement = () => {
           <Text strong>{record.guardian}</Text>
           <div className='flex items-center gap-1'>
             <MdPhone className='text-[#00B894] w-4 h-4' />
-            {record.guardianContact}
+            <a
+              href={`tel:${record.guardianContact}`}
+              className='text-inherit hover:text-[#00B894]'
+            >
+              {record.guardianContact}
+            </a>
           </div>
           <div className='flex items-center gap-1 text-gray-600'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
-            {record.guardianEmail}
+            <a
+              href={`mailto:${record.guardianEmail}`}
+              className='text-inherit hover:text-[#00B894]'
+            >
+              {record.guardianEmail}
+            </a>
           </div>
         </div>
       ),
@@ -157,11 +172,16 @@ export const UserManagement = () => {
         <div>
           <div className='flex items-center gap-1'>
             <MdPhone className='text-[#00B894] w-4 h-4' />
-            {record.contact}
+            <a href={`tel:${record.contact}`}>{record.contact}</a>
           </div>
           <div className='flex items-center gap-1 text-gray-600'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
-            {record.email}
+            <a
+              href={`mailto:${record.email}`}
+              className='text-inherit hover:text-[#00B894]'
+            >
+              {record.email}
+            </a>
           </div>
         </div>
       ),
@@ -198,7 +218,6 @@ export const UserManagement = () => {
         boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
       }}
     >
-      {/* ===== Header ===== */}
       <Row justify='space-between' align='middle' className='mb-4'>
         <Col>
           <Title level={5} style={{ marginBottom: 0 }}>
@@ -207,16 +226,16 @@ export const UserManagement = () => {
         </Col>
       </Row>
 
-      {/* ===== Tabs ===== */}
+      {/* Tabs */}
       <div className='flex justify-center mb-6'>
         <div className='flex flex-col md:flex-row items-center justify-center gap-5 md:gap-20'>
           <Button
             type={activeTab === 'students' ? 'primary' : 'text'}
             icon={<PiStudentFill className='w-5 h-5' />}
             onClick={() => setActiveTab('students')}
-            className={`rounded-md ${
+            className={`rounded-lg ${
               activeTab === 'students'
-                ? 'bg-[#00B894] text-white'
+                ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
                 : 'bg-[#f2f3f4] text-gray-700'
             }`}
           >
@@ -226,9 +245,9 @@ export const UserManagement = () => {
             type={activeTab === 'managers' ? 'primary' : 'text'}
             icon={<TeamOutlined />}
             onClick={() => setActiveTab('managers')}
-            className={`rounded-md ${
+            className={`rounded-lg  ${
               activeTab === 'managers'
-                ? 'bg-[#00B894] text-white'
+                ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
                 : 'bg-[#f2f3f4] text-gray-700'
             }`}
           >
@@ -237,7 +256,7 @@ export const UserManagement = () => {
         </div>
       </div>
 
-      {/* ===== Filters & Actions ===== */}
+      {/* Filters & Actions */}
       <Row
         gutter={[16, 16]}
         align='middle'
@@ -251,6 +270,7 @@ export const UserManagement = () => {
               prefix={<SearchOutlined />}
               value={search}
               onChange={e => setSearch(e.target.value)}
+              className='hover:!border-[#00b894]'
             />
             {activeTab === 'students' && (
               <Select defaultValue='Grade' className='w-40'>
@@ -268,18 +288,23 @@ export const UserManagement = () => {
           lg={8}
           className='flex justify-center md:justify-end flex-wrap gap-2'
         >
-          <Button icon={<PlusOutlined />} className='rounded-lg'>
+          <Button
+            className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
+            icon={<PlusOutlined />}
+          >
             Manually Add
           </Button>
-          <Button icon={<UploadOutlined />} className='rounded-lg'>
+          <Button
+            icon={<UploadOutlined />}
+            className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
+          >
             Import CSV
           </Button>
         </Col>
       </Row>
 
-      {/* ===== Responsive Data View ===== */}
+      {/* Responsive View */}
       {isMobileView ? (
-        // ✅ Mobile View: Table (with headers)
         <Table
           columns={activeTab === 'students' ? studentColumns : managerColumns}
           dataSource={filteredData}
@@ -288,9 +313,8 @@ export const UserManagement = () => {
           scroll={{ x: true }}
         />
       ) : (
-        // 💻 Desktop View: List (with custom headings added)
         <>
-          {/* ✅ Table-like Headings */}
+          {/* Headings */}
           <div
             className='grid items-center text-sm font-semibold text-gray-700 mb-2 px-4 py-3 border-2 border-gray-100 box-border rounded-lg shadow-sm'
             style={{
@@ -320,7 +344,7 @@ export const UserManagement = () => {
             )}
           </div>
 
-          {/* ✅ Original List Data */}
+          {/* List */}
           <List
             itemLayout='horizontal'
             dataSource={filteredData}
@@ -348,11 +372,21 @@ export const UserManagement = () => {
                     <div className='flex flex-col'>
                       <div className='flex items-center gap-1'>
                         <MdPhone className='text-[#00B894] w-4 h-4' />
-                        {item.contact}
+                        <a
+                          href={`tel:${item.contact}`}
+                          className='text-inherit hover:text-[#00B894]'
+                        >
+                          {item.contact}
+                        </a>
                       </div>
                       <div className='flex items-center gap-1 text-gray-600'>
                         <FaEnvelope className='text-[#00B894] w-4 h-4' />
-                        {item.email}
+                        <a
+                          href={`mailto:${item.email}`}
+                          className='text-inherit hover:text-[#00B894]'
+                        >
+                          {item.email}
+                        </a>
                       </div>
                     </div>
                   </Col>
@@ -365,11 +399,21 @@ export const UserManagement = () => {
                         <div className='flex flex-col'>
                           <div className='flex items-center gap-1'>
                             <MdPhone className='text-[#00B894] w-4 h-4' />
-                            {item.guardianContact}
+                            <a
+                              href={`tel:${item.guardianContact}`}
+                              className='text-inherit hover:text-[#00B894]'
+                            >
+                              {item.guardianContact}
+                            </a>
                           </div>
                           <div className='flex items-center gap-1 text-gray-600'>
                             <FaEnvelope className='text-[#00B894] w-4 h-4' />
-                            {item.guardianEmail}
+                            <a
+                              href={`mailto:${item.guardianEmail}`}
+                              className='text-inherit hover:text-[#00B894]'
+                            >
+                              {item.guardianEmail}
+                            </a>
                           </div>
                         </div>
                       </Col>

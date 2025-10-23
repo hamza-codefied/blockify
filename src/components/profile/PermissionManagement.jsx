@@ -17,7 +17,7 @@ export const PermissionManagement = () => {
 
   return (
     <>
-      <Card className='permission-management-card border-2 w-full shadow-lg lg:w-2/3 h-full flex flex-col'>
+      <Card className='permission-management-card border-2 border-gray-200 w-full shadow-lg lg:w-2/3 h-full flex flex-col'>
         <Row justify='space-between' align='middle' gutter={[16, 16]}>
           <Col xs={24} md={12}>
             <Title level={5} style={{ marginBottom: 0 }}>

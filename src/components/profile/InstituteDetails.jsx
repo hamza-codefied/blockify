@@ -29,7 +29,7 @@ export const InstituteDetails = () => {
   };
 
   return (
-    <div className='w-full lg:w-1/3 bg-white rounded-xl shadow-lg p-6 flex flex-col items-center lg:items-start border-2'>
+    <div className='w-full lg:w-1/3 bg-white rounded-xl shadow-sm p-6 flex flex-col items-center lg:items-start border-2 border-gray-200'>
       {/* Image Section */}
       <div className='flex flex-col items-center w-full'>
         <div className='relative flex items-center justify-center w-24 h-24'>

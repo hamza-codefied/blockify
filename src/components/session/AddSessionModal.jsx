@@ -84,7 +84,7 @@ export const AddSessionModal = ({ open, onClose }) => {
 
         {/* ===== Select Days (Mon–Fri) ===== */}
         <Text strong>Select Days</Text>
-        <div className='flex flex-wrap gap-3 mt-2 mb-4 w-full justify-between'>
+        <div className='flex flex-wrap mt-2 mb-4 w-full justify-between'>
           {daysList.map(day => {
             const selected = selectedDays.includes(day);
             return (
@@ -105,7 +105,7 @@ export const AddSessionModal = ({ open, onClose }) => {
 
         {/* ===== Time Selection for Each Selected Day ===== */}
         {selectedDays.map(day => (
-          <Row key={day} gutter={16} className='mb-3'>
+          <Row key={day} gutter={16} className='mb-3 w-full'>
             <Col span={24}>
               <Text strong>{day}</Text>
             </Col>

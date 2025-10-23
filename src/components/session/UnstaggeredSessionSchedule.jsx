@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { TbEdit } from 'react-icons/tb';
 import '@/components/session/early-session-requests.css';
+import { Select } from 'antd';
 
 const UnstaggeredSessionSchedule = () => {
+  const [grade, setGrade] = useState('9th Grade');
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const [activeDay, setActiveDay] = useState('Monday');
   const [sessions, setSessions] = useState({
@@ -69,12 +71,19 @@ const UnstaggeredSessionSchedule = () => {
         <h2 className='text-lg sm:text-xl font-semibold text-gray-800'>
           Manage Session Schedules
         </h2>
-        <select className='border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none'>
-          <option>9th Grade</option>
-          <option>10th Grade</option>
-          <option>11th Grade</option>
-          <option>12th Grade</option>
-        </select>
+        <Select
+          value={grade}
+          onChange={setGrade}
+          size='small'
+          style={{
+            width: 140,
+          }}
+          options={[
+            { value: '9th Grade', label: '9th Grade' },
+            { value: '10th Grade', label: '10th Grade' },
+            { value: '11th Grade', label: '11th Grade' },
+          ]}
+        />
       </div>
 
       <div className='flex items-center justify-end gap-4 mb-10'>

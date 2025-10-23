@@ -5,8 +5,10 @@ import { TbEdit } from 'react-icons/tb';
 import { HiMiniSignal } from 'react-icons/hi2';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
+import { Select } from 'antd';
 
 export const ManageSessionSchedules = () => {
+  const [grade, setGrade] = useState('9th Grade');
   const schedulesData = [
     { day: 'Monday', start: '08:00 am', end: '02:00 pm', active: true },
     { day: 'Tuesday', start: '08:00 am', end: '02:00 pm', active: false },
@@ -41,11 +43,19 @@ export const ManageSessionSchedules = () => {
         <h2 className='text-lg font-semibold max-sm:text-base'>
           Manage Session Schedules
         </h2>
-        <select className='border border-gray-300 rounded-md p-1 max-sm:w-full max-sm:text-sm'>
-          <option>9th Grade</option>
-          <option>10th Grade</option>
-          <option>11th Grade</option>
-        </select>
+        <Select
+          value={grade}
+          onChange={setGrade}
+          size='small'
+          style={{
+            width: 140,
+          }}
+          options={[
+            { value: '9th Grade', label: '9th Grade' },
+            { value: '10th Grade', label: '10th Grade' },
+            { value: '11th Grade', label: '11th Grade' },
+          ]}
+        />
       </div>
 
       {/* Schedules */}

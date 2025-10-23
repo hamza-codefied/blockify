@@ -171,7 +171,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
 
         {/* ===== Time Selection for Each Selected Day ===== */}
         {selectedDays.map(day => (
-          <Row key={day} gutter={16} className='mb-3'>
+          <Row key={day} gutter={16} className='mb-3 w-full'>
             <Col span={24}>
               <Text strong>{day}</Text>
             </Col>

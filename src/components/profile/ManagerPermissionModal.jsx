@@ -89,7 +89,7 @@ export const ManagerPermissionModal = ({ open, onClose }) => {
       <div className='flex justify-center mt-6'>
         <Button
           type='primary'
-          className='bg-[#00B894] hover:bg-[#019a7d] text-white font-semibold px-10 py-2 rounded-md transition'
+          className='bg-[#00B894] hover:!bg-[#019a7d] text-white font-semibold px-10 py-2 rounded-md transition'
           onClick={onClose}
         >
           Save

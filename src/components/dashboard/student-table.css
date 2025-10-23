@@ -15,10 +15,10 @@
 }
 
 /* Keep layout stable */
-.student-table-header,
+/* .student-table-header,
 .ant-list-item {
   min-width: 850px;
-}
+} */
 
 /* ===== Filters and Controls ===== */
 @media (max-width: 768px) {
@@ -82,10 +82,10 @@
   }
 
   /* Maintain scrollable layout */
-  .student-table-header,
+  /* .student-table-header,
   .ant-list-item {
     min-width: 800px !important;
-  }
+  } */
 
   /* Reduce padding + text slightly */
   .ant-list-item {
@@ -114,10 +114,10 @@
     padding: 8px 10px !important;
   }
 
-  .student-table-header,
+  /* .student-table-header,
   .ant-list-item {
     min-width: 800px !important;
-  }
+  } */
 
   .ant-avatar {
     width: 30px !important;

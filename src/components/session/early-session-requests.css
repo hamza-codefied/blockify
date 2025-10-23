@@ -15,10 +15,10 @@
 }
 
 /* Keep layout stable */
-.early-session-header,
+/* .early-session-header,
 .ant-list-item {
   min-width: 700px;
-}
+} */
 
 /* ===== Table Column Width Control ===== */
 .early-session-header .ant-col:nth-child(1),
@@ -65,10 +65,10 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  .early-session-header,
+  /* .early-session-header,
   .ant-list-item {
     min-width: 650px !important;
-  }
+  } */
 
   .ant-typography,
   .ant-tag {
@@ -81,10 +81,10 @@
     padding: 8px !important;
   }
 
-  .early-session-header,
+  /* .early-session-header,
   .ant-list-item {
     min-width: 600px !important;
-  }
+  } */
 
   .ant-avatar {
     width: 34px !important;
@@ -98,10 +98,10 @@
 }
 
 @media (max-width: 360px) {
-  .early-session-header,
+  /* .early-session-header,
   .ant-list-item {
     min-width: 550px !important;
-  }
+  } */
 
   .ant-avatar {
     width: 30px !important;

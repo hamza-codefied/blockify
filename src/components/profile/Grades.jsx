@@ -40,7 +40,7 @@ export const Grades = () => {
           marginTop: 24,
           boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
         }}
-        className='border-2 w-full shadow-lg lg:w-2/3'
+        className='border-2 border-gray-200 w-full shadow-lg lg:w-2/3'
       >
         {/* ===== Header ===== */}
         <Row justify='space-between' align='middle' gutter={[16, 16]}>

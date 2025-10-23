@@ -187,6 +187,7 @@ export default function StudentTable() {
               prefix={<SearchOutlined />}
               allowClear
               style={{ width: 180, borderRadius: 8 }}
+              className='hover:!border-[#00b894]'
             />
             {['Grade', 'Attendance', 'Arrival', 'Sessions'].map(label => (
               <Select key={label} defaultValue={label} style={{ width: 130 }}>
@@ -264,13 +265,13 @@ export default function StudentTable() {
                     <div className='flex flex-col'>
                       <a
                         href={`mailto:${student.email}`}
-                        className='hover:underline'
+                        className='text-inherit hover:text-[#00B894]'
                       >
                         {student.email}
                       </a>
                       <a
                         href={`tel:${student.contact.replace(/\D/g, '')}`}
-                        className='hover:underline'
+                        className='text-inherit hover:text-[#00B894]'
                       >
                         {student.contact}
                       </a>
