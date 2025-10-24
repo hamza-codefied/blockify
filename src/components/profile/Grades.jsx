@@ -4,6 +4,7 @@ import { Card, List, Row, Col, Typography, Button } from 'antd';
 import { TbEdit } from 'react-icons/tb';
 import './grades.css';
 import { GradeModal } from './GradeModal';
+import { RiDeleteBinLine } from 'react-icons/ri';
 
 const { Title, Text } = Typography;
 
@@ -110,13 +111,14 @@ export const Grades = () => {
                   <Col flex='1'>
                     <Text>{grade.sessions}</Text>
                   </Col>
-                  <Col flex='1' className='w-[100%] flex justify-end'>
+                  <Col flex='1' className='w-[100%] flex justify-end gap-2'>
                     <TbEdit
                       size={20}
                       color='#00B894'
                       className='cursor-pointer'
                       onClick={() => handleEditClick(grade)}
                     />
+                    <RiDeleteBinLine className='w-5 h-5 cursor-pointer text-[#801818]' />
                   </Col>
                 </Row>
               </List.Item>

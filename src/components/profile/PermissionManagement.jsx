@@ -11,7 +11,7 @@ export const PermissionManagement = () => {
   const [openModal, setOpenModal] = useState(false);
 
   const roles = [
-    { id: 1, name: 'Student', permissions: '20 Permissions' },
+    // { id: 1, name: 'Student', permissions: '20 Permissions' },
     { id: 2, name: 'Manager', permissions: '40 Permissions' },
   ];
 
@@ -35,7 +35,7 @@ export const PermissionManagement = () => {
             </Col>
           </Row>
 
-          <div className='flex-1 overflow-y-auto'>
+          <div className='flex-1 mt-24 overflow-y-auto'>
             <List
               itemLayout='horizontal'
               dataSource={roles}

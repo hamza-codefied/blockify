@@ -33,6 +33,7 @@ export const GradeModal = ({ open, onClose, mode, gradeData }) => {
       centered
     >
       <Form form={form} layout='vertical'>
+        {/* ===== Grade Name ===== */}
         <Form.Item
           label='Grade'
           name='grade'
@@ -41,16 +42,34 @@ export const GradeModal = ({ open, onClose, mode, gradeData }) => {
           <Input placeholder='Enter grade name' />
         </Form.Item>
 
+        {/* ===== Number of Students ===== */}
         <Form.Item
           label='Number of Students'
           name='students'
           rules={[
             { required: true, message: 'Please enter number of students' },
+            {
+              validator: (_, value) => {
+                if (value === undefined || value === '')
+                  return Promise.resolve();
+                if (Number(value) <= 0)
+                  return Promise.reject(
+                    new Error('Number of students must be greater than 0')
+                  );
+                return Promise.resolve();
+              },
+            },
           ]}
         >
-          <Input type='number' placeholder='Enter number of students' />
+          <Input
+            type='number'
+            placeholder='Enter number of students'
+            min={1} // ✅ prevents negative numbers using HTML input control
+            onWheel={e => e.target.blur()} // optional: disables scroll changing value
+          />
         </Form.Item>
 
+        {/* ===== Submit Button ===== */}
         <Form.Item className='text-center mt-4'>
           <Button
             type='primary'

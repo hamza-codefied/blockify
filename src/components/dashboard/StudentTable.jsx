@@ -328,7 +328,7 @@ export default function StudentTable() {
       )}
 
       {/* ===== Footer ===== */}
-      {!isMobileView && (
+      {/* {!isMobileView && (
         <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
           <Col>
             <Text type='secondary' style={{ fontSize: 12 }}>
@@ -345,7 +345,7 @@ export default function StudentTable() {
             />
           </Col>
         </Row>
-      )}
+      )} */}
     </Card>
   );
 }

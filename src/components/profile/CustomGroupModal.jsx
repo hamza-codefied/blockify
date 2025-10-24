@@ -43,6 +43,54 @@ const dummyStudents = [
     grade: '12th Grade',
     avatar: 'https://i.pravatar.cc/150?img=4',
   },
+  {
+    id: 1,
+    name: 'Aiden Andrews',
+    grade: '9th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+  },
+  {
+    id: 2,
+    name: 'Sophia Johnson',
+    grade: '10th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=2',
+  },
+  {
+    id: 3,
+    name: 'Michael Brown',
+    grade: '11th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=3',
+  },
+  {
+    id: 4,
+    name: 'Emily Davis',
+    grade: '12th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=4',
+  },
+  {
+    id: 1,
+    name: 'Aiden Andrews',
+    grade: '9th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+  },
+  {
+    id: 2,
+    name: 'Sophia Johnson',
+    grade: '10th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=2',
+  },
+  {
+    id: 3,
+    name: 'Michael Brown',
+    grade: '11th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=3',
+  },
+  {
+    id: 4,
+    name: 'Emily Davis',
+    grade: '12th Grade',
+    avatar: 'https://i.pravatar.cc/150?img=4',
+  },
 ];
 
 const daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -116,17 +164,18 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
             mode='multiple'
             placeholder='Select students'
             showSearch
-            optionFilterProp='value' // 👈 filter based on value
+            optionFilterProp='value'
             disabled={isViewMode}
             filterOption={(input, option) =>
               option?.value?.toLowerCase().includes(input.toLowerCase())
             }
+            getPopupContainer={trigger => trigger.parentNode} // ✅ keeps dropdown inside modal
           >
             {dummyStudents.map(student => (
               <Option
                 key={student.id}
-                value={student.name} // 👈 searchable value
-                label={student.name} // 👈 optional but helpful
+                value={student.name}
+                label={student.name}
               >
                 <div className='flex items-center justify-between gap-2'>
                   <div className='flex items-center justify-start gap-3'>

@@ -24,6 +24,9 @@ import { FaEnvelope } from 'react-icons/fa';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { TbEdit } from 'react-icons/tb';
 import { PiStudentFill } from 'react-icons/pi';
+import { AddUserModal } from '@/components/userManagement/AddUserModal';
+import { EditUserModal } from '@/components/userManagement/EditUserModal';
+import { DeleteConfirmModal } from '@/components/userManagement/DeleteConfirmModal';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -32,6 +35,10 @@ export const UserManagement = () => {
   const [activeTab, setActiveTab] = useState('students');
   const [search, setSearch] = useState('');
   const [isMobileView, setIsMobileView] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobileView(window.innerWidth < 1024);
@@ -68,6 +75,16 @@ export const UserManagement = () => {
   const filteredData = data.filter(item =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleEditClick = user => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = user => {
+    setSelectedUser(user);
+    setIsDeleteModalOpen(true);
+  };
 
   const studentColumns = [
     {
@@ -146,10 +163,16 @@ export const UserManagement = () => {
     },
     {
       title: 'Action',
-      render: () => (
-        <div className='flex space-x-3'>
-          <RiDeleteBinLine className='w-5 h-5 cursor-pointer text-[#801818]' />
-          <TbEdit className='w-5 h-5 cursor-pointer text-[#00B894]' />
+      render: (_, record) => (
+        <div className='flex space-x-4'>
+          <RiDeleteBinLine
+            className='w-5 h-5 cursor-pointer text-[#801818]'
+            onClick={() => handleDeleteClick(record)}
+          />
+          <TbEdit
+            className='w-5 h-5 cursor-pointer text-[#00B894]'
+            onClick={() => handleEditClick(record)}
+          />
         </div>
       ),
     },
@@ -200,251 +223,295 @@ export const UserManagement = () => {
     },
     {
       title: 'Action',
-      render: () => (
-        <div className='flex space-x-3'>
-          <RiDeleteBinLine className='w-5 h-5 cursor-pointer text-[#801818]' />
-          <TbEdit className='w-5 h-5 cursor-pointer text-[#00B894]' />
+      render: (_, record) => (
+        <div className='flex space-x-4'>
+          <RiDeleteBinLine
+            className='w-5 h-5 cursor-pointer text-[#801818]'
+            onClick={() => handleDeleteClick(record)}
+          />
+          <TbEdit
+            className='w-5 h-5 cursor-pointer text-[#00B894]'
+            onClick={() => handleEditClick(record)}
+          />
         </div>
       ),
     },
   ];
 
   return (
-    <Card
-      variant='outlined'
-      style={{
-        borderRadius: 12,
-        marginTop: 24,
-        boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-      }}
-    >
-      <Row justify='space-between' align='middle' className='mb-4'>
-        <Col>
-          <Title level={5} style={{ marginBottom: 0 }}>
-            User Management
-          </Title>
-        </Col>
-      </Row>
-
-      {/* Tabs */}
-      <div className='flex justify-center mb-6'>
-        <div className='flex flex-col md:flex-row items-center justify-center gap-5 md:gap-20'>
-          <Button
-            type={activeTab === 'students' ? 'primary' : 'text'}
-            icon={<PiStudentFill className='w-5 h-5' />}
-            onClick={() => setActiveTab('students')}
-            className={`rounded-lg ${
-              activeTab === 'students'
-                ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                : 'bg-[#f2f3f4] text-gray-700'
-            }`}
-          >
-            Students
-          </Button>
-          <Button
-            type={activeTab === 'managers' ? 'primary' : 'text'}
-            icon={<TeamOutlined />}
-            onClick={() => setActiveTab('managers')}
-            className={`rounded-lg  ${
-              activeTab === 'managers'
-                ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                : 'bg-[#f2f3f4] text-gray-700'
-            }`}
-          >
-            Managers
-          </Button>
-        </div>
-      </div>
-
-      {/* Filters & Actions */}
-      <Row
-        gutter={[16, 16]}
-        align='middle'
-        justify='space-between'
-        className='mb-4'
+    <>
+      <Card
+        variant='outlined'
+        style={{
+          borderRadius: 12,
+          marginTop: 24,
+          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+        }}
       >
-        <Col xs={24} md={12} lg={12}>
-          <div className='flex flex-col md:flex-row items-center gap-3'>
-            <Input
-              placeholder='Search'
-              prefix={<SearchOutlined />}
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className='hover:!border-[#00b894]'
-            />
-            {activeTab === 'students' && (
-              <Select defaultValue='Grade' className='w-40'>
-                <Option value='all'>All Grades</Option>
-                <Option value='9'>9th Grade</Option>
-                <Option value='10'>10th Grade</Option>
-              </Select>
-            )}
-          </div>
-        </Col>
+        <Row justify='space-between' align='middle' className='mb-4'>
+          <Col>
+            <Title level={5} style={{ marginBottom: 0 }}>
+              User Management
+            </Title>
+          </Col>
+        </Row>
 
-        <Col
-          xs={24}
-          md={12}
-          lg={8}
-          className='flex justify-center md:justify-end flex-wrap gap-2'
-        >
-          <Button
-            className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
-            icon={<PlusOutlined />}
-          >
-            Manually Add
-          </Button>
-          <Button
-            icon={<UploadOutlined />}
-            className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
-          >
-            Import CSV
-          </Button>
-        </Col>
-      </Row>
-
-      {/* Responsive View */}
-      {isMobileView ? (
-        <Table
-          columns={activeTab === 'students' ? studentColumns : managerColumns}
-          dataSource={filteredData}
-          pagination={{ pageSize: 5 }}
-          rowKey='id'
-          scroll={{ x: true }}
-        />
-      ) : (
-        <>
-          {/* Headings */}
-          <div
-            className='grid items-center text-sm font-semibold text-gray-700 mb-2 px-4 py-3 border-2 border-gray-100 box-border rounded-lg shadow-sm'
-            style={{
-              gridTemplateColumns:
+        {/* Tabs */}
+        <div className='flex justify-center mb-6'>
+          <div className='flex flex-col md:flex-row items-center justify-center gap-5 md:gap-20'>
+            <Button
+              type={activeTab === 'students' ? 'primary' : 'text'}
+              icon={<PiStudentFill className='w-5 h-5' />}
+              onClick={() => setActiveTab('students')}
+              className={`rounded-lg ${
                 activeTab === 'students'
-                  ? '2fr 2fr 1fr 2fr 2fr 1fr 1fr'
-                  : '2fr 2fr 1fr 2fr 1fr 1fr',
-            }}
-          >
-            <div>Name</div>
-            <div>Contact</div>
-            {activeTab === 'students' ? (
-              <>
-                <div>Grade</div>
-                <div>Guardian</div>
-                <div>Address</div>
-                <div>Zip</div>
-                <div>Action</div>
-              </>
-            ) : (
-              <>
-                <div>Role</div>
-                <div>Address</div>
-                <div>Zip</div>
-                <div>Action</div>
-              </>
-            )}
+                  ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                  : 'bg-[#f2f3f4] text-gray-700'
+              }`}
+            >
+              Students
+            </Button>
+            <Button
+              type={activeTab === 'managers' ? 'primary' : 'text'}
+              icon={<TeamOutlined />}
+              onClick={() => setActiveTab('managers')}
+              className={`rounded-lg  ${
+                activeTab === 'managers'
+                  ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                  : 'bg-[#f2f3f4] text-gray-700'
+              }`}
+            >
+              Managers
+            </Button>
           </div>
+        </div>
 
-          {/* List */}
-          <List
-            itemLayout='horizontal'
+        {/* Filters & Actions */}
+        <Row
+          gutter={[16, 16]}
+          align='middle'
+          justify='space-between'
+          className='mb-4'
+        >
+          <Col xs={24} md={12} lg={12}>
+            <div className='flex flex-col md:flex-row items-center gap-3'>
+              <Input
+                placeholder='Search'
+                prefix={<SearchOutlined />}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className='hover:!border-[#00b894]'
+              />
+              {activeTab === 'students' && (
+                <Select defaultValue='Grade' className='w-40'>
+                  <Option value='all'>All Grades</Option>
+                  <Option value='9'>9th Grade</Option>
+                  <Option value='10'>10th Grade</Option>
+                </Select>
+              )}
+            </div>
+          </Col>
+
+          <Col
+            xs={24}
+            md={12}
+            lg={8}
+            className='flex justify-center md:justify-end flex-wrap gap-2'
+          >
+            <Button
+              className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
+              icon={<PlusOutlined />}
+              onClick={() => setIsModalOpen(true)}
+            >
+              Manually Add
+            </Button>
+            <Button
+              icon={<UploadOutlined />}
+              className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
+            >
+              Import CSV
+            </Button>
+          </Col>
+        </Row>
+
+        {/* Responsive View */}
+        {isMobileView ? (
+          <Table
+            columns={activeTab === 'students' ? studentColumns : managerColumns}
             dataSource={filteredData}
-            renderItem={item => (
-              <List.Item
-                style={{
-                  background: '#fff',
-                  borderRadius: 12,
-                  marginBottom: 8,
-                  padding: '12px 16px',
-                  boxShadow: '0 0 8px rgba(0,0,0,0.05)',
-                  border: '2px solid rgba(0,0,0,0.05)',
-                  width: '100%',
-                }}
-              >
-                <Row align='middle' style={{ width: '100%' }}>
-                  <Col flex='2'>
-                    <Space>
-                      <Avatar src='https://i.pravatar.cc/50?img=10' size={40} />
-                      <Text>{item.name}</Text>
-                    </Space>
-                  </Col>
-
-                  <Col flex='2'>
-                    <div className='flex flex-col'>
-                      <div className='flex items-center gap-1'>
-                        <MdPhone className='text-[#00B894] w-4 h-4' />
-                        <a
-                          href={`tel:${item.contact}`}
-                          className='text-inherit hover:text-[#00B894]'
-                        >
-                          {item.contact}
-                        </a>
-                      </div>
-                      <div className='flex items-center gap-1 text-gray-600'>
-                        <FaEnvelope className='text-[#00B894] w-4 h-4' />
-                        <a
-                          href={`mailto:${item.email}`}
-                          className='text-inherit hover:text-[#00B894]'
-                        >
-                          {item.email}
-                        </a>
-                      </div>
-                    </div>
-                  </Col>
-
-                  {activeTab === 'students' ? (
-                    <>
-                      <Col flex='1'>{item.grade}</Col>
-                      <Col flex='2'>
-                        <Text strong>{item.guardian}</Text>
-                        <div className='flex flex-col'>
-                          <div className='flex items-center gap-1'>
-                            <MdPhone className='text-[#00B894] w-4 h-4' />
-                            <a
-                              href={`tel:${item.guardianContact}`}
-                              className='text-inherit hover:text-[#00B894]'
-                            >
-                              {item.guardianContact}
-                            </a>
-                          </div>
-                          <div className='flex items-center gap-1 text-gray-600'>
-                            <FaEnvelope className='text-[#00B894] w-4 h-4' />
-                            <a
-                              href={`mailto:${item.guardianEmail}`}
-                              className='text-inherit hover:text-[#00B894]'
-                            >
-                              {item.guardianEmail}
-                            </a>
-                          </div>
-                        </div>
-                      </Col>
-                      <Col flex='2'>{item.address}</Col>
-                      <Col flex='1'>{item.zip}</Col>
-                      <Col flex='1'>
-                        <div className='flex space-x-4'>
-                          <RiDeleteBinLine className='w-5 h-5 cursor-pointer text-[#801818]' />
-                          <TbEdit className='w-5 h-5 cursor-pointer text-[#00B894]' />
-                        </div>
-                      </Col>
-                    </>
-                  ) : (
-                    <>
-                      <Col flex='1'>{item.role}</Col>
-                      <Col flex='2'>{item.address}</Col>
-                      <Col flex='1'>{item.zip}</Col>
-                      <Col flex='1'>
-                        <div className='flex space-x-4'>
-                          <RiDeleteBinLine className='w-5 h-5 cursor-pointer text-[#801818]' />
-                          <TbEdit className='w-5 h-5 cursor-pointer text-[#00B894]' />
-                        </div>
-                      </Col>
-                    </>
-                  )}
-                </Row>
-              </List.Item>
-            )}
+            pagination={{ pageSize: 5 }}
+            rowKey='id'
+            scroll={{ x: true }}
           />
-        </>
-      )}
-    </Card>
+        ) : (
+          <>
+            {/* Headings */}
+            <div
+              className='grid items-center text-sm font-semibold text-gray-700 mb-2 px-4 py-3 border-2 border-gray-100 box-border rounded-lg shadow-sm'
+              style={{
+                gridTemplateColumns:
+                  activeTab === 'students'
+                    ? '2fr 2fr 1fr 2fr 2fr 1fr 1fr'
+                    : '2fr 2fr 1fr 2fr 1fr 1fr',
+              }}
+            >
+              <div>Name</div>
+              <div>Contact</div>
+              {activeTab === 'students' ? (
+                <>
+                  <div>Grade</div>
+                  <div>Guardian</div>
+                  <div>Address</div>
+                  <div>Zip</div>
+                  <div>Action</div>
+                </>
+              ) : (
+                <>
+                  <div>Role</div>
+                  <div>Address</div>
+                  <div>Zip</div>
+                  <div>Action</div>
+                </>
+              )}
+            </div>
+
+            {/* List */}
+            <List
+              itemLayout='horizontal'
+              dataSource={filteredData}
+              renderItem={item => (
+                <List.Item
+                  style={{
+                    background: '#fff',
+                    borderRadius: 12,
+                    marginBottom: 8,
+                    padding: '12px 16px',
+                    boxShadow: '0 0 8px rgba(0,0,0,0.05)',
+                    border: '2px solid rgba(0,0,0,0.05)',
+                    width: '100%',
+                  }}
+                >
+                  <Row align='middle' style={{ width: '100%' }}>
+                    <Col flex='2'>
+                      <Space>
+                        <Avatar
+                          src='https://i.pravatar.cc/50?img=10'
+                          size={40}
+                        />
+                        <Text>{item.name}</Text>
+                      </Space>
+                    </Col>
+
+                    <Col flex='2'>
+                      <div className='flex flex-col'>
+                        <div className='flex items-center gap-1'>
+                          <MdPhone className='text-[#00B894] w-4 h-4' />
+                          <a
+                            href={`tel:${item.contact}`}
+                            className='text-inherit hover:text-[#00B894]'
+                          >
+                            {item.contact}
+                          </a>
+                        </div>
+                        <div className='flex items-center gap-1 text-gray-600'>
+                          <FaEnvelope className='text-[#00B894] w-4 h-4' />
+                          <a
+                            href={`mailto:${item.email}`}
+                            className='text-inherit hover:text-[#00B894]'
+                          >
+                            {item.email}
+                          </a>
+                        </div>
+                      </div>
+                    </Col>
+
+                    {activeTab === 'students' ? (
+                      <>
+                        <Col flex='1'>{item.grade}</Col>
+                        <Col flex='2'>
+                          <Text strong>{item.guardian}</Text>
+                          <div className='flex flex-col'>
+                            <div className='flex items-center gap-1'>
+                              <MdPhone className='text-[#00B894] w-4 h-4' />
+                              <a
+                                href={`tel:${item.guardianContact}`}
+                                className='text-inherit hover:text-[#00B894]'
+                              >
+                                {item.guardianContact}
+                              </a>
+                            </div>
+                            <div className='flex items-center gap-1 text-gray-600'>
+                              <FaEnvelope className='text-[#00B894] w-4 h-4' />
+                              <a
+                                href={`mailto:${item.guardianEmail}`}
+                                className='text-inherit hover:text-[#00B894]'
+                              >
+                                {item.guardianEmail}
+                              </a>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col flex='2'>{item.address}</Col>
+                        <Col flex='1'>{item.zip}</Col>
+                        <Col flex='1'>
+                          <div className='flex space-x-4'>
+                            <Col flex='1'>
+                              <div className='flex space-x-4 justify-center'>
+                                <RiDeleteBinLine
+                                  className='w-5 h-5 cursor-pointer text-[#801818]'
+                                  onClick={() => handleDeleteClick(item)}
+                                />
+                                <TbEdit
+                                  className='w-5 h-5 cursor-pointer text-[#00B894]'
+                                  onClick={() => handleEditClick(item)}
+                                />
+                              </div>
+                            </Col>
+                          </div>
+                        </Col>
+                      </>
+                    ) : (
+                      <>
+                        <Col flex='1'>{item.role}</Col>
+                        <Col flex='2'>{item.address}</Col>
+                        <Col flex='1'>{item.zip}</Col>
+                        <Col flex='1'>
+                          <div className='flex space-x-4'>
+                            <RiDeleteBinLine
+                              className='w-5 h-5 cursor-pointer text-[#801818]'
+                              onClick={() => handleDeleteClick(item)}
+                            />
+                            <TbEdit
+                              className='w-5 h-5 cursor-pointer text-[#00B894]'
+                              onClick={() => handleEditClick(item)}
+                            />
+                          </div>
+                        </Col>
+                      </>
+                    )}
+                  </Row>
+                </List.Item>
+              )}
+            />
+          </>
+        )}
+      </Card>
+
+      <AddUserModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        activeTab={activeTab}
+      />
+      <EditUserModal
+        open={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        user={selectedUser}
+      />
+      <DeleteConfirmModal
+        open={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        user={selectedUser}
+      />
+    </>
   );
 };

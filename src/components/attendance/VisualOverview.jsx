@@ -300,7 +300,7 @@ export default function VisualOverview() {
       )}
 
       {/* ===== Pagination for Desktop ===== */}
-      {!isMobileView && (
+      {/* {!isMobileView && (
         <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
           <Col>
             <Text type='secondary' style={{ fontSize: 12 }}>
@@ -317,7 +317,7 @@ export default function VisualOverview() {
             />
           </Col>
         </Row>
-      )}
+      )} */}
     </Card>
   );
 }

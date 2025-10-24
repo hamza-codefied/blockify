@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Modal, Switch, Input, Button } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
-import './settings.css';
 import { Link } from 'react-router-dom';
+import './settings.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
-  const [formData, setFormData] = useState(null); // null until loaded
+  const [formData, setFormData] = useState(null);
 
-  // ✅ Load from localStorage or use defaults
+  // ✅ Load from localStorage or defaults
   useEffect(() => {
     const saved = localStorage.getItem('appSettings');
     if (saved) {
@@ -28,11 +27,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
     }
   }, []);
 
-  // ✅ Save settings to localStorage
+  // ✅ Save settings
   const handleSave = () => {
     if (formData) {
       localStorage.setItem('appSettings', JSON.stringify(formData));
-      // Dispatch custom event so Session.jsx updates live
       window.dispatchEvent(new Event('appSettingsUpdated'));
     }
     onClose();
@@ -55,7 +53,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           updated.unstaggeredSession = false;
         } else {
           updated.staggeredSession = false;
-          updated.unstaggeredSession = true; // at least one ON
+          updated.unstaggeredSession = true;
         }
       } else if (field === 'unstaggeredSession') {
         if (value) {
@@ -73,7 +71,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     });
   };
 
-  if (!formData) return null; // wait until loaded
+  if (!formData) return null;
 
   return (
     <Modal
@@ -81,8 +79,16 @@ const SettingsModal = ({ isOpen, onClose }) => {
       open={isOpen}
       onCancel={onClose}
       footer={null}
-      width={500}
+      width='50vw'
       className='custom-settings-modal'
+      centered
+      style={{ top: 0 }}
+      bodyStyle={{
+        maxHeight: '70vh',
+        overflowY: 'auto',
+        paddingRight: '12px',
+        marginTop: 0,
+      }}
     >
       <div className='space-y-4'>
         {/* ====== Domain ====== */}
@@ -221,6 +227,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           </div>
         </div>
 
+        {/* ====== Support Section ====== */}
         <div className='space-y-1'>
           <p className='text-primary-600 text-xs underline'>Having Trouble?</p>
           <p className='text-xs text-black'>
@@ -228,6 +235,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           </p>
         </div>
 
+        {/* ====== Logout ====== */}
         <Link
           to='/'
           className='text-red-700 hover:text-red-800 focus:text-red-800 text-[16px] font-bold'
@@ -235,7 +243,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           Logout
         </Link>
 
-        {/* 🔹 Added Save Button */}
+        {/* ====== Save Button ====== */}
         <div className='flex justify-end mt-4'>
           <Button
             type='primary'

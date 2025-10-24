@@ -10,10 +10,19 @@ import {
   Rectangle,
 } from 'recharts';
 import { Select } from 'antd';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export const SessionChart = () => {
   const [grade, setGrade] = useState('9th Grade');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Detect small screen dynamically
+    const handleResize = () => setIsMobile(window.innerWidth < 1024); // sm breakpoint
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const chartData = [
     { day: 'Monday\n13-Oct', inSession: 120, notInSession: 30 },
@@ -37,9 +46,7 @@ export const SessionChart = () => {
           value={grade}
           onChange={setGrade}
           size='small'
-          style={{
-            width: 140,
-          }}
+          style={{ width: 140 }}
           options={[
             { value: '9th Grade', label: '9th Grade' },
             { value: '10th Grade', label: '10th Grade' },
@@ -56,14 +63,21 @@ export const SessionChart = () => {
           barCategoryGap='25%'
         >
           <CartesianGrid strokeDasharray='3 3' vertical={false} />
-          <XAxis dataKey='day' tick={{ fontSize: 12 }} />
+          <XAxis
+            dataKey='day'
+            tick={{ fontSize: isMobile ? 10 : 12 }}
+            interval={isMobile ? 0 : 0} // Show all, but smaller font
+            angle={isMobile ? -25 : 0} // Tilt for small screens
+            textAnchor={isMobile ? 'end' : 'middle'}
+            height={isMobile ? 50 : 30}
+          />
           <YAxis />
           <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} />
           <Legend
             iconType='circle'
             iconSize={10}
             wrapperStyle={{
-              paddingTop: '10px',
+              paddingTop: '20px',
               display: 'flex',
               justifyContent: 'center',
               gap: '40px',

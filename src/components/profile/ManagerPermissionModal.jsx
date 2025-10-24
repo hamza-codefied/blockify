@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Checkbox, Button, Row, Col } from 'antd';
 import './permission-management.css';
 
@@ -55,6 +55,31 @@ export const ManagerPermissionModal = ({ open, onClose }) => {
     },
   ];
 
+  const [checkedState, setCheckedState] = useState(
+    permissionSections.map(section => ({
+      allChecked: false,
+      permissions: section.permissions.map(() => false),
+    }))
+  );
+
+  const handleMainCheck = (sectionIdx, checked) => {
+    const newState = [...checkedState];
+    newState[sectionIdx].allChecked = checked;
+    newState[sectionIdx].permissions = newState[sectionIdx].permissions.map(
+      () => checked
+    );
+    setCheckedState(newState);
+  };
+
+  const handlePermissionCheck = (sectionIdx, permIdx, checked) => {
+    const newState = [...checkedState];
+    newState[sectionIdx].permissions[permIdx] = checked;
+    newState[sectionIdx].allChecked = newState[sectionIdx].permissions.every(
+      v => v
+    );
+    setCheckedState(newState);
+  };
+
   return (
     <Modal
       title='Manager Permissions'
@@ -70,13 +95,25 @@ export const ManagerPermissionModal = ({ open, onClose }) => {
             key={idx}
             className='border border-gray-200 rounded-xl p-4 bg-white'
           >
-            <h3 className='font-semibold text-gray-700 mb-3'>
-              {section.title}
-            </h3>
+            <div className='flex items-center justify-start gap-3 mb-3'>
+              <h3 className='font-semibold text-gray-700'>{section.title}</h3>
+              <Checkbox
+                checked={checkedState[idx].allChecked}
+                onChange={e => handleMainCheck(idx, e.target.checked)}
+                className='custom-checkbox'
+              />
+            </div>
+
             <Row gutter={[16, 8]}>
               {section.permissions.map((perm, i) => (
                 <Col xs={24} sm={12} key={i}>
-                  <Checkbox defaultChecked className='custom-checkbox text-xs'>
+                  <Checkbox
+                    checked={checkedState[idx].permissions[i]}
+                    onChange={e =>
+                      handlePermissionCheck(idx, i, e.target.checked)
+                    }
+                    className='custom-checkbox text-xs'
+                  >
                     {perm}
                   </Checkbox>
                 </Col>
