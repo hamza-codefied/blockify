@@ -3,12 +3,17 @@ import React, { useState } from 'react';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { TbEdit } from 'react-icons/tb';
 import '@/components/session/early-session-requests.css';
-import { Select } from 'antd';
+import { Select, Modal, Input, Form, Button } from 'antd';
 
 const UnstaggeredSessionSchedule = () => {
   const [grade, setGrade] = useState('9th Grade');
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const [activeDay, setActiveDay] = useState('Monday');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [editForm] = Form.useForm();
+
   const [sessions, setSessions] = useState({
     Monday: [
       { start: '08:00 am', end: '08:50 am', active: false },
@@ -64,6 +69,16 @@ const UnstaggeredSessionSchedule = () => {
     setSessions(updated);
   };
 
+  const openEditModal = () => {
+    editForm.setFieldsValue({
+      grade,
+      day: activeDay,
+      startTime: '08:00 am',
+      endTime: '08:50 am',
+    });
+    setIsEditModalOpen(true);
+  };
+
   return (
     <div className='w-full mx-auto bg-white shadow-md rounded-2xl p-5 sm:p-8'>
       {/* Header */}
@@ -75,20 +90,27 @@ const UnstaggeredSessionSchedule = () => {
           value={grade}
           onChange={setGrade}
           size='small'
-          style={{
-            width: 140,
-          }}
+          style={{ width: 140 }}
           options={[
+            { value: '8th Grade', label: '8th Grade' },
             { value: '9th Grade', label: '9th Grade' },
             { value: '10th Grade', label: '10th Grade' },
             { value: '11th Grade', label: '11th Grade' },
+            { value: '12th Grade', label: '12th Grade' },
           ]}
         />
       </div>
 
+      {/* Action Icons */}
       <div className='flex items-center justify-end gap-4 mb-10'>
-        <RiDeleteBinLine className={`w-5 h-5 cursor-pointer text-[#801818]`} />
-        <TbEdit className={`w-5 h-5 text-[#00B894]`} />
+        <RiDeleteBinLine
+          className='w-5 h-5 cursor-pointer text-[#801818]'
+          onClick={() => setIsDeleteModalOpen(true)}
+        />
+        <TbEdit
+          className='w-5 h-5 text-[#00B894] cursor-pointer'
+          onClick={openEditModal}
+        />
       </div>
 
       {/* Day Selector */}
@@ -127,7 +149,6 @@ const UnstaggeredSessionSchedule = () => {
               Session {index + 1}
             </div>
             <div className='w-full bg-white p-2 flex flex-col items-center gap-2 text-center'>
-              {/* Start Time */}
               <input
                 type='text'
                 value={session.start}
@@ -136,9 +157,7 @@ const UnstaggeredSessionSchedule = () => {
                 }
                 className='text-xs text-gray-800 font-semibold text-center focus:outline-none border-2 border-gray-200 focus:border-[#00B894] rounded-md py-1 w-full'
               />
-              {/* Dotted Line */}
               <div className='h-40 w-[2px] border-l-2 border-dotted border-[#00B894]'></div>
-              {/* End Time */}
               <input
                 type='text'
                 value={session.end}
@@ -151,6 +170,68 @@ const UnstaggeredSessionSchedule = () => {
           </div>
         ))}
       </div>
+
+      {/* Edit Modal */}
+      <Modal
+        title='Edit Session Schedule'
+        open={isEditModalOpen}
+        onOk={() => setIsEditModalOpen(false)}
+        onCancel={() => setIsEditModalOpen(false)}
+        footer={null}
+      >
+        <Form
+          layout='vertical'
+          form={editForm}
+          onFinish={() => setIsEditModalOpen(false)}
+        >
+          <Form.Item label='Grade' name='grade'>
+            <Select
+              options={[
+                { value: '8th Grade', label: '8th Grade' },
+                { value: '9th Grade', label: '9th Grade' },
+                { value: '10th Grade', label: '10th Grade' },
+                { value: '11th Grade', label: '11th Grade' },
+                { value: '12th Grade', label: '12th Grade' },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item label='Day' name='day'>
+            <Select options={days.map(d => ({ value: d, label: d }))} />
+          </Form.Item>
+
+          <Form.Item label='Start Time' name='startTime'>
+            <Input placeholder='e.g., 08:00 am' />
+          </Form.Item>
+
+          <Form.Item label='End Time' name='endTime'>
+            <Input placeholder='e.g., 08:50 am' />
+          </Form.Item>
+          <div className='flex justify-end mt-4'>
+            <Button
+              type='primary'
+              style={{
+                backgroundColor: '#00B894',
+                borderColor: '#00B894',
+              }}
+            >
+              Save Changes
+            </Button>
+          </div>
+        </Form>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        title='Delete Confirmation'
+        open={isDeleteModalOpen}
+        onOk={() => setIsDeleteModalOpen(false)}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        okText='Confirm Delete'
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this session schedule?</p>
+      </Modal>
     </div>
   );
 };

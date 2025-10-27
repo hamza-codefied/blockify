@@ -16,20 +16,25 @@ import {
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import './student-table.css';
+import { RiDeleteBinLine } from 'react-icons/ri';
+import { TbEdit } from 'react-icons/tb';
+import EditStudentModal from './EditStudentModal';
+import DeleteStudentModal from './DeleteStudentModal';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function StudentTable() {
   const [isMobileView, setIsMobileView] = useState(false);
-
-  // Detect screen width dynamically
-  useEffect(() => {
-    const handleResize = () => setIsMobileView(window.innerWidth < 1024);
-    handleResize(); // run on mount
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGrade, setSelectedGrade] = useState('All Grades');
+  const [selectedAttendance, setSelectedAttendance] = useState('All');
+  const [selectedArrival, setSelectedArrival] = useState('All');
+  const [selectedSession, setSelectedSession] = useState('All');
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   const students = [
     {
@@ -94,6 +99,75 @@ export default function StudentTable() {
     },
   ];
 
+  // Detect screen width dynamically
+  useEffect(() => {
+    const handleResize = () => setIsMobileView(window.innerWidth < 1024);
+    handleResize(); // run on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // 🧠 Filtering logic
+  useEffect(() => {
+    let filtered = students;
+
+    // Search filter (name, email, contact)
+    if (searchTerm.trim()) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        s =>
+          s.name.toLowerCase().includes(search) ||
+          s.email.toLowerCase().includes(search) ||
+          s.contact.toLowerCase().includes(search)
+      );
+    }
+
+    // Grade filter
+    if (selectedGrade !== 'All Grades' && selectedGrade !== 'Grade') {
+      filtered = filtered.filter(s => s.grade === selectedGrade);
+    }
+
+    // Attendance filter
+    if (selectedAttendance !== 'All' && selectedAttendance !== 'Attendance') {
+      if (selectedAttendance === 'Present') {
+        filtered = filtered.filter(s => s.attendance === 'Signed In');
+      } else if (selectedAttendance === 'Absent') {
+        filtered = filtered.filter(s => s.attendance === 'Not Signed In');
+      } else {
+        // just placeholder for Late/Excused (you can expand logic)
+        filtered = filtered;
+      }
+    }
+
+    // Arrival filter (simple time logic)
+    if (selectedArrival !== 'All' && selectedArrival !== 'Arrival') {
+      if (selectedArrival === 'On Time') {
+        filtered = filtered.filter(s => s.time !== 'N/A');
+      } else if (selectedArrival === 'Late Arrival') {
+        filtered = filtered.filter(s => s.time > '07:45 am');
+      } else if (selectedArrival === 'Early Departure') {
+        filtered = filtered.filter(s => s.time < '07:30 am');
+      }
+    }
+
+    // Session filter
+    if (selectedSession !== 'All' && selectedSession !== 'Sessions') {
+      filtered = filtered.filter(s =>
+        selectedSession === 'InSession'
+          ? s.session === 'In Session'
+          : s.session === 'Not In Session'
+      );
+    }
+
+    setFilteredStudents(filtered);
+  }, [
+    searchTerm,
+    selectedGrade,
+    selectedAttendance,
+    selectedArrival,
+    selectedSession,
+  ]);
+
   // Columns for Table View (mobile/tablet)
   const columns = [
     {
@@ -127,225 +201,367 @@ export default function StudentTable() {
           </a>
         </div>
       ),
-      // responsive: ['sm'],
     },
     {
       title: 'Grade',
       dataIndex: 'grade',
       key: 'grade',
-      // responsive: ['sm'],
     },
     {
       title: 'Attendance',
       dataIndex: 'attendance',
       key: 'attendance',
-      render: att => (
-        <Tag color={att === 'Signed In' ? 'green' : 'volcano'}>{att}</Tag>
+      render: (att, record) => (
+        // <Select
+        //   defaultValue={att}
+        //   style={{ width: 120 }}
+        //   size='small'
+        //   bordered={false}
+        //   options={[
+        //     { value: 'Signed In', label: 'Signed In' },
+        //     { value: 'Not Signed In', label: 'Not Signed In' },
+        //   ]}
+        // />
+        <Select
+          defaultValue={att}
+          size='small'
+          variant='borderless'
+          className={`custom-select rounded-xl`}
+          style={{
+            '--select-color': att === 'Signed In' ? '#389e0d' : '#ff4d4d',
+            '--select-bg-color': att === 'Signed In' ? '#f6ffed' : '#fff2e8',
+            width: 120,
+          }}
+          options={[
+            { value: 'Signed In', label: 'Signed In' },
+            { value: 'Not Signed In', label: 'Not Signed In' },
+          ]}
+        />
       ),
     },
     {
       title: 'Time',
       dataIndex: 'time',
       key: 'time',
-      render: time => (
-        <Tag color={time === 'N/A' ? 'default' : 'cyan'}>{time}</Tag>
+      render: (time, record) => (
+        <Input
+          defaultValue={time}
+          size='small'
+          style={{ width: 70 }}
+          bordered={false}
+          variant='outlined'
+          styles={{}}
+          className='cursor-pointer bg-[#e6fffb] border-[#87e8de] rounded-lg text-center text-[#08979c]'
+        />
       ),
-      responsive: ['md'],
     },
     {
       title: 'Session',
       dataIndex: 'session',
       key: 'session',
-      render: session => (
-        <Tag color={session === 'In Session' ? 'blue' : 'volcano'}>
-          {session}
-        </Tag>
+      render: (session, record) => (
+        // <Select
+        //   defaultValue={session}
+        //   style={{ width: 120 }}
+        //   size='small'
+        //   bordered={false}
+        //   options={[
+        //     { value: 'In Session', label: 'In Session' },
+        //     { value: 'Not In Session', label: 'Not In Session' },
+        //   ]}
+        // />
+        <Select
+          defaultValue={session}
+          size='small'
+          variant='borderless'
+          className={`custom-select rounded-xl`}
+          style={{
+            '--select-color': session === 'In Session' ? '#389e0d' : '#ff4d4d',
+            '--select-bg-color':
+              session === 'Not In Session' ? '#fff2e8' : '#f6ffed',
+            width: 120,
+          }}
+          options={[
+            { value: 'In Session', label: 'In Session' },
+            { value: 'Not In Session', label: 'Not In Session' },
+          ]}
+        />
+      ),
+    },
+    {
+      title: 'Action',
+      render: (_, student) => (
+        <div className='flex space-x-4'>
+          <TbEdit
+            className='w-5 h-5 cursor-pointer text-[#00B894]'
+            onClick={() => {
+              setSelectedStudent(student);
+              setIsEditModalOpen(true);
+            }}
+          />
+          <RiDeleteBinLine
+            className='w-5 h-5 cursor-pointer text-[#801818]'
+            onClick={() => {
+              setSelectedStudent(student);
+              setIsDeleteModalOpen(true);
+            }}
+          />
+        </div>
       ),
     },
   ];
 
   return (
-    <Card
-      className='student-card'
-      style={{
-        borderRadius: 12,
-        marginTop: 24,
-        boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-      }}
-    >
-      {/* ===== Header ===== */}
-      <Row justify='space-between' align='middle' gutter={[16, 16]}>
-        <Col xs={24} lg={8}>
-          <Title level={5} style={{ marginBottom: 0 }}>
-            Student Information Log
-          </Title>
-        </Col>
-        <Col xs={24} lg={16}>
-          <Space wrap style={{ width: '100%', justifyContent: 'flex-end' }}>
-            <Input
-              placeholder='Search'
-              prefix={<SearchOutlined />}
-              allowClear
-              style={{ width: 180, borderRadius: 8 }}
-              className='hover:!border-[#00b894]'
-            />
-            {['Grade', 'Attendance', 'Arrival', 'Sessions'].map(label => (
-              <Select key={label} defaultValue={label} style={{ width: 130 }}>
-                <Option value={label}>{label}</Option>
-              </Select>
-            ))}
-          </Space>
-        </Col>
-      </Row>
-
-      {/* ===== Conditional View ===== */}
-      {isMobileView ? (
-        // 📱 Mobile / Tablet → AntD Table
-        <div className='mt-4'>
-          <Table
-            columns={columns}
-            dataSource={students}
-            pagination={{ pageSize: 5 }}
-            rowKey='email'
-            scroll={{ x: 'max-content' }}
-            size='middle'
-          />
-        </div>
-      ) : (
-        // 🖥 Large screen → AntD List (existing design)
-        <div className='student-table-wrapper'>
-          <Row
-            justify='space-between'
-            className='student-table-header'
-            style={{
-              marginTop: 24,
-              marginBottom: 8,
-              fontWeight: 500,
-              background: '#fff',
-              boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-              border: '2px solid rgba(0,0,0,0.05)',
-              borderRadius: 12,
-              padding: '20px 16px',
-              minWidth: 750,
-            }}
-          >
-            <Col className='pl-2' flex='2'>
-              Name
-            </Col>
-            <Col flex='2'>Contact</Col>
-            <Col flex='1'>Grade</Col>
-            <Col flex='1'>Attendance</Col>
-            <Col flex='1'>Time</Col>
-            <Col flex='1'>Session</Col>
-          </Row>
-
-          <List
-            itemLayout='horizontal'
-            dataSource={students}
-            renderItem={student => (
-              <List.Item
-                style={{
-                  background: '#fff',
-                  borderRadius: 12,
-                  marginBottom: 8,
-                  padding: '12px 16px',
-                  boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-                  border: '2px solid rgba(0,0,0,0.05)',
-                  minWidth: 750,
-                }}
-              >
-                <Row align='middle' style={{ width: '100%' }}>
-                  <Col flex='2'>
-                    <Space>
-                      <Avatar src={student.img} size={40} />
-                      <Text>{student.name}</Text>
-                    </Space>
-                  </Col>
-                  <Col flex='2'>
-                    <div className='flex flex-col'>
-                      <a
-                        href={`mailto:${student.email}`}
-                        className='text-inherit hover:text-[#00B894]'
-                      >
-                        {student.email}
-                      </a>
-                      <a
-                        href={`tel:${student.contact.replace(/\D/g, '')}`}
-                        className='text-inherit hover:text-[#00B894]'
-                      >
-                        {student.contact}
-                      </a>
-                    </div>
-                  </Col>
-                  <Col flex='1'>
-                    <Text>{student.grade}</Text>
-                  </Col>
-                  <Col flex='1'>
-                    <Tag
-                      color={
-                        student.attendance === 'Signed In' ? 'green' : 'volcano'
-                      }
-                      style={{
-                        borderRadius: 12,
-                        fontWeight: 500,
-                        padding: '2px 10px',
-                      }}
-                    >
-                      {student.attendance}
-                    </Tag>
-                  </Col>
-                  <Col flex='1'>
-                    <Tag
-                      color={student.time === 'N/A' ? 'default' : 'cyan'}
-                      style={{
-                        borderRadius: 12,
-                        fontWeight: 500,
-                        padding: '2px 10px',
-                      }}
-                    >
-                      {student.time}
-                    </Tag>
-                  </Col>
-                  <Col flex='1'>
-                    <Tag
-                      color={
-                        student.session === 'In Session' ? 'blue' : 'volcano'
-                      }
-                      style={{
-                        borderRadius: 12,
-                        fontWeight: 500,
-                        padding: '2px 10px',
-                      }}
-                    >
-                      {student.session}
-                    </Tag>
-                  </Col>
-                </Row>
-              </List.Item>
-            )}
-          />
-        </div>
-      )}
-
-      {/* ===== Footer ===== */}
-      {/* {!isMobileView && (
-        <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
-          <Col>
-            <Text type='secondary' style={{ fontSize: 12 }}>
-              Showing results 8 of 10
-            </Text>
+    <>
+      <Card
+        className='student-card'
+        style={{
+          borderRadius: 12,
+          marginTop: 24,
+          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+        }}
+      >
+        {/* ===== Header ===== */}
+        <Row justify='space-between' align='middle' gutter={[16, 16]}>
+          <Col xs={24} lg={8}>
+            <Title level={5} style={{ marginBottom: 0 }}>
+              Student Information Log
+            </Title>
           </Col>
-          <Col>
-            <Pagination
-              size='small'
-              total={30}
-              pageSize={10}
-              current={1}
-              showSizeChanger={false}
-            />
+
+          <Col xs={24} lg={16}>
+            <Space wrap style={{ width: '100%', justifyContent: 'flex-end' }}>
+              <Input
+                placeholder='Search'
+                prefix={<SearchOutlined />}
+                allowClear
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                style={{ width: 180, borderRadius: 8 }}
+                className='hover:!border-[#00b894]'
+              />
+
+              <Select
+                defaultValue='Grade'
+                style={{ width: 120 }}
+                onChange={val => setSelectedGrade(val)}
+              >
+                <Option value='All Grades'>All Grades</Option>
+                <Option value='8th Grade'>8th Grade</Option>
+                <Option value='9th Grade'>9th Grade</Option>
+                <Option value='10th Grade'>10th Grade</Option>
+                <Option value='11th Grade'>11th Grade</Option>
+                <Option value='12th Grade'>12th Grade</Option>
+              </Select>
+
+              <Select
+                defaultValue='Attendance'
+                style={{ width: 120 }}
+                onChange={val => setSelectedAttendance(val)}
+              >
+                <Option value='All'>All</Option>
+                <Option value='Present'>Present</Option>
+                <Option value='Absent'>Absent</Option>
+              </Select>
+
+              <Select
+                defaultValue='Arrival'
+                style={{ width: 120 }}
+                onChange={val => setSelectedArrival(val)}
+              >
+                <Option value='All'>All</Option>
+                <Option value='On Time'>On Time</Option>
+                <Option value='Late Arrival'>Late Arrival</Option>
+              </Select>
+
+              <Select
+                defaultValue='Sessions'
+                style={{ width: 120 }}
+                onChange={val => setSelectedSession(val)}
+              >
+                <Option value='All'>All</Option>
+                <Option value='InSession'>In Session</Option>
+                <Option value='NotInSession'>Not In Session</Option>
+              </Select>
+            </Space>
           </Col>
         </Row>
-      )} */}
-    </Card>
+
+        {/* ===== Conditional View ===== */}
+        {isMobileView ? (
+          <div className='mt-4'>
+            <Table
+              columns={columns}
+              dataSource={filteredStudents}
+              pagination={{ pageSize: 5 }}
+              rowKey='email'
+              scroll={{ x: 'max-content' }}
+              size='middle'
+            />
+          </div>
+        ) : (
+          <div className='student-table-wrapper'>
+            <Row
+              justify='space-between'
+              className='student-table-header'
+              style={{
+                marginTop: 24,
+                marginBottom: 8,
+                fontWeight: 500,
+                background: '#fff',
+                boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
+                border: '2px solid rgba(0,0,0,0.05)',
+                borderRadius: 12,
+                padding: '20px 16px',
+                minWidth: 750,
+              }}
+            >
+              <Col className='pl-2' flex='2'>
+                Name
+              </Col>
+              <Col flex='2'>Contact</Col>
+              <Col flex='1'>Grade</Col>
+              <Col flex='2'>Attendance</Col>
+              <Col flex='1'>Time</Col>
+              <Col flex='2'>Session</Col>
+              <Col flex='1' style={{ textAlign: 'right' }}>
+                Action
+              </Col>
+            </Row>
+
+            <List
+              itemLayout='horizontal'
+              dataSource={filteredStudents}
+              renderItem={student => (
+                <List.Item
+                  style={{
+                    background: '#fff',
+                    borderRadius: 12,
+                    marginBottom: 8,
+                    padding: '12px 16px',
+                    boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
+                    border: '2px solid rgba(0,0,0,0.05)',
+                    minWidth: 750,
+                  }}
+                >
+                  <Row align='middle' style={{ width: '100%' }}>
+                    <Col flex='2'>
+                      <Space>
+                        <Avatar src={student.img} size={40} />
+                        <Text>{student.name}</Text>
+                      </Space>
+                    </Col>
+                    <Col flex='2'>
+                      <div className='flex flex-col'>
+                        <a
+                          href={`mailto:${student.email}`}
+                          className='text-inherit hover:text-[#00B894]'
+                        >
+                          {student.email}
+                        </a>
+                        <a
+                          href={`tel:${student.contact.replace(/\D/g, '')}`}
+                          className='text-inherit hover:text-[#00B894]'
+                        >
+                          {student.contact}
+                        </a>
+                      </div>
+                    </Col>
+                    <Col flex='1'>
+                      <Text>{student.grade}</Text>
+                    </Col>
+                    <Col flex='2'>
+                      <Select
+                        defaultValue={student.attendance}
+                        size='small'
+                        variant='borderless'
+                        className={`custom-select rounded-xl`}
+                        style={{
+                          '--select-color':
+                            student.attendance === 'Signed In'
+                              ? '#389e0d'
+                              : '#ff4d4d',
+                          '--select-bg-color':
+                            student.attendance === 'Signed In'
+                              ? '#f6ffed'
+                              : '#fff2e8',
+                          width: 130,
+                        }}
+                        options={[
+                          { value: 'Signed In', label: 'Signed In' },
+                          { value: 'Not Signed In', label: 'Not Signed In' },
+                        ]}
+                      />
+                    </Col>
+                    <Col flex='1'>
+                      <Input
+                        defaultValue={student.time}
+                        size='small'
+                        style={{ width: 70 }}
+                        variant='outlined'
+                        styles={{}}
+                        className='cursor-pointer bg-[#e6fffb] border-[#87e8de] rounded-lg text-center text-[#08979c]'
+                      />
+                    </Col>
+                    <Col flex='2'>
+                      <Select
+                        defaultValue={student.session}
+                        size='small'
+                        variant='borderless'
+                        className={`custom-select rounded-xl`}
+                        style={{
+                          '--select-color':
+                            student.session === 'In Session'
+                              ? '#389e0d'
+                              : '#ff4d4d',
+                          '--select-bg-color':
+                            student.session === 'Not In Session'
+                              ? '#fff2e8'
+                              : '#f6ffed',
+                          width: 130,
+                        }}
+                        options={[
+                          { value: 'In Session', label: 'In Session' },
+                          { value: 'Not In Session', label: 'Not In Session' },
+                        ]}
+                      />
+                    </Col>
+                    <Col flex='1'>
+                      <div className='flex space-x-4 justify-end'>
+                        <TbEdit
+                          className='w-5 h-5 cursor-pointer text-[#00B894]'
+                          onClick={() => {
+                            setSelectedStudent(student);
+                            setIsEditModalOpen(true);
+                          }}
+                        />
+                        <RiDeleteBinLine
+                          className='w-5 h-5 cursor-pointer text-[#801818]'
+                          onClick={() => {
+                            setSelectedStudent(student);
+                            setIsDeleteModalOpen(true);
+                          }}
+                        />
+                      </div>
+                    </Col>
+                  </Row>
+                </List.Item>
+              )}
+            />
+          </div>
+        )}
+      </Card>
+      <EditStudentModal
+        open={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        student={selectedStudent}
+      />
+
+      <DeleteStudentModal
+        open={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        student={selectedStudent}
+      />
+    </>
   );
 }

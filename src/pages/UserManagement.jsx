@@ -302,11 +302,20 @@ export const UserManagement = () => {
                 onChange={e => setSearch(e.target.value)}
                 className='hover:!border-[#00b894]'
               />
-              {activeTab === 'students' && (
+              {activeTab === 'students' ? (
                 <Select defaultValue='Grade' className='w-40'>
                   <Option value='all'>All Grades</Option>
+                  <Option value='8'>8th Grade</Option>
                   <Option value='9'>9th Grade</Option>
                   <Option value='10'>10th Grade</Option>
+                  <Option value='11'>11th Grade</Option>
+                  <Option value='12'>12th Grade</Option>
+                </Select>
+              ) : (
+                <Select defaultValue='Role' className='w-40'>
+                  <Option value='all'>All Roles</Option>
+                  <Option value='superadmin'>Super Admin</Option>
+                  <Option value='admin'>Admin</Option>
                 </Select>
               )}
             </div>

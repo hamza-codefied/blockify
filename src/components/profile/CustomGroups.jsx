@@ -11,12 +11,20 @@ import {
   Tag,
   Avatar,
   Divider,
+  Input,
+  Select,
+  TimePicker,
+  Space,
 } from 'antd';
-import { AiOutlineEye } from 'react-icons/ai';
+import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import './grades.css';
 import { CustomGroupModal } from './CustomGroupModal';
+import dayjs from 'dayjs';
+import { TbEdit } from 'react-icons/tb';
+import { RiDeleteBinLine } from 'react-icons/ri';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 export const CustomGroups = () => {
   const [groups, setGroups] = useState([
@@ -64,8 +72,11 @@ export const CustomGroups = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [editData, setEditData] = useState(null);
 
   // ===== Handlers =====
   const handleAddClick = () => {
@@ -77,6 +88,35 @@ export const CustomGroups = () => {
   const handleViewClick = group => {
     setSelectedGroup(group);
     setViewModalOpen(true);
+  };
+
+  const handleEditClick = group => {
+    setSelectedGroup(group);
+    setEditData(JSON.parse(JSON.stringify(group))); // deep clone
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = group => {
+    setSelectedGroup(group);
+    setDeleteModalOpen(true);
+  };
+
+  // ===== Edit Modal field changes (UI only) =====
+  const handleEditChange = (field, value) => {
+    setEditData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleTimeChange = (day, type, time) => {
+    setEditData(prev => ({
+      ...prev,
+      times: {
+        ...prev.times,
+        [day]: {
+          ...prev.times[day],
+          [type]: time ? time.format('HH:mm') : '',
+        },
+      },
+    }));
   };
 
   return (
@@ -114,8 +154,8 @@ export const CustomGroups = () => {
             justify='space-between'
             className='grades-header'
             style={{
-              marginTop: 24,
-              marginBottom: 8,
+              marginTop: 18,
+              marginBottom: 2,
               fontWeight: 500,
               background: '#fff',
               boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
@@ -125,7 +165,7 @@ export const CustomGroups = () => {
             }}
           >
             <Col flex='2'>Session Name</Col>
-            <Col flex='1'>No of Students</Col>
+            <Col flex='1'>Students</Col>
             <Col flex='1' className='text-right'>
               Action
             </Col>
@@ -152,12 +192,24 @@ export const CustomGroups = () => {
                   <Col flex='1'>
                     <Text>{group.students.length}</Text>
                   </Col>
-                  <Col flex='1' className='flex justify-end'>
+                  <Col flex='1' className='flex justify-end gap-3'>
                     <AiOutlineEye
-                      size={20}
-                      color='#00B894'
+                      size={14}
+                      color='#186ee8'
                       className='cursor-pointer'
                       onClick={() => handleViewClick(group)}
+                    />
+                    <TbEdit
+                      size={14}
+                      color='#00B894'
+                      className='cursor-pointer'
+                      onClick={() => handleEditClick(group)}
+                    />
+                    <RiDeleteBinLine
+                      size={14}
+                      color='#801818'
+                      className='cursor-pointer'
+                      onClick={() => handleDeleteClick(group)}
                     />
                   </Col>
                 </Row>
@@ -176,7 +228,7 @@ export const CustomGroups = () => {
         </Row>
       </Card>
 
-      {/* ===== Add/Edit Modal ===== */}
+      {/* ===== Add/Edit Modal (existing component) ===== */}
       <CustomGroupModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -184,7 +236,7 @@ export const CustomGroups = () => {
         groupData={selectedGroup}
       />
 
-      {/* ===== View Details Modal ===== */}
+      {/* ===== View Modal ===== */}
       <Modal
         title={
           <div className='text-center'>
@@ -208,7 +260,6 @@ export const CustomGroups = () => {
       >
         {selectedGroup && (
           <div>
-            {/* ===== Students Section ===== */}
             <Title level={5}>Students</Title>
             <div className='flex flex-wrap gap-3 mb-4'>
               {selectedGroup.students.map((name, index) => (
@@ -233,7 +284,6 @@ export const CustomGroups = () => {
 
             <Divider style={{ margin: '12px 0' }} />
 
-            {/* ===== Days & Timings ===== */}
             <Title level={5}>Schedule</Title>
             <div className='space-y-2 mt-2'>
               {selectedGroup.selectedDays?.map(day => (
@@ -242,9 +292,7 @@ export const CustomGroups = () => {
                   className='p-3 border rounded-lg flex justify-between items-center text-white'
                   style={{
                     background: '#2f2f2f',
-                    border: '1px solid #eee',
                     borderRadius: 10,
-                    color: 'white',
                   }}
                 >
                   <Text className='text-white' strong>
@@ -257,20 +305,115 @@ export const CustomGroups = () => {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+      </Modal>
 
-            <Divider style={{ margin: '16px 0' }} />
+      {/* ===== Edit Modal (Interactive UI) ===== */}
+      <Modal
+        title='Edit Group'
+        open={editModalOpen}
+        onCancel={() => setEditModalOpen(false)}
+        footer={null}
+        centered
+        width={650}
+      >
+        {editData && (
+          <div className='space-y-4'>
+            <Input
+              placeholder='Session Name'
+              value={editData.session_name}
+              onChange={e => handleEditChange('session_name', e.target.value)}
+            />
 
-            {/* ===== Summary Section ===== */}
-            <div className='flex justify-between mt-3'>
-              <Text type='secondary'>Total Students:</Text>
-              <Text strong>{selectedGroup.students.length}</Text>
+            <Select
+              mode='tags'
+              style={{ width: '100%' }}
+              placeholder='Add Students'
+              value={editData.students}
+              onChange={value => handleEditChange('students', value)}
+            />
+
+            <Select
+              mode='multiple'
+              style={{ width: '100%' }}
+              placeholder='Select Days'
+              value={editData.selectedDays}
+              onChange={value => handleEditChange('selectedDays', value)}
+            >
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map(
+                day => (
+                  <Option key={day} value={day}>
+                    {day}
+                  </Option>
+                )
+              )}
+            </Select>
+
+            <Divider />
+            <Title level={5}>Edit Timings</Title>
+
+            <div className='space-y-3'>
+              {editData.selectedDays.map(day => (
+                <div
+                  key={day}
+                  className='flex justify-between items-center border p-2 rounded-lg'
+                >
+                  <Text style={{ width: 100 }}>{day}</Text>
+                  <Space>
+                    <TimePicker
+                      format='HH:mm'
+                      value={
+                        editData.times[day]?.start
+                          ? dayjs(editData.times[day].start, 'HH:mm')
+                          : null
+                      }
+                      onChange={time => handleTimeChange(day, 'start', time)}
+                    />
+                    <Text>-</Text>
+                    <TimePicker
+                      format='HH:mm'
+                      value={
+                        editData.times[day]?.end
+                          ? dayjs(editData.times[day].end, 'HH:mm')
+                          : null
+                      }
+                      onChange={time => handleTimeChange(day, 'end', time)}
+                    />
+                  </Space>
+                </div>
+              ))}
             </div>
-            <div className='flex justify-between mt-1'>
-              <Text type='secondary'>Days Scheduled:</Text>
-              <Text strong>{selectedGroup.selectedDays.length}</Text>
+
+            <div className='flex justify-end mt-4'>
+              <Button
+                type='primary'
+                style={{
+                  backgroundColor: '#00B894',
+                  borderColor: '#00B894',
+                }}
+              >
+                Save Changes
+              </Button>
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* ===== Delete Confirmation Modal ===== */}
+      <Modal
+        title='Confirm Delete'
+        open={deleteModalOpen}
+        onCancel={() => setDeleteModalOpen(false)}
+        onOk={() => setDeleteModalOpen(false)}
+        okText='Delete'
+        okButtonProps={{ danger: true }}
+        centered
+      >
+        <Text>
+          Are you sure you want to delete{' '}
+          <strong>{selectedGroup?.session_name}</strong>?
+        </Text>
       </Modal>
     </>
   );

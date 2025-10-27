@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LogIn, LogOut, ClipboardList } from 'lucide-react';
+import RecentActivitiesModal from './RecentActivitiesModal';
 
 export default function RecentActivities() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const activities = [
     {
       icon: <LogIn className='text-gray-700' size={18} />,
@@ -27,7 +29,10 @@ export default function RecentActivities() {
         <h2 className='font-semibold text-gray-800 text-lg'>
           Recent Activities
         </h2>
-        <button className='text-[#00B894] text-sm font-medium hover:underline'>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className='text-[#00B894] text-sm font-medium hover:underline'
+        >
           View All
         </button>
       </div>
@@ -54,6 +59,11 @@ export default function RecentActivities() {
           ))}
         </div>
       </div>
+      {/* Modal */}
+      <RecentActivitiesModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

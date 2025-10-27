@@ -48,9 +48,11 @@ export const SessionChart = () => {
           size='small'
           style={{ width: 140 }}
           options={[
+            { value: '8th Grade', label: '8th Grade' },
             { value: '9th Grade', label: '9th Grade' },
             { value: '10th Grade', label: '10th Grade' },
             { value: '11th Grade', label: '11th Grade' },
+            { value: '12th Grade', label: '12th Grade' },
           ]}
         />
       </div>

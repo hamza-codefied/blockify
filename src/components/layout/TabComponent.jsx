@@ -14,7 +14,11 @@ export const TabComponent = () => {
   const [activeKey, setActiveKey] = useState('/');
 
   const tabs = [
-    { key: '/dashboard', label: 'Dashboard', icon: <LuLayoutDashboard size={18} /> },
+    {
+      key: '/dashboard',
+      label: 'Dashboard',
+      icon: <LuLayoutDashboard size={18} />,
+    },
     {
       key: '/attendance',
       label: 'Attendance',
@@ -61,9 +65,7 @@ export const TabComponent = () => {
                 }`}
               >
                 {tab.icon}
-                <span className='hidden xs:inline sm:inline md:inline'>
-                  {tab.label}
-                </span>
+                <span className='hidden sm:inline md:inline'>{tab.label}</span>
               </span>
             ),
           }))}

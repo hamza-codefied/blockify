@@ -86,10 +86,10 @@ export const Header = () => {
                 className='text-gray-400 cursor-pointer'
                 onClick={() => setIsSettingsOpen(true)}
               />
-              <IoIosQrScanner
+              {/* <IoIosQrScanner
                 style={{ fontSize: '20px' }}
                 className='text-gray-400'
-              />
+              /> */}
               <MoonOutlined
                 style={{ fontSize: '20px' }}
                 className='text-gray-400'
@@ -149,10 +149,10 @@ export const Header = () => {
                 className='text-gray-500 cursor-pointer'
                 onClick={() => setIsSettingsOpen(true)}
               />
-              <IoIosQrScanner
+              {/* <IoIosQrScanner
                 style={{ fontSize: '20px' }}
                 className='text-gray-500'
-              />
+              /> */}
               <MoonOutlined
                 style={{ fontSize: '20px' }}
                 className='text-gray-500'

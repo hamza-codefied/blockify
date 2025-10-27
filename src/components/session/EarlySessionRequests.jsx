@@ -73,7 +73,7 @@ export const EarlySessionRequests = () => {
       }}
     >
       <h1 className='text-lg sm:text-xl font-semibold'>
-        Early Session Requests
+        Early Session End Requests
       </h1>
 
       <div className='early-session-wrapper'>

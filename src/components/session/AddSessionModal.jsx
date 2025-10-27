@@ -76,9 +76,11 @@ export const AddSessionModal = ({ open, onClose }) => {
           rules={[{ required: true, message: 'Please select grade' }]}
         >
           <Select placeholder='Select grade'>
-            <Option value='grade1'>Grade 1</Option>
-            <Option value='grade2'>Grade 2</Option>
-            <Option value='grade3'>Grade 3</Option>
+            <Option value='8th Grade'>8th Grade</Option>
+            <Option value='9th Grade'>9th Grade</Option>
+            <Option value='10th Grade'>10th Grade</Option>
+            <Option value='11th Grade'>11th Grade</Option>
+            <Option value='12th Grade'>12th Grade</Option>
           </Select>
         </Form.Item>
 

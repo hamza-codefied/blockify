@@ -1,3 +1,6 @@
+
+
+
 /* ===== Scrollable Table Wrapper ===== */
 .student-table-wrapper {
   overflow-x: auto;
@@ -19,6 +22,47 @@
 .ant-list-item {
   min-width: 850px;
 } */
+
+.custom-select .ant-select-selection-item {
+  font-size: 14px !important;
+  color: var(--select-color) !important;
+  background-color: var(--select-bg-color) !important;
+  border-radius: 8px !important;
+}
+
+/* Remove hover, focus, border, and outline completely */
+.custom-select .ant-select-selector {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: var(--select-bg-color) !important;
+  border-radius: 8px !important;
+  padding: 2px 8px !important;
+  transition: none !important;
+}
+
+/* When focused (clicked), also remove blue border & shadow */
+.custom-select.ant-select-focused .ant-select-selector {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove hover border */
+.custom-select:hover .ant-select-selector {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Hide default arrow hover background */
+.custom-select .ant-select-arrow {
+  color: var(--select-color) !important;
+}
+
+.custom-select .ant-select-arrow:hover {
+  background: transparent !important;
+}
 
 /* ===== Filters and Controls ===== */
 @media (max-width: 768px) {

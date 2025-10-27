@@ -11,7 +11,6 @@ import {
   Space,
   Typography,
   Tag,
-  Pagination,
   Table,
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
@@ -23,11 +22,18 @@ const { Option } = Select;
 export default function VisualOverview() {
   const [search, setSearch] = useState('');
   const [isMobileView, setIsMobileView] = useState(false);
+  const [gradeFilter, setGradeFilter] = useState('');
+  const [attendanceFilter, setAttendanceFilter] = useState('');
+  const [arrivalFilter, setArrivalFilter] = useState('');
+  const [sessionFilter, setSessionFilter] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   // ✅ Detect screen width dynamically
   useEffect(() => {
     const handleResize = () => setIsMobileView(window.innerWidth < 1024);
-    handleResize(); // run on mount
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -41,6 +47,7 @@ export default function VisualOverview() {
       grade: '9th Grade',
       attendance: 'Signed In',
       time: '07:30 am',
+      session: 'Morning',
       img: 'https://i.pravatar.cc/40?img=1',
     },
     {
@@ -51,6 +58,7 @@ export default function VisualOverview() {
       grade: '10th Grade',
       attendance: 'Not Signed In',
       time: 'N/A',
+      session: 'Afternoon',
       img: 'https://i.pravatar.cc/40?img=2',
     },
     {
@@ -61,35 +69,58 @@ export default function VisualOverview() {
       grade: '11th Grade',
       attendance: 'Signed In',
       time: '08:45 am',
+      session: 'Morning',
       img: 'https://i.pravatar.cc/40?img=3',
     },
     {
       id: 4,
-      name: 'Smith, John',
-      email: 'smith_john@gmail.com',
-      contact: '+1 (555) 888-9999',
-      grade: '11th Grade',
+      name: 'Khan, Sara',
+      email: 'sara.khan@gmail.com',
+      contact: '+1 (444) 555-6666',
+      grade: '12th Grade',
       attendance: 'Signed In',
-      time: '08:45 am',
-      img: 'https://i.pravatar.cc/40?img=3',
+      time: '09:15 am',
+      session: 'Evening',
+      img: 'https://i.pravatar.cc/40?img=4',
     },
     {
       id: 5,
-      name: 'Smith, John',
-      email: 'smith_john@gmail.com',
-      contact: '+1 (555) 888-9999',
-      grade: '11th Grade',
-      attendance: 'Signed In',
-      time: '08:45 am',
-      img: 'https://i.pravatar.cc/40?img=3',
+      name: 'Ali, Ahmed',
+      email: 'ahmed.ali@gmail.com',
+      contact: '+1 (999) 777-2222',
+      grade: '10th Grade',
+      attendance: 'Not Signed In',
+      time: 'N/A',
+      session: 'Afternoon',
+      img: 'https://i.pravatar.cc/40?img=5',
     },
   ];
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // ✅ Filtering logic
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = student.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesGrade = !gradeFilter || student.grade === gradeFilter;
+    const matchesAttendance =
+      !attendanceFilter || student.attendance === attendanceFilter;
+    const matchesArrival =
+      !arrivalFilter ||
+      (arrivalFilter === 'Signed In' && student.attendance === 'Signed In') ||
+      (arrivalFilter === 'Not Signed In' &&
+        student.attendance === 'Not Signed In');
+    const matchesSession = !sessionFilter || student.session === sessionFilter;
 
-  // ✅ Table Columns (for <1024px)
+    return (
+      matchesSearch &&
+      matchesGrade &&
+      matchesAttendance &&
+      matchesArrival &&
+      matchesSession
+    );
+  });
+
+  // ✅ Table Columns (for mobile)
   const columns = [
     {
       title: 'Name',
@@ -122,13 +153,11 @@ export default function VisualOverview() {
           </a>
         </div>
       ),
-      // responsive: ['sm'],
     },
     {
       title: 'Grade',
       dataIndex: 'grade',
       key: 'grade',
-      // responsive: ['sm'],
     },
     {
       title: 'Attendance',
@@ -143,7 +172,6 @@ export default function VisualOverview() {
       dataIndex: 'time',
       key: 'time',
       render: t => <Tag color={t === 'N/A' ? 'default' : 'cyan'}>{t}</Tag>,
-      // responsive: ['md'],
     },
   ];
 
@@ -165,8 +193,9 @@ export default function VisualOverview() {
         </Col>
         <Col xs={24} md={16}>
           <Space wrap style={{ width: '100%', justifyContent: 'flex-end' }}>
+            {/* 🔍 Search */}
             <Input
-              placeholder='Search'
+              placeholder='Search by name'
               prefix={<SearchOutlined />}
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -174,22 +203,45 @@ export default function VisualOverview() {
               style={{ width: 180, borderRadius: 8 }}
               className='hover:!border-[#00b894]'
             />
-            {['Grade', 'Attendance', 'Arrival', 'Sessions'].map(label => (
-              <Select
-                key={label}
-                defaultValue={label}
-                style={{ width: 130, borderRadius: 8 }}
-              >
-                <Option value={label}>{label}</Option>
-              </Select>
-            ))}
+
+            {/* 🧩 Filters */}
+            <Select
+              value={gradeFilter || 'Grade'}
+              style={{ width: 120 }}
+              onChange={v => setGradeFilter(v === 'Grade' ? '' : v)}
+            >
+              <Option value='Grade'>Grade</Option>
+              <Option value='9th Grade'>9th Grade</Option>
+              <Option value='10th Grade'>10th Grade</Option>
+              <Option value='11th Grade'>11th Grade</Option>
+              <Option value='12th Grade'>12th Grade</Option>
+            </Select>
+
+            <Select
+              value={attendanceFilter || 'Attendance'}
+              style={{ width: 130 }}
+              onChange={v => setAttendanceFilter(v === 'Attendance' ? '' : v)}
+            >
+              <Option value='Attendance'>Attendance</Option>
+              <Option value='Signed In'>Signed In</Option>
+              <Option value='Not Signed In'>Not Signed In</Option>
+            </Select>
+
+            <Select
+              value={arrivalFilter || 'Arrival'}
+              style={{ width: 120 }}
+              onChange={v => setArrivalFilter(v === 'Arrival' ? '' : v)}
+            >
+              <Option value='Arrival'>Arrival</Option>
+              <Option value='Signed In'>Signed In</Option>
+              <Option value='Not Signed In'>Not Signed In</Option>
+            </Select>
           </Space>
         </Col>
       </Row>
 
       {/* ===== Conditional Layout ===== */}
       {isMobileView ? (
-        // 📱 Mobile/Tablet View → Table
         <div className='mt-4'>
           <Table
             columns={columns}
@@ -201,7 +253,6 @@ export default function VisualOverview() {
           />
         </div>
       ) : (
-        // 🖥 Desktop View → Existing List layout
         <div className='visual-overview-wrapper'>
           <Row
             justify='space-between'
@@ -298,26 +349,6 @@ export default function VisualOverview() {
           />
         </div>
       )}
-
-      {/* ===== Pagination for Desktop ===== */}
-      {/* {!isMobileView && (
-        <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
-          <Col>
-            <Text type='secondary' style={{ fontSize: 12 }}>
-              Showing results 8 of 10
-            </Text>
-          </Col>
-          <Col>
-            <Pagination
-              size='small'
-              total={30}
-              pageSize={10}
-              current={1}
-              showSizeChanger={false}
-            />
-          </Col>
-        </Row>
-      )} */}
     </Card>
   );
 }
