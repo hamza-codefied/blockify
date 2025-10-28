@@ -1,0 +1,24 @@
+[[redirects]]
+  from = "/__/auth/*"
+  to = "/"
+  status = 200
+[[redirects]]
+  from = "https://blockifyadmin.netlify.app/dashboard"
+  to = "/"
+  status = 200
+  [[redirects]]
+  from = "https://blockifyadmin.netlify.app/attendance"
+  to = "/"
+  status = 200
+   [[redirects]]
+  from = "https://blockifyadmin.netlify.app/session"
+  to = "/"
+  status = 200
+   [[redirects]]
+  from = "https://blockifyadmin.netlify.app/users"
+  to = "/"
+  status = 200
+   [[redirects]]
+  from = "https://blockifyadmin.netlify.app/profile"
+  to = "/"
+  status = 200
