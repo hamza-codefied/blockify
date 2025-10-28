@@ -108,6 +108,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
         addEntireGrade,
         students: finalStudents,
       };
+
       console.log('Saved group:', data);
       onClose();
     });
