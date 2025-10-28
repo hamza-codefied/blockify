@@ -45,10 +45,10 @@ export const Session = () => {
 
       <div>
         <div className='flex justify-between items-center mb-4'>
-          <Title level={3}>Sessions</Title>
+          <Title level={3} className='dark:text-gray-200'>Sessions</Title>
           <button
             onClick={() => setOpenModal(true)}
-            className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px]'
+            className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
           >
             Add Session +
           </button>

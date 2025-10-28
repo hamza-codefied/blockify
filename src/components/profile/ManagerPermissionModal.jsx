@@ -88,15 +88,16 @@ export const ManagerPermissionModal = ({ open, onClose }) => {
       footer={null}
       centered
       width={700}
+      className='dark-mode-modal'
     >
-      <div className='flex flex-col gap-4 max-h-[70vh] overflow-y-auto'>
+      <div className='flex flex-col gap-4 max-h-[70vh] overflow-y-auto px-2'>
         {permissionSections.map((section, idx) => (
           <div
             key={idx}
-            className='border border-gray-200 rounded-xl p-4 bg-white'
+            className='border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-800 permission-management-card'
           >
             <div className='flex items-center justify-start gap-3 mb-3'>
-              <h3 className='font-semibold text-gray-700'>{section.title}</h3>
+              <h3 className='font-semibold text-gray-700 dark:text-gray-200'>{section.title}</h3>
               <Checkbox
                 checked={checkedState[idx].allChecked}
                 onChange={e => handleMainCheck(idx, e.target.checked)}
@@ -114,7 +115,7 @@ export const ManagerPermissionModal = ({ open, onClose }) => {
                     }
                     className='custom-checkbox text-xs'
                   >
-                    {perm}
+                    <span className='text-gray-700 dark:text-gray-300'>{perm}</span>
                   </Checkbox>
                 </Col>
               ))}

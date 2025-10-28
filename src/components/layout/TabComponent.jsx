@@ -49,7 +49,7 @@ export const TabComponent = () => {
   };
 
   return (
-    <div className='bg-white'>
+    <div className='bg-white dark:bg-gray-900'>
       <div className='w-full px-0 sm:px-4 lg:px-16'>
         <Tabs
           activeKey={activeKey}
@@ -61,7 +61,7 @@ export const TabComponent = () => {
                 className={`flex items-center justify-center gap-2 text-xs lg:text-lg ${
                   activeKey === tab.key
                     ? 'text-[#00B894] font-semibold'
-                    : 'text-gray-800 font-medium'
+                    : 'text-gray-800 dark:text-gray-200 font-medium'
                 }`}
               >
                 {tab.icon}

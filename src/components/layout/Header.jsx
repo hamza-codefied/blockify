@@ -2,19 +2,21 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@components/ui/Button';
 import { Logo } from '@components/common/Logo';
-import { MoonOutlined, SettingOutlined } from '@ant-design/icons';
+import { MoonOutlined, SunOutlined, SettingOutlined } from '@ant-design/icons';
 import { IoIosQrScanner } from 'react-icons/io';
 import { FiBell } from 'react-icons/fi';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
 import { Popover, Badge, List, Typography } from 'antd';
 import client from '@/images/user_client.png';
 import SettingsModal from '@/components/settings/SettingsModal';
+import { useDarkMode } from '@contexts/DarkModeContext';
 
 const { Text } = Typography;
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   const notifications = [
     {
@@ -35,9 +37,9 @@ export const Header = () => {
   ];
 
   const notificationContent = (
-    <div className='w-80 max-h-96 overflow-auto rounded-lg shadow-lg bg-white'>
-      <div className='px-4 py-3 border-b border-gray-100 flex justify-between items-center'>
-        <h3 className='font-semibold text-gray-700'>Notifications</h3>
+    <div className='w-80 max-h-96 overflow-auto rounded-lg shadow-lg bg-white dark:bg-gray-800'>
+      <div className='px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center'>
+        <h3 className='font-semibold text-gray-700 dark:text-gray-200'>Notifications</h3>
         <Text className='text-[#00B894] text-xs cursor-pointer hover:underline'>
           Mark all as read
         </Text>
@@ -46,15 +48,15 @@ export const Header = () => {
       <List
         dataSource={notifications}
         renderItem={item => (
-          <List.Item className='hover:bg-[#f2fbfa] transition-colors cursor-pointer px-4 py-3'>
+          <List.Item className='hover:bg-[#f2fbfa] dark:hover:bg-gray-700 transition-colors cursor-pointer px-4 py-3'>
             <List.Item.Meta
               className='px-4 !max-w-80'
               title={
-                <Text className='font-medium text-gray-800'>{item.title}</Text>
+                <Text className='font-medium text-gray-800 dark:text-gray-200'>{item.title}</Text>
               }
               description={
                 <div>
-                  <Text className='text-gray-500 text-sm'>
+                  <Text className='text-gray-500 dark:text-gray-400 text-sm'>
                     {item.description}
                   </Text>
                   <div className='text-xs text-[#00B894] mt-1'>{item.time}</div>
@@ -68,8 +70,8 @@ export const Header = () => {
   );
 
   return (
-    <header className='bg-white shadow-sm border-b'>
-      <div className='w-full min-h-18 mx-auto px-4 sm:px-6 lg:px-16 border-b-2 border-[#e5f8f4]'>
+    <header className='bg-white dark:bg-gray-900 shadow-sm border-b dark:border-gray-700'>
+      <div className='w-full min-h-18 mx-auto px-4 sm:px-6 lg:px-16 border-b-2 border-[#e5f8f4] dark:border-gray-700'>
         <div className='flex justify-between items-center h-16'>
           {/* Logo */}
           <div className='flex-shrink-0 flex items-center'>
@@ -83,14 +85,22 @@ export const Header = () => {
             <div className='flex items-center justify-center gap-4'>
               <SettingOutlined
                 style={{ fontSize: '20px' }}
-                className='text-gray-400 cursor-pointer'
+                className='text-gray-400 dark:text-gray-300 cursor-pointer hover:text-gray-600 dark:hover:text-gray-100'
                 onClick={() => setIsSettingsOpen(true)}
               />
-
-              <MoonOutlined
-                style={{ fontSize: '20px' }}
-                className='text-gray-400'
-              />
+              {darkMode ? (
+                <SunOutlined
+                  style={{ fontSize: '20px' }}
+                  className='text-gray-400 dark:text-yellow-400 cursor-pointer hover:text-yellow-500'
+                  onClick={toggleDarkMode}
+                />
+              ) : (
+                <MoonOutlined
+                  style={{ fontSize: '20px' }}
+                  className='text-gray-400 cursor-pointer hover:text-gray-600'
+                  onClick={toggleDarkMode}
+                />
+              )}
 
               {/* Notification Popover */}
               <Popover
@@ -102,14 +112,14 @@ export const Header = () => {
                 <Badge count={3} size='small' color='#00B894'>
                   <FiBell
                     style={{ fontSize: '20px' }}
-                    className='text-gray-400 cursor-pointer'
+                    className='text-gray-400 dark:text-gray-300 cursor-pointer hover:text-gray-600 dark:hover:text-gray-100'
                   />
                 </Badge>
               </Popover>
             </div>
 
             {/* customer */}
-            <div className='bg-[#f2fbfa] h-[100%] flex items-center justify-center gap-1 p-3 rounded-lg'>
+            <div className='bg-[#f2fbfa] dark:bg-gray-800 h-[100%] flex items-center justify-center gap-1 p-3 rounded-lg'>
               <div>
                 <img
                   src={client}
@@ -117,7 +127,7 @@ export const Header = () => {
                   className='w-12 h-12 rounded-full'
                 />
               </div>
-              <div className='text-sm'>
+              <div className='text-sm dark:text-gray-200'>
                 The Campus Institute <br />
                 <span className='text-[#00B894] text-xs'>School</span>
               </div>
@@ -126,7 +136,7 @@ export const Header = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className='md:hidden flex items-center justify-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition'
+            className='md:hidden flex items-center justify-center p-2 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition'
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? (
@@ -139,21 +149,26 @@ export const Header = () => {
 
         {/* Mobile Dropdown Menu */}
         {isMenuOpen && (
-          <div className='md:hidden flex flex-col items-center gap-4 py-3 border-t border-gray-100'>
+          <div className='md:hidden flex flex-col items-center gap-4 py-3 border-t border-gray-100 dark:border-gray-700'>
             <div className='flex items-center justify-center gap-4'>
               <SettingOutlined
                 style={{ fontSize: '20px' }}
-                className='text-gray-500 cursor-pointer'
+                className='text-gray-500 dark:text-gray-300 cursor-pointer hover:text-gray-600 dark:hover:text-gray-100'
                 onClick={() => setIsSettingsOpen(true)}
               />
-              <IoIosQrScanner
-                style={{ fontSize: '20px' }}
-                className='text-gray-500'
-              />
-              <MoonOutlined
-                style={{ fontSize: '20px' }}
-                className='text-gray-500'
-              />
+              {darkMode ? (
+                <SunOutlined
+                  style={{ fontSize: '20px' }}
+                  className='text-gray-500 dark:text-yellow-400 cursor-pointer hover:text-yellow-500'
+                  onClick={toggleDarkMode}
+                />
+              ) : (
+                <MoonOutlined
+                  style={{ fontSize: '20px' }}
+                  className='text-gray-500 cursor-pointer hover:text-gray-600'
+                  onClick={toggleDarkMode}
+                />
+              )}
 
               {/* Mobile Notification Popover */}
               <Popover
@@ -171,13 +186,13 @@ export const Header = () => {
               </Popover>
             </div>
 
-            <div className='flex items-center justify-center gap-2 bg-[#f2fbfa] p-2 rounded-lg w-[90%]'>
+            <div className='flex items-center justify-center gap-2 bg-[#f2fbfa] dark:bg-gray-800 p-2 rounded-lg w-[90%]'>
               <img
                 src={client}
                 alt='customer'
                 className='w-10 h-10 rounded-full'
               />
-              <div className='text-sm text-center'>
+              <div className='text-sm text-center dark:text-gray-200'>
                 <p>The Campus Institute</p>
                 <span className='text-[#00B894] text-xs'>School</span>
               </div>

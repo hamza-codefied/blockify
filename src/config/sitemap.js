@@ -22,7 +22,7 @@ export const sitemapRoutes = [
 ]
 
 export const generateSitemap = (routes = sitemapRoutes) => {
-  const baseUrl = 'https://codefied.com'
+  const baseUrl = 'https://blockify.com'
   
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -40,7 +40,7 @@ ${routes.map(route => `  <url>
 export const robotsTxt = `User-agent: *
 Allow: /
 
-Sitemap: https://codefied.com/sitemap.xml
+Sitemap: https://blockify.com/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1

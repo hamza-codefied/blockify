@@ -28,7 +28,7 @@ export const Attendance = () => {
       <StructuredData structuredData={structuredData} />
 
       <div className=''>
-        <Title level={3} style={{ marginBottom: 16 }}>
+        <Title level={3} style={{ marginBottom: 16 }} className='dark:text-gray-200'>
           Attendance
         </Title>
 

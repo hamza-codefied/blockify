@@ -94,3 +94,39 @@
 .custom-checkbox:hover .ant-checkbox-inner {
   border-color: #019a7d !important; /* darker green on hover */
 }
+
+/* ===== Dark Mode Support ===== */
+.dark .permission-management-card {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .permission-management-header {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.dark .permission-list-item {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.dark .permission-list-item .ant-typography {
+  color: #e5e7eb !important;
+}
+
+.dark .permission-management-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark .custom-checkbox .ant-checkbox-inner {
+  border-color: #00b894 !important;
+  background-color: #1f2937 !important;
+}
+
+.dark .custom-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #1f2937 !important;
+  border-color: #00b894 !important;
+}

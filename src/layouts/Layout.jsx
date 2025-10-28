@@ -6,14 +6,14 @@ import { TabComponent } from '@/components/layout/TabComponent';
 
 export const Layout = ({ children }) => {
   return (
-    <div className='min-h-screen flex flex-col'>
+    <div className='min-h-screen flex flex-col bg-white dark:bg-gray-900'>
       <Header />
 
       <TabComponent />
 
       {/* Page content */}
       <main className='flex-1'>
-        <div className='w-full bg-[#fafafa] px-4 sm:px-6 lg:px-16 py-6'>
+        <div className='w-full bg-[#fafafa] dark:bg-gray-900 px-4 sm:px-6 lg:px-16 py-6'>
           {/* If children passed (older usage), render that; otherwise render nested routes via Outlet */}
           {children ? children : <Outlet />}
         </div>

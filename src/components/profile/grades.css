@@ -88,3 +88,27 @@
     min-width: 600px !important;
   } */
 }
+
+/* ===== Dark Mode Support ===== */
+.dark .grades-wrapper {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dark .grades-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark .grades-header {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.dark .grades-wrapper .ant-list-item {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .grades-wrapper .ant-list-item .ant-typography {
+  color: #e5e7eb !important;
+}

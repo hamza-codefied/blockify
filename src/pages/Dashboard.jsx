@@ -28,7 +28,7 @@ export const Dashboard = () => {
       />
       <StructuredData structuredData={structuredData} />
 
-      <Title level={3} style={{ marginBottom: 16 }}>
+      <Title level={3} style={{ marginBottom: 16 }} className='dark:text-gray-200'>
         Dashboard
       </Title>
 

@@ -116,3 +116,27 @@
     height: 30px !important;
   }
 }
+
+/* ===== Dark Mode Support ===== */
+.dark .visual-overview-wrapper {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dark .visual-overview-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark .visual-overview-header {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.dark .visual-overview-wrapper .ant-list-item {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .visual-overview-wrapper .ant-list-item .ant-typography {
+  color: #e5e7eb !important;
+}

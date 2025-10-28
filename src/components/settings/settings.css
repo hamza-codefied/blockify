@@ -37,3 +37,25 @@
     margin: 0 auto;
   }
 }
+
+/* ===== Dark Mode Support ===== */
+.dark .ant-switch-checked .ant-switch-handle::before {
+  background-color: #1f2937 !important;
+}
+
+.dark .custom-settings-modal .ant-modal-content {
+  background: #1f2937 !important;
+}
+
+.dark .custom-settings-modal .ant-modal-header {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .custom-settings-modal .ant-modal-title {
+  color: #e5e7eb !important;
+}
+
+.dark .custom-settings-modal label {
+  color: #e5e7eb !important;
+}

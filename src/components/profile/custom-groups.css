@@ -13,3 +13,18 @@
 .ant-picker:hover {
   border-color: #00b894 !important; /* red border when hovered */
 }
+
+/* ===== Dark Mode Support ===== */
+.dark .ant-input:focus,
+.dark .ant-input-focused,
+.dark .ant-select-focused .ant-select-selector,
+.dark .ant-picker-focused {
+  border-color: #00b894 !important;
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.2) !important;
+}
+
+.dark .ant-input:hover,
+.dark .ant-select-selector:hover,
+.dark .ant-picker:hover {
+  border-color: #00b894 !important;
+}

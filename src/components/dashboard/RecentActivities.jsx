@@ -23,10 +23,10 @@ export default function RecentActivities() {
   ];
 
   return (
-    <div className='bg-white h-full rounded-2xl shadow-sm p-4'>
+    <div className='bg-white dark:bg-gray-800 h-full rounded-2xl shadow-sm p-4 border border-gray-100 dark:border-gray-700'>
       {/* Header */}
       <div className='flex justify-between items-center mb-3'>
-        <h2 className='font-semibold text-gray-800 text-lg'>
+        <h2 className='font-semibold text-gray-800 dark:text-gray-200 text-lg'>
           Recent Activities
         </h2>
         <button
@@ -46,13 +46,13 @@ export default function RecentActivities() {
           {activities.map((item, index) => (
             <div key={index} className='relative flex items-start'>
               {/* Icon circle */}
-              <div className='absolute -left-[25px] bg-white z-10 flex items-center justify-center'>
+              <div className='absolute -left-[25px] bg-white dark:bg-gray-800 z-10 flex items-center justify-center'>
                 {item.icon}
               </div>
 
               {/* Content */}
               <div>
-                <p className='text-sm text-gray-800'>{item.action}</p>
+                <p className='text-sm text-gray-800 dark:text-gray-200'>{item.action}</p>
                 <p className='text-xs text-[#00B894] mt-1'>{item.time}</p>
               </div>
             </div>

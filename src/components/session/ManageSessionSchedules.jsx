@@ -37,10 +37,10 @@ export const ManageSessionSchedules = () => {
   const handleLoadMore = () => setVisibleCount(prev => prev + 5);
 
   return (
-    <div className='bg-white p-4 rounded-lg shadow-md'>
+    <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
       {/* Header */}
       <div className='flex justify-between items-center mb-14 max-sm:flex-col max-sm:items-start max-sm:gap-3'>
-        <h2 className='text-lg font-semibold max-sm:text-base'>
+        <h2 className='text-lg font-semibold max-sm:text-base text-gray-800 dark:text-gray-200'>
           Manage Session Schedules
         </h2>
         <Select
@@ -68,8 +68,8 @@ export const ManageSessionSchedules = () => {
             className={`relative py-4 flex items-center justify-between gap-5 border-2 shadow-lg rounded-lg px-4 transition-all duration-300
               max-sm:flex-col max-sm:items-start max-sm:gap-3 ${
                 schedule.active
-                  ? 'bg-[#2f2f2f] text-white border-[#2f2f2f]'
-                  : 'bg-white text-gray-800 border-gray-200'
+                  ? 'bg-[#2f2f2f] dark:bg-gray-700 text-white border-[#2f2f2f] dark:border-gray-600'
+                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
               }`}
           >
             {/* Active badge */}

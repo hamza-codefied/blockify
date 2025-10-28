@@ -141,3 +141,35 @@
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* ===== Dark Mode Support ===== */
+.dark .early-session-wrapper {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dark .early-session-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark .early-session-header {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.dark .early-session-wrapper .ant-list-item {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .early-session-wrapper .ant-list-item .ant-typography {
+  color: #e5e7eb !important;
+}
+
+.dark .view-request-btn {
+  color: #00b894;
+}
+
+.dark .custom-radio {
+  border: 2px solid #00b894;
+}
