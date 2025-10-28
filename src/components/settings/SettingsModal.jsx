@@ -22,7 +22,6 @@ const SettingsModal = ({ isOpen, onClose }) => {
           unstaggeredSession: false,
         },
         acceptingEnrollment: true,
-        updatedTheme: true,
       });
     }
   }, []);
@@ -104,7 +103,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
         {/* ====== Student Permissions ====== */}
         <div className='space-y-1'>
-          <h3 className='text-black font-semibold'>Student Permissions</h3>
+          <h3 className='text-black dark:text-white font-semibold'>
+            Student Permissions
+          </h3>
           <div className='border-2 border-gray-100 flex items-center justify-between px-2 py-1 rounded-lg'>
             <label>Student Early Session End Request</label>
             <Switch
@@ -137,7 +138,9 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
         {/* ====== Session Settings ====== */}
         <div className='space-y-1'>
-          <h3 className='text-black font-semibold'>Session Settings</h3>
+          <h3 className='text-black dark:text-white font-semibold'>
+            Session Settings
+          </h3>
           <div className='border-2 border-gray-100 flex items-center justify-between px-2 py-1 rounded-lg'>
             <div>
               <label>Weekend Sessions</label>
@@ -200,7 +203,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
         {/* ====== Other Settings ====== */}
         <div className='space-y-1'>
-          <h3 className='text-black font-semibold'>Settings</h3>
+          <h3 className='text-black dark:text-white font-semibold'>Settings</h3>
           <div className='border-2 border-gray-100 flex items-center justify-between px-2 py-1 rounded-lg'>
             <label>Accepting Enrollment</label>
             <Switch
@@ -215,22 +218,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
               }}
             />
           </div>
-          <div className='border-2 border-gray-100 flex items-center justify-between px-2 py-1 rounded-lg'>
-            <label>Inverted Theme</label>
-            <Switch
-              checked={formData.updatedTheme}
-              onChange={value => handleSwitchChange('updatedTheme', value)}
-              style={{
-                backgroundColor: formData.updatedTheme ? '#00B894' : '#fff',
-              }}
-            />
-          </div>
         </div>
 
         {/* ====== Support Section ====== */}
         <div className='space-y-1'>
           <p className='text-primary-600 text-xs underline'>Having Trouble?</p>
-          <p className='text-xs text-black'>
+          <p className='text-xs text-black dark:text-white'>
             Let us know what isn’t working and we’ll fix it right away.
           </p>
         </div>

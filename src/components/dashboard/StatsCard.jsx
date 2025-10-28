@@ -21,28 +21,16 @@ export default function StatsCard() {
       {stats.map((item, i) => (
         <Col xs={24} sm={12} key={i}>
           <Card
-            variant='borderless'
+            variant='outlined'
             style={{
               border: 'none',
               boxShadow: 'none',
-              background: 'transparent',
+              background: '#fafafa',
+              position: 'relative',
+              overflow: 'hidden',
+              border: '2px solid rgba(0, 0, 0, 0.03)',
             }}
-            cover={
-              <div
-                className='absolute top-0 left-0 w-full h-full bg-[#fafafa] dark:bg-gray-800 rounded-lg'
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  backgroundImage: `url(${item.bg})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  borderRadius: '8px',
-                }}
-              />
-            }
+            className='bg-white dark:bg-gray-800 h-full rounded-2xl shadow-sm p-4 border border-gray-100 dark:border-gray-700'
           >
             <Row align='middle' gutter={16}>
               <Col>
@@ -68,6 +56,20 @@ export default function StatsCard() {
                 </Text>
               </Col>
             </Row>
+
+            {/* 👇 image inside card at bottom-right */}
+            <img
+              src={item.bg}
+              alt={item.title}
+              style={{
+                position: 'absolute',
+                right: '-10px',
+                bottom: '-20px',
+                width: '100px',
+                height: 'auto',
+                opacity: 1,
+              }}
+            />
           </Card>
         </Col>
       ))}

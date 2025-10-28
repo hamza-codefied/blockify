@@ -39,7 +39,9 @@ export const Header = () => {
   const notificationContent = (
     <div className='w-80 max-h-96 overflow-auto rounded-lg shadow-lg bg-white dark:bg-gray-800'>
       <div className='px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center'>
-        <h3 className='font-semibold text-gray-700 dark:text-gray-200'>Notifications</h3>
+        <h3 className='font-semibold text-gray-700 dark:text-gray-200'>
+          Notifications
+        </h3>
         <Text className='text-[#00B894] text-xs cursor-pointer hover:underline'>
           Mark all as read
         </Text>
@@ -52,7 +54,9 @@ export const Header = () => {
             <List.Item.Meta
               className='px-4 !max-w-80'
               title={
-                <Text className='font-medium text-gray-800 dark:text-gray-200'>{item.title}</Text>
+                <Text className='font-medium text-gray-800 dark:text-gray-200'>
+                  {item.title}
+                </Text>
               }
               description={
                 <div>
@@ -75,8 +79,11 @@ export const Header = () => {
         <div className='flex justify-between items-center h-16'>
           {/* Logo */}
           <div className='flex-shrink-0 flex items-center'>
-            <Link to='/dashboard' className='flex items-center'>
-              <Logo />
+            <Link
+              to='/dashboard'
+              className='logo flex items-center text-2xl font-bold text-black border-2 border-[#00b984]/60 rounded-2xl px-4 py-1 dark:text-white '
+            >
+              Blockify
             </Link>
           </div>
 

@@ -17,6 +17,7 @@ import dayjs from 'dayjs';
 import './custom-groups.css';
 const { Title, Text } = Typography;
 const { Option } = Select;
+
 const dummyStudents = [
   {
     id: 1,
@@ -61,31 +62,35 @@ const dummyStudents = [
     avatar: 'https://i.pravatar.cc/150?img=6',
   },
 ];
+
 const daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
 export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
   const [form] = Form.useForm();
   const [selectedDays, setSelectedDays] = useState([]);
-  const [selectedGrade, setSelectedGrade] = useState(null);
-  const [addEntireGrade, setAddEntireGrade] = useState(null); // :white_check_mark: new state
+  const [selectedGrades, setSelectedGrades] = useState([]); // changed from single grade
+  const [addEntireGrade, setAddEntireGrade] = useState(null);
   const isViewMode = mode === 'view';
+
   useEffect(() => {
     if (isViewMode && groupData) {
       form.setFieldsValue({
         session_name: groupData.session_name,
         students: groupData.students,
         times: groupData.times || {},
-        grade: groupData.grade || null,
+        grade: groupData.grade || [],
       });
       setSelectedDays(groupData.selectedDays || []);
-      setSelectedGrade(groupData.grade || null);
+      setSelectedGrades(groupData.grade || []);
       setAddEntireGrade(groupData.addEntireGrade || false);
     } else {
       form.resetFields();
       setSelectedDays([]);
-      setSelectedGrade(null);
+      setSelectedGrades([]);
       setAddEntireGrade(null);
     }
   }, [mode, groupData, form]);
+
   const toggleDay = day => {
     if (selectedDays.includes(day)) {
       setSelectedDays(selectedDays.filter(d => d !== day));
@@ -93,19 +98,23 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
       setSelectedDays([...selectedDays, day]);
     }
   };
+
   const handleSave = () => {
     form.validateFields().then(values => {
       let finalStudents = values.students || [];
-      // :white_check_mark: If entire grade selected, include all students from that grade
-      if (addEntireGrade && selectedGrade) {
+
+      // include all students from selected grades if "yes" selected
+      if (addEntireGrade && selectedGrades.length > 0) {
         finalStudents = dummyStudents
-          .filter(s => s.grade === selectedGrade)
+          .filter(s => selectedGrades.includes(s.grade))
           .map(s => s.name);
       }
+
       const data = {
         ...values,
         selectedDays,
         addEntireGrade,
+        grade: selectedGrades,
         students: finalStudents,
       };
 
@@ -113,12 +122,16 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
       onClose();
     });
   };
-  // :white_check_mark: Filter students by selected grade
-  const filteredStudents = selectedGrade
-    ? dummyStudents.filter(s => s.grade === selectedGrade)
-    : [];
-  // :white_check_mark: Extract unique grade list
+
+  // Filter students from all selected grades
+  const filteredStudents =
+    selectedGrades.length > 0
+      ? dummyStudents.filter(s => selectedGrades.includes(s.grade))
+      : [];
+
+  // Unique grade list
   const uniqueGrades = [...new Set(dummyStudents.map(s => s.grade))];
+
   return (
     <Modal
       title={isViewMode ? 'View Custom Group' : 'Add Custom Group'}
@@ -139,13 +152,14 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
         >
           <Input placeholder='Enter session name' disabled={isViewMode} />
         </Form.Item>
+
         {/* ===== Entire Grade Selection ===== */}
         <Form.Item label='Do you want to add entire grade?'>
           <Radio.Group
             disabled={isViewMode}
             onChange={e => {
               setAddEntireGrade(e.target.value);
-              form.setFieldsValue({ students: [] }); // reset student selection
+              form.setFieldsValue({ students: [] });
             }}
             value={addEntireGrade}
           >
@@ -153,17 +167,21 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
             <Radio value={false}>No</Radio>
           </Radio.Group>
         </Form.Item>
-        {/* ===== Select Grade ===== */}
+
+        {/* ===== Select Grade(s) ===== */}
         <Form.Item
-          label='Select Grade'
+          label='Select Grade(s)'
           name='grade'
-          rules={[{ required: true, message: 'Please select a grade' }]}
+          rules={[
+            { required: true, message: 'Please select at least one grade' },
+          ]}
         >
           <Select
-            placeholder='Select grade'
+            mode='multiple'
+            placeholder='Select grade(s)'
             disabled={isViewMode}
-            onChange={value => {
-              setSelectedGrade(value);
+            onChange={values => {
+              setSelectedGrades(values);
               form.setFieldsValue({ students: [] });
             }}
             getPopupContainer={trigger => trigger.parentNode}
@@ -175,6 +193,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
             ))}
           </Select>
         </Form.Item>
+
         {/* ===== Select Students (Only when "No" is selected) ===== */}
         {!addEntireGrade && (
           <Form.Item
@@ -185,12 +204,12 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
             <Select
               mode='multiple'
               placeholder={
-                selectedGrade
+                selectedGrades.length > 0
                   ? 'Select students'
-                  : 'Please select a grade first'
+                  : 'Please select grade(s) first'
               }
               showSearch
-              disabled={isViewMode || !selectedGrade}
+              disabled={isViewMode || selectedGrades.length === 0}
               optionFilterProp='value'
               filterOption={(input, option) =>
                 option?.value?.toLowerCase().includes(input.toLowerCase())
@@ -219,6 +238,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
             </Select>
           </Form.Item>
         )}
+
         {/* ===== Select Days ===== */}
         {!isViewMode && (
           <>
@@ -243,6 +263,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
             </div>
           </>
         )}
+
         {/* ===== Time Pickers ===== */}
         {selectedDays.map(day => (
           <Row key={day} gutter={16} className='mb-3 w-full'>
@@ -279,6 +300,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData }) => {
             </Col>
           </Row>
         ))}
+
         {/* ===== Save Button ===== */}
         {!isViewMode && (
           <Form.Item className='text-center mt-6'>

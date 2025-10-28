@@ -40,7 +40,7 @@
 
 /* ===== Dark Mode Support ===== */
 .dark .ant-switch-checked .ant-switch-handle::before {
-  background-color: #1f2937 !important;
+  background-color: white !important;
 }
 
 .dark .custom-settings-modal .ant-modal-content {

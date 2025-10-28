@@ -80,10 +80,10 @@ const UnstaggeredSessionSchedule = () => {
   };
 
   return (
-    <div className='w-full mx-auto bg-white shadow-md rounded-2xl p-5 sm:p-8'>
+    <div className='w-full mx-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-2xl p-5 sm:p-8'>
       {/* Header */}
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-3'>
-        <h2 className='text-lg sm:text-xl font-semibold text-gray-800'>
+        <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
           Manage Session Schedules
         </h2>
         <Select
@@ -114,7 +114,7 @@ const UnstaggeredSessionSchedule = () => {
       </div>
 
       {/* Day Selector */}
-      <div className='flex flex-wrap justify-between gap-2 sm:gap-3 mb-[92px] relative'>
+      <div className='flex flex-wrap justify-between mb-[92px] relative'>
         {days.map(day => (
           <div key={day} className='flex flex-col items-center relative'>
             {activeDay === day && (
@@ -125,7 +125,7 @@ const UnstaggeredSessionSchedule = () => {
               className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
                 activeDay === day
                   ? 'bg-black text-white border-b-4 border-[#00B894]'
-                  : 'bg-white text-black hover:bg-gray-200 border-2 border-gray-200'
+                  : 'bg-white dark:bg-gray-800 text-black dark:text-white border-2 border-gray-200 dark:border-gray-700'
               }`}
             >
               {day}
@@ -145,17 +145,17 @@ const UnstaggeredSessionSchedule = () => {
               className='custom-radio w-4 h-4 mb-2 cursor-pointer'
             />
 
-            <div className='text-gray-700 font-medium mb-2 text-sm sm:text-base'>
+            <div className='text-gray-700 dark:text-white font-medium mb-2 text-sm'>
               Session {index + 1}
             </div>
-            <div className='w-full bg-white p-2 flex flex-col items-center gap-2 text-center'>
+            <div className='w-full bg-white dark:bg-gray-800 p-2 flex flex-col items-center gap-2 text-center'>
               <input
                 type='text'
                 value={session.start}
                 onChange={e =>
                   handleTimeChange(activeDay, index, 'start', e.target.value)
                 }
-                className='text-xs text-gray-800 font-semibold text-center focus:outline-none border-2 border-gray-200 focus:border-[#00B894] rounded-md py-1 w-full'
+                className='text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-semibold text-center focus:outline-none border-2 border-gray-200 focus:border-[#00B894] rounded-md py-1 w-[80px]'
               />
               <div className='h-40 w-[2px] border-l-2 border-dotted border-[#00B894]'></div>
               <input
@@ -164,7 +164,7 @@ const UnstaggeredSessionSchedule = () => {
                 onChange={e =>
                   handleTimeChange(activeDay, index, 'end', e.target.value)
                 }
-                className='text-xs text-gray-800 font-semibold text-center focus:outline-none border-2 border-gray-200 focus:border-[#00B894] rounded-md py-1 w-full'
+                className='text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-semibold text-center focus:outline-none border-2 border-gray-200 focus:border-[#00B894] rounded-md py-1 w-[80px]'
               />
             </div>
           </div>

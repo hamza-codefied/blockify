@@ -133,7 +133,7 @@ export const CustomGroups = () => {
         {/* ===== Header ===== */}
         <Row justify='space-between' align='middle' gutter={[16, 16]}>
           <Col xs={24} md={8}>
-            <Title level={5} style={{ marginBottom: 0 }}>
+            <Title className='w-[120px]' level={5} style={{ marginBottom: 0 }}>
               Custom Groups
             </Title>
           </Col>
@@ -180,6 +180,7 @@ export const CustomGroups = () => {
                   background: '#fff',
                   borderRadius: 12,
                   marginBottom: 8,
+                  marginTop: 10,
                   padding: '12px 16px',
                   boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
                   border: '2px solid rgba(0,0,0,0.05)',

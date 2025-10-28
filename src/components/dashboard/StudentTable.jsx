@@ -42,7 +42,7 @@ export default function StudentTable() {
       email: 'andrews_aiden@gmail.com',
       contact: '+1 (123) 123-1234',
       grade: '9th Grade',
-      attendance: 'Signed In',
+      attendance: 'Not Signed In',
       time: '07:30 am',
       session: 'In Session',
       img: 'https://i.pravatar.cc/40?img=1',
@@ -68,8 +68,8 @@ export default function StudentTable() {
       img: 'https://i.pravatar.cc/40?img=3',
     },
     {
-      name: 'Andrews',
-      email: 'andrews_aiden@gmail.com',
+      name: 'Hamza',
+      email: 'hamza@gmail.com',
       contact: '+1 (123) 123-1234',
       grade: '9th Grade',
       attendance: 'Signed In',
@@ -78,8 +78,8 @@ export default function StudentTable() {
       img: 'https://i.pravatar.cc/40?img=1',
     },
     {
-      name: 'Miller',
-      email: 'miller_jane@gmail.com',
+      name: 'Hammad',
+      email: 'Hammad@gmail.com',
       contact: '+1 (123) 222-9876',
       grade: '8th Grade',
       attendance: 'Not Signed In',
@@ -88,8 +88,8 @@ export default function StudentTable() {
       img: 'https://i.pravatar.cc/40?img=2',
     },
     {
-      name: 'Smith',
-      email: 'smith_joe@gmail.com',
+      name: 'Rohail',
+      email: 'Rohail@gmail.com',
       contact: '+1 (123) 321-7777',
       grade: '10th Grade',
       attendance: 'Signed In',
@@ -211,33 +211,38 @@ export default function StudentTable() {
       title: 'Attendance',
       dataIndex: 'attendance',
       key: 'attendance',
-      render: (att, record) => (
-        // <Select
-        //   defaultValue={att}
-        //   style={{ width: 120 }}
-        //   size='small'
-        //   bordered={false}
-        //   options={[
-        //     { value: 'Signed In', label: 'Signed In' },
-        //     { value: 'Not Signed In', label: 'Not Signed In' },
-        //   ]}
-        // />
-        <Select
-          defaultValue={att}
-          size='small'
-          variant='borderless'
-          className={`custom-select rounded-xl`}
-          style={{
-            '--select-color': att === 'Signed In' ? '#389e0d' : '#ff4d4d',
-            '--select-bg-color': att === 'Signed In' ? '#f6ffed' : '#fff2e8',
-            width: 120,
-          }}
-          options={[
-            { value: 'Signed In', label: 'Signed In' },
-            { value: 'Not Signed In', label: 'Not Signed In' },
-          ]}
-        />
-      ),
+      render: (att, record) => {
+        // Instead of useState here, use the record's value directly
+        const isSignedIn = att === 'Signed In';
+        const bgColor = isSignedIn ? '#f6ffed' : '#fff2e8';
+        const textColor = isSignedIn ? '#389e0d' : '#ff4d4d';
+
+        return (
+          <Select
+            value={att}
+            size='small'
+            variant='borderless'
+            className='custom-select rounded-xl'
+            style={{
+              backgroundColor: bgColor,
+              color: textColor,
+              width: 120,
+            }}
+            options={[
+              { value: 'Signed In', label: 'Signed In' },
+              { value: 'Not Signed In', label: 'Not Signed In' },
+            ]}
+            onChange={val => {
+              // Update filteredStudents state properly
+              setFilteredStudents(prev =>
+                prev.map(s =>
+                  s.email === record.email ? { ...s, attendance: val } : s
+                )
+              );
+            }}
+          />
+        );
+      },
     },
     {
       title: 'Time',
@@ -259,34 +264,39 @@ export default function StudentTable() {
       title: 'Session',
       dataIndex: 'session',
       key: 'session',
-      render: (session, record) => (
-        // <Select
-        //   defaultValue={session}
-        //   style={{ width: 120 }}
-        //   size='small'
-        //   bordered={false}
-        //   options={[
-        //     { value: 'In Session', label: 'In Session' },
-        //     { value: 'Not In Session', label: 'Not In Session' },
-        //   ]}
-        // />
-        <Select
-          defaultValue={session}
-          size='small'
-          variant='borderless'
-          className={`custom-select rounded-xl`}
-          style={{
-            '--select-color': session === 'In Session' ? '#389e0d' : '#ff4d4d',
-            '--select-bg-color':
-              session === 'Not In Session' ? '#fff2e8' : '#f6ffed',
-            width: 120,
-          }}
-          options={[
-            { value: 'In Session', label: 'In Session' },
-            { value: 'Not In Session', label: 'Not In Session' },
-          ]}
-        />
-      ),
+
+      render: (session, record) => {
+        // Instead of useState here, use the record's value directly
+        const isInSession = session === 'In Session';
+        const bgColor = isInSession ? '#f6ffed' : '#fff2e8';
+        const textColor = isInSession ? '#389e0d' : '#ff4d4d';
+
+        return (
+          <Select
+            value={session}
+            size='small'
+            variant='borderless'
+            className='custom-select rounded-xl'
+            style={{
+              backgroundColor: bgColor,
+              color: textColor,
+              width: 120,
+            }}
+            options={[
+              { value: 'In Session', label: 'In Session' },
+              { value: 'Not In Session', label: 'Not In Session' },
+            ]}
+            onChange={val => {
+              // Update filteredStudents state properly
+              setFilteredStudents(prev =>
+                prev.map(s =>
+                  s.email === record.email ? { ...s, session: val } : s
+                )
+              );
+            }}
+          />
+        );
+      },
     },
     {
       title: 'Action',
@@ -472,32 +482,41 @@ export default function StudentTable() {
                     </Col>
                     <Col flex='2'>
                       <Select
-                        defaultValue={student.attendance}
+                        value={student.attendance}
                         size='small'
                         variant='borderless'
-                        className={`custom-select rounded-xl`}
+                        className='custom-select rounded-xl'
                         style={{
-                          '--select-color':
-                            student.attendance === 'Signed In'
-                              ? '#389e0d'
-                              : '#ff4d4d',
-                          '--select-bg-color':
+                          backgroundColor:
                             student.attendance === 'Signed In'
                               ? '#f6ffed'
                               : '#fff2e8',
+                          color:
+                            student.attendance === 'Signed In'
+                              ? '#389e0d'
+                              : '#ff4d4d',
                           width: 130,
                         }}
                         options={[
                           { value: 'Signed In', label: 'Signed In' },
                           { value: 'Not Signed In', label: 'Not Signed In' },
                         ]}
+                        onChange={val =>
+                          setFilteredStudents(prev =>
+                            prev.map(s =>
+                              s.email === student.email
+                                ? { ...s, attendance: val }
+                                : s
+                            )
+                          )
+                        }
                       />
                     </Col>
                     <Col flex='1'>
                       <Input
                         defaultValue={student.time}
                         size='small'
-                        style={{ width: 70 }}
+                        style={{ width: 80 }}
                         variant='outlined'
                         styles={{}}
                         className='cursor-pointer bg-[#e6fffb] border-[#87e8de] rounded-lg text-center text-[#08979c]'
@@ -505,27 +524,37 @@ export default function StudentTable() {
                     </Col>
                     <Col flex='2'>
                       <Select
-                        defaultValue={student.session}
+                        value={student.session}
                         size='small'
                         variant='borderless'
-                        className={`custom-select rounded-xl`}
+                        className='custom-select rounded-xl'
                         style={{
-                          '--select-color':
+                          backgroundColor:
+                            student.session === 'In Session'
+                              ? '#f6ffed'
+                              : '#fff2e8',
+                          color:
                             student.session === 'In Session'
                               ? '#389e0d'
                               : '#ff4d4d',
-                          '--select-bg-color':
-                            student.session === 'Not In Session'
-                              ? '#fff2e8'
-                              : '#f6ffed',
                           width: 130,
                         }}
                         options={[
                           { value: 'In Session', label: 'In Session' },
                           { value: 'Not In Session', label: 'Not In Session' },
                         ]}
+                        onChange={val =>
+                          setFilteredStudents(prev =>
+                            prev.map(s =>
+                              s.email === student.email
+                                ? { ...s, session: val }
+                                : s
+                            )
+                          )
+                        }
                       />
                     </Col>
+
                     <Col flex='1'>
                       <div className='flex space-x-4 justify-end'>
                         <TbEdit
