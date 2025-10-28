@@ -17,6 +17,15 @@
   border-radius: 4px;
 }
 
+/* Dark mode scrollbar */
+.dark .student-table-wrapper {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dark .student-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 /* Keep layout stable */
 /* .student-table-header,
 .ant-list-item {
@@ -167,4 +176,33 @@
     width: 30px !important;
     height: 30px !important;
   }
+}
+
+/* ===== Dark Mode Support ===== */
+.dark .student-card {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .student-table-header {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.dark .student-table-wrapper .ant-list-item {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .student-table-wrapper .ant-list-item .ant-typography {
+  color: #e5e7eb !important;
+}
+
+.dark .custom-select .ant-select-selection-item {
+  color: var(--select-color) !important;
+}
+
+.dark .custom-select .ant-select-arrow {
+  color: var(--select-color) !important;
 }

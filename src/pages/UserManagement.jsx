@@ -106,16 +106,16 @@ export const UserManagement = () => {
             <MdPhone className='text-[#00B894] w-4 h-4' />
             <a
               href={`tel:${record.contact}`}
-              className='text-inherit hover:text-[#00B894]'
+              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
             >
               {record.contact}
             </a>
           </div>
-          <div className='flex items-center gap-1 text-gray-600'>
+          <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
             <a
               href={`mailto:${record.email}`}
-              className='text-inherit hover:text-[#00B894]'
+              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
             >
               {record.email}
             </a>
@@ -197,11 +197,11 @@ export const UserManagement = () => {
             <MdPhone className='text-[#00B894] w-4 h-4' />
             <a href={`tel:${record.contact}`}>{record.contact}</a>
           </div>
-          <div className='flex items-center gap-1 text-gray-600'>
+          <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
             <a
               href={`mailto:${record.email}`}
-              className='text-inherit hover:text-[#00B894]'
+              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
             >
               {record.email}
             </a>
@@ -242,6 +242,7 @@ export const UserManagement = () => {
     <>
       <Card
         variant='outlined'
+        className='dark:!bg-gray-800 dark:!border-gray-700'
         style={{
           borderRadius: 12,
           marginTop: 24,
@@ -250,7 +251,7 @@ export const UserManagement = () => {
       >
         <Row justify='space-between' align='middle' className='mb-4'>
           <Col>
-            <Title level={5} style={{ marginBottom: 0 }}>
+            <Title level={5} style={{ marginBottom: 0 }} className='dark:text-gray-200'>
               User Management
             </Title>
           </Col>
@@ -266,7 +267,7 @@ export const UserManagement = () => {
               className={`rounded-lg ${
                 activeTab === 'students'
                   ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                  : 'bg-[#f2f3f4] text-gray-700'
+                  : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
               }`}
             >
               Students
@@ -278,7 +279,7 @@ export const UserManagement = () => {
               className={`rounded-lg  ${
                 activeTab === 'managers'
                   ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                  : 'bg-[#f2f3f4] text-gray-700'
+                  : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
               }`}
             >
               Managers
@@ -356,7 +357,7 @@ export const UserManagement = () => {
           <>
             {/* Headings */}
             <div
-              className='grid items-center text-sm font-semibold text-gray-700 mb-2 px-4 py-3 border-2 border-gray-100 box-border rounded-lg shadow-sm'
+              className='grid items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 px-4 py-3 border-2 border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 box-border rounded-lg shadow-sm'
               style={{
                 gridTemplateColumns:
                   activeTab === 'students'
@@ -390,6 +391,7 @@ export const UserManagement = () => {
               dataSource={filteredData}
               renderItem={item => (
                 <List.Item
+                  className='dark:!bg-gray-800 dark:!border-gray-700'
                   style={{
                     background: '#fff',
                     borderRadius: 12,
@@ -407,26 +409,26 @@ export const UserManagement = () => {
                           src='https://i.pravatar.cc/50?img=10'
                           size={40}
                         />
-                        <Text>{item.name}</Text>
+                        <Text className='dark:text-gray-200'>{item.name}</Text>
                       </Space>
                     </Col>
 
                     <Col flex='2'>
                       <div className='flex flex-col'>
-                        <div className='flex items-center gap-1'>
-                          <MdPhone className='text-[#00B894] w-4 h-4' />
-                          <a
-                            href={`tel:${item.contact}`}
-                            className='text-inherit hover:text-[#00B894]'
-                          >
-                            {item.contact}
-                          </a>
-                        </div>
-                        <div className='flex items-center gap-1 text-gray-600'>
+          <div className='flex items-center gap-1'>
+            <MdPhone className='text-[#00B894] w-4 h-4' />
+            <a
+              href={`tel:${item.contact}`}
+              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+            >
+              {item.contact}
+            </a>
+          </div>
+                        <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
                           <FaEnvelope className='text-[#00B894] w-4 h-4' />
                           <a
                             href={`mailto:${item.email}`}
-                            className='text-inherit hover:text-[#00B894]'
+                            className='text-inherit hover:text-[#00B894] dark:text-gray-300'
                           >
                             {item.email}
                           </a>
@@ -436,32 +438,32 @@ export const UserManagement = () => {
 
                     {activeTab === 'students' ? (
                       <>
-                        <Col flex='1'>{item.grade}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{item.grade}</Col>
                         <Col flex='2'>
-                          <Text strong>{item.guardian}</Text>
+                          <Text strong className='dark:text-gray-200'>{item.guardian}</Text>
                           <div className='flex flex-col'>
                             <div className='flex items-center gap-1'>
                               <MdPhone className='text-[#00B894] w-4 h-4' />
                               <a
                                 href={`tel:${item.guardianContact}`}
-                                className='text-inherit hover:text-[#00B894]'
+                                className='text-inherit hover:text-[#00B894] dark:text-gray-300'
                               >
                                 {item.guardianContact}
                               </a>
                             </div>
-                            <div className='flex items-center gap-1 text-gray-600'>
+                            <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
                               <FaEnvelope className='text-[#00B894] w-4 h-4' />
                               <a
                                 href={`mailto:${item.guardianEmail}`}
-                                className='text-inherit hover:text-[#00B894]'
+                                className='text-inherit hover:text-[#00B894] dark:text-gray-300'
                               >
                                 {item.guardianEmail}
                               </a>
                             </div>
                           </div>
                         </Col>
-                        <Col flex='2'>{item.address}</Col>
-                        <Col flex='1'>{item.zip}</Col>
+                        <Col flex='2' className='dark:text-gray-200'>{item.address}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{item.zip}</Col>
                         <Col flex='1'>
                           <div className='flex space-x-4'>
                             <Col flex='1'>
@@ -481,9 +483,9 @@ export const UserManagement = () => {
                       </>
                     ) : (
                       <>
-                        <Col flex='1'>{item.role}</Col>
-                        <Col flex='2'>{item.address}</Col>
-                        <Col flex='1'>{item.zip}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{item.role}</Col>
+                        <Col flex='2' className='dark:text-gray-200'>{item.address}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{item.zip}</Col>
                         <Col flex='1'>
                           <div className='flex space-x-4'>
                             <RiDeleteBinLine

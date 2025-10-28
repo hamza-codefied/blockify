@@ -21,7 +21,7 @@ export default function StatsCard() {
   return (
     <div className='grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8'>
       {/* ===== Card 1 ===== */}
-      <div className='relative bg-white bg-cover bg-right rounded-2xl shadow px-5 py-4 flex flex-col justify-between overflow-hidden'>
+      <div className='relative bg-white dark:bg-gray-800 bg-cover bg-right rounded-2xl shadow dark:shadow-gray-900/50 px-5 py-4 flex flex-col justify-between overflow-hidden border border-gray-100 dark:border-gray-700'>
         <img
           src={studentIcon}
           alt='students background'
@@ -32,8 +32,8 @@ export default function StatsCard() {
         <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-6'>
           {/* Left section */}
           <div className='flex-1'>
-            <p className='text-xl sm:text-2xl text-[#a0aec0]'>Total Students</p>
-            <h3 className='text-2xl sm:text-3xl font-bold text-gray-800'>
+            <p className='text-xl sm:text-2xl text-[#a0aec0] dark:text-gray-400'>Total Students</p>
+            <h3 className='text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200'>
               150
             </h3>
 
@@ -41,11 +41,11 @@ export default function StatsCard() {
             <div className='mt-6 sm:mt-10 flex flex-wrap items-center justify-start gap-4 text-sm'>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#80dcae]'></span>
-                <span className='text-[#a0aec0]'>Signed In</span>
+                <span className='text-[#a0aec0] dark:text-gray-400'>Signed In</span>
               </div>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#ffb180]'></span>
-                <span className='text-[#a0aec0]'>Not Signed In</span>
+                <span className='text-[#a0aec0] dark:text-gray-400'>Not Signed In</span>
               </div>
             </div>
           </div>
@@ -72,7 +72,7 @@ export default function StatsCard() {
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
-              <span className='absolute inset-0 flex items-center justify-center text-base sm:text-lg font-semibold text-gray-700'>
+              <span className='absolute inset-0 flex items-center justify-center text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-200'>
                 95%
               </span>
             </div>
@@ -81,11 +81,11 @@ export default function StatsCard() {
             <div className='flex flex-col items-start justify-start gap-4 sm:gap-10 text-xs sm:text-sm'>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#80dcae]'></span>
-                <span>140 Students Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>140 Students Signed In</span>
               </div>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#ffb180]'></span>
-                <span>10 Students Not Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>10 Students Not Signed In</span>
               </div>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function StatsCard() {
       </div>
 
       {/* ===== Card 2 ===== */}
-      <div className='relative bg-white bg-cover bg-right rounded-2xl shadow px-5 py-4 flex flex-col justify-between overflow-hidden'>
+      <div className='relative bg-white dark:bg-gray-800 bg-cover bg-right rounded-2xl shadow dark:shadow-gray-900/50 px-5 py-4 flex flex-col justify-between overflow-hidden border border-gray-100 dark:border-gray-700'>
         <img
           src={studentSession}
           alt='students background'
@@ -103,8 +103,8 @@ export default function StatsCard() {
         <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-6'>
           {/* Left section */}
           <div className='flex-1'>
-            <p className='text-xl sm:text-2xl text-[#a0aec0]'>Total Students</p>
-            <h3 className='text-2xl sm:text-3xl font-bold text-gray-800'>
+            <p className='text-xl sm:text-2xl text-[#a0aec0] dark:text-gray-400'>Total Students</p>
+            <h3 className='text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200'>
               140
             </h3>
 
@@ -112,11 +112,11 @@ export default function StatsCard() {
             <div className='mt-6 sm:mt-10 flex flex-wrap items-center justify-start gap-4 text-sm'>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#80dcd4]'></span>
-                <span className='text-[#a0aec0]'>Before 08:00 am</span>
+                <span className='text-[#a0aec0] dark:text-gray-400'>Before 08:00 am</span>
               </div>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#e58080]'></span>
-                <span className='text-[#a0aec0]'>After 08:00 am</span>
+                <span className='text-[#a0aec0] dark:text-gray-400'>After 08:00 am</span>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@ export default function StatsCard() {
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
-              <span className='absolute inset-0 flex items-center justify-center text-base sm:text-lg font-semibold text-gray-700'>
+              <span className='absolute inset-0 flex items-center justify-center text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-200'>
                 70%
               </span>
             </div>
@@ -152,11 +152,11 @@ export default function StatsCard() {
             <div className='flex flex-col items-start justify-start gap-4 sm:gap-10 text-xs sm:text-sm'>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#80dcd4]'></span>
-                <span>98 Students Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>98 Students Signed In</span>
               </div>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#e58080]'></span>
-                <span>42 Students Not Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>42 Students Not Signed In</span>
               </div>
             </div>
           </div>

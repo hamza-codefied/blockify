@@ -63,3 +63,16 @@
     justify-content: space-between !important;
   }
 }
+
+/* Dark mode support for custom tabs */
+.dark .custom-tabs .ant-tabs-tab {
+  color: #9ca3af !important;
+}
+
+.dark .custom-tabs .ant-tabs-tab-active {
+  color: #00b894 !important;
+}
+
+.dark .custom-tabs .ant-tabs-tab:hover {
+  color: #00b894 !important;
+}

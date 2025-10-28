@@ -29,6 +29,7 @@ export default function StatsCard() {
             }}
             cover={
               <div
+                className='absolute top-0 left-0 w-full h-full bg-[#fafafa] dark:bg-gray-800 rounded-lg'
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -38,7 +39,6 @@ export default function StatsCard() {
                   backgroundImage: `url(${item.bg})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  backgroundColor: '#fafafa',
                   borderRadius: '8px',
                 }}
               />
@@ -49,7 +49,7 @@ export default function StatsCard() {
                 <Avatar
                   src={studentIcon}
                   size={64}
-                  style={{ backgroundColor: 'rgba(255,255,255,0.8)' }}
+                  className='bg-white/80 dark:bg-gray-700/80'
                 />
               </Col>
               <Col>
@@ -61,7 +61,8 @@ export default function StatsCard() {
                 </Title>
                 <Text
                   type='secondary'
-                  style={{ fontSize: '14px', color: '#a0aec0' }}
+                  style={{ fontSize: '14px' }}
+                  className='text-gray-500 dark:text-gray-400'
                 >
                   {item.title}
                 </Text>

@@ -25,7 +25,7 @@ export const Profile = () => {
       <StructuredData structuredData={structuredData} />
 
       <div>
-        <h1 className='text-lg font-semibold mb-4'>Profile</h1>
+        <h1 className='text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200'>Profile</h1>
 
         <div className='flex flex-col lg:flex-row justify-between items-start gap-6'>
           <InstituteDetails />
