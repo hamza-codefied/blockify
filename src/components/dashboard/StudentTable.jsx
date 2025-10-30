@@ -36,6 +36,24 @@ export default function StudentTable() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.documentElement.classList.contains('dark')
+  );
+
+  // Watch for dark mode toggle dynamically
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const students = [
     {
       name: 'Andrews',
@@ -487,18 +505,17 @@ export default function StudentTable() {
                         variant='borderless'
                         className='custom-select rounded-xl'
                         style={{
-                          backgroundColor:
-                            // Apply background color only in light mode
-                            !document.documentElement.classList.contains('dark')
-                              ? student.attendance === 'Signed In'
-                                ? '#f6ffed'
-                                : '#fff2e8'
-                              : 'transparent',
+                          backgroundColor: !isDarkMode
+                            ? student.attendance === 'Signed In'
+                              ? '#f6ffed'
+                              : '#fff2e8'
+                            : 'transparent',
                           color:
                             student.attendance === 'Signed In'
                               ? '#389e0d'
                               : '#ff4d4d',
                           width: 130,
+                          transition: 'background-color 0.3s ease',
                         }}
                         options={[
                           { value: 'Signed In', label: 'Signed In' },
