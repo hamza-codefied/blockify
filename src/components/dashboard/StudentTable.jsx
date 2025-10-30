@@ -549,10 +549,11 @@ export default function StudentTable() {
                         variant='borderless'
                         className='custom-select rounded-xl'
                         style={{
-                          backgroundColor:
-                            student.session === 'In Session'
+                          backgroundColor: !isDarkMode
+                            ? student.session === 'In Session'
                               ? '#f6ffed'
-                              : '#fff2e8',
+                              : '#fff2e8'
+                            : 'transparent',
                           color:
                             student.session === 'In Session'
                               ? '#389e0d'
