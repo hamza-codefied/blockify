@@ -242,7 +242,7 @@ export default function StudentTable() {
             variant='borderless'
             className='custom-select rounded-xl'
             style={{
-              // backgroundColor: bgColor,
+              backgroundColor: isDarkMode ? 'transparent' : bgColor,
               color: textColor,
               width: 120,
             }}
