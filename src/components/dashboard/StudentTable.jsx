@@ -487,10 +487,13 @@ export default function StudentTable() {
                         variant='borderless'
                         className='custom-select rounded-xl'
                         style={{
-                          // backgroundColor:
-                          //   student.attendance === 'Signed In'
-                          //     ? '#f6ffed'
-                          //     : '#fff2e8',
+                          backgroundColor:
+                            // Apply background color only in light mode
+                            !document.documentElement.classList.contains('dark')
+                              ? student.attendance === 'Signed In'
+                                ? '#f6ffed'
+                                : '#fff2e8'
+                              : 'transparent',
                           color:
                             student.attendance === 'Signed In'
                               ? '#389e0d'
