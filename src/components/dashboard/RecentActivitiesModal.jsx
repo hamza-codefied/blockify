@@ -47,7 +47,7 @@ const RecentActivitiesModal = ({ open, onClose }) => {
             <List.Item.Meta
               avatar={<Avatar icon={item.icon} className='bg-gray-100' />}
               title={
-                <span className='font-medium text-gray-800'>{item.title}</span>
+                <span className='font-medium text-gray-800 dark:text-gray-200'>{item.title}</span>
               }
               description={
                 <span className='text-[#00B894] text-sm'>{item.time}</span>
