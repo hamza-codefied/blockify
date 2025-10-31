@@ -4,10 +4,10 @@ import { Modal, Button } from 'antd';
 export const DeleteSessionModal = ({ open, onClose, session }) => {
   return (
     <Modal open={open} onCancel={onClose} footer={null} centered>
-      <h1 className='text-center font-semibold text-lg text-black mb-4'>
+      <h1 className='text-center font-semibold text-lg text-black dark:text-white mb-4'>
         Delete
       </h1>
-      <p className='text-black font-semibold text-center mb-6'>
+      <p className='text-black dark:text-white font-semibold text-center mb-6'>
         Are you sure you want to delete the session{' '}
         <span className='font-semibold'>{session?.day || 'this session'}</span>?
       </p>

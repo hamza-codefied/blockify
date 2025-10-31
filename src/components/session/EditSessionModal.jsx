@@ -8,7 +8,7 @@ export const EditSessionModal = ({ open, onClose, session }) => {
 
   return (
     <Modal open={open} onCancel={onClose} footer={null} centered>
-      <h1 className='text-center font-semibold text-lg text-black mb-4'>
+      <h1 className='text-center font-semibold text-lg text-black dark:text-white mb-4'>
         Edit Session
       </h1>
       <Form
