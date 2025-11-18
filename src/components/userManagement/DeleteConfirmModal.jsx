@@ -1,23 +1,63 @@
+'use client';
+import React from 'react';
 import { Modal, Button, Typography } from 'antd';
+import { useDeleteStudent } from '@/hooks/useStudents';
+import { useDeleteManager } from '@/hooks/useManagers';
+
 const { Text } = Typography;
 
-export const DeleteConfirmModal = ({ open, onClose, user }) => {
+export const DeleteConfirmModal = ({ open, onClose, user, activeTab, onSuccess }) => {
+  const deleteStudentMutation = useDeleteStudent();
+  const deleteManagerMutation = useDeleteManager();
+
   if (!user) return null;
 
+  const handleDelete = async () => {
+    try {
+      if (activeTab === 'students') {
+        await deleteStudentMutation.mutateAsync(user.id);
+      } else {
+        await deleteManagerMutation.mutateAsync(user.id);
+      }
+      
+      onClose();
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      console.error('Delete error:', error);
+    }
+  };
+
+  const isLoading = activeTab === 'students' 
+    ? deleteStudentMutation.isPending 
+    : deleteManagerMutation.isPending;
+
   return (
-    <Modal open={open} onCancel={onClose} footer={null} centered>
+    <Modal 
+      open={open} 
+      onCancel={onClose} 
+      footer={null} 
+      centered
+      title={`Delete ${activeTab === 'students' ? 'Student' : 'Manager'}`}
+    >
       <div className='text-center space-y-3'>
         <Text strong className='text-lg'>
           Are you sure you want to delete{' '}
-          <span className='text-[#801818]'>{user.name}</span>?
+          <span className='text-[#801818]'>{user.fullName || user.name}</span>?
+        </Text>
+        <Text type='secondary' className='block'>
+          This action cannot be undone.
         </Text>
         <div className='flex justify-center gap-3 mt-4'>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
           <Button
             type='primary'
             danger
+            loading={isLoading}
+            onClick={handleDelete}
             style={{ backgroundColor: '#801818', borderColor: '#801818' }}
-            onClick={onClose}
+            className='hover:!bg-[#801818] hover:!border-[#801818]'
           >
             Delete
           </Button>

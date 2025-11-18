@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Modal, Switch, Input, Button } from 'antd';
-import { Link } from 'react-router-dom';
+import { useLogout } from '@/hooks/useAuth';
 import './settings.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState(null);
+  const logoutMutation = useLogout();
 
   // ✅ Load from localStorage or defaults
   useEffect(() => {
@@ -229,12 +230,15 @@ const SettingsModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* ====== Logout ====== */}
-        <Link
-          to='/'
-          className='text-red-700 hover:text-red-800 focus:text-red-800 text-[16px] font-bold'
+        <Button
+          type='text'
+          danger
+          onClick={() => logoutMutation.mutate()}
+          loading={logoutMutation.isPending}
+          className='text-red-700 hover:text-red-800 focus:text-red-800 text-[16px] font-bold p-0 h-auto'
         >
           Logout
-        </Link>
+        </Button>
 
         {/* ====== Save Button ====== */}
         <div className='flex justify-end mt-4'>
