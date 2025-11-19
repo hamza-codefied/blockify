@@ -1,43 +1,88 @@
-import React from 'react';
-import { Modal, Form, Input, Select, TimePicker, Button } from 'antd';
+import React, { useEffect } from 'react';
+import { Modal, Form, Select, TimePicker, Button } from 'antd';
+import dayjs from 'dayjs';
+import { useUpdateSchedule } from '@/hooks/useSchedules';
+import { useGetGrades } from '@/hooks/useGrades';
 
-const { Option } = Select;
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-export const EditSessionModal = ({ open, onClose, session }) => {
+export const EditSessionModal = ({ open, onClose, session, onSuccess }) => {
   const [form] = Form.useForm();
+  const updateScheduleMutation = useUpdateSchedule();
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  //>>> API returns { success: true, data: [...grades], pagination: {...} }
+  const grades = gradesData?.data || [];
+
+  useEffect(() => {
+    if (open && session) {
+      //>>> Convert HH:mm to dayjs for TimePicker
+      const startTime = session.startTime ? dayjs(session.startTime, 'HH:mm') : null;
+      const endTime = session.endTime ? dayjs(session.endTime, 'HH:mm') : null;
+
+      form.setFieldsValue({
+        dayOfWeek: session.dayOfWeek,
+        startTime: startTime,
+        endTime: endTime,
+      });
+    } else if (open) {
+      form.resetFields();
+    }
+  }, [open, session, form]);
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      
+      //>>> Convert dayjs to HH:mm format
+      const startTime = values.startTime ? values.startTime.format('HH:mm') : null;
+      const endTime = values.endTime ? values.endTime.format('HH:mm') : null;
+
+      const updateData = {
+        dayOfWeek: values.dayOfWeek,
+        startTime: startTime,
+        endTime: endTime,
+      };
+
+      await updateScheduleMutation.mutateAsync({
+        scheduleId: session.id,
+        data: updateData,
+      });
+
+      form.resetFields();
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      // Error is already handled by the mutation hook
+      console.error('Form validation or API error:', error);
+    }
+  };
+
+  const isLoading = updateScheduleMutation.isPending;
 
   return (
-    <Modal open={open} onCancel={onClose} footer={null} centered>
-      <h1 className='text-center font-semibold text-lg text-black dark:text-white mb-4'>
-        Edit Session
-      </h1>
+    <Modal
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      centered
+      title='Edit Schedule'
+    >
       <Form
         form={form}
         layout='vertical'
-        initialValues={{
-          sessionName: session?.day,
-          grade: '9th Grade',
-        }}
+        onFinish={handleSubmit}
       >
-        {/* Session Name */}
+        {/* Day of Week */}
         <Form.Item
-          label='Session Name'
-          name='sessionName'
-          rules={[{ required: true, message: 'Please enter session name' }]}
+          label='Day of Week'
+          name='dayOfWeek'
+          rules={[{ required: true, message: 'Please select day of week' }]}
         >
-          <Input placeholder='Enter session name' />
-        </Form.Item>
-
-        {/* Grade Dropdown */}
-        <Form.Item
-          label='Grade'
-          name='grade'
-          rules={[{ required: true, message: 'Please select grade' }]}
-        >
-          <Select placeholder='Select Grade'>
-            <Option value='9th Grade'>9th Grade</Option>
-            <Option value='10th Grade'>10th Grade</Option>
-            <Option value='11th Grade'>11th Grade</Option>
+          <Select placeholder='Select Day'>
+            {DAY_NAMES.map((day, index) => (
+              <Select.Option key={index} value={index}>
+                {day}
+              </Select.Option>
+            ))}
           </Select>
         </Form.Item>
 
@@ -47,7 +92,7 @@ export const EditSessionModal = ({ open, onClose, session }) => {
             label='Start Time'
             name='startTime'
             className='flex-1'
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select start time' }]}
           >
             <TimePicker use12Hours format='hh:mm a' className='w-full' />
           </Form.Item>
@@ -55,7 +100,7 @@ export const EditSessionModal = ({ open, onClose, session }) => {
             label='End Time'
             name='endTime'
             className='flex-1'
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select end time' }]}
           >
             <TimePicker use12Hours format='hh:mm a' className='w-full' />
           </Form.Item>
@@ -64,10 +109,12 @@ export const EditSessionModal = ({ open, onClose, session }) => {
         {/* Save Button */}
         <Form.Item className='mt-4 text-center'>
           <Button
-            type='text'
-            onClick={onClose}
+            type='primary'
+            onClick={handleSubmit}
+            loading={isLoading}
             style={{
               backgroundColor: '#00B894',
+              borderColor: '#00B894',
               color: '#fff',
             }}
             className='font-semibold px-20 py-2 rounded-md transition hover:!bg-[#019a7d]'
