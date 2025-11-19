@@ -1,40 +1,126 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { TbEdit } from 'react-icons/tb';
 import { HiMiniSignal } from 'react-icons/hi2';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
-import { Select } from 'antd';
+import { Select, Spin } from 'antd';
+import { useGetSchedules } from '@/hooks/useSchedules';
+import { useGetGrades } from '@/hooks/useGrades';
+import { useDeleteSchedule } from '@/hooks/useSchedules';
+
+//>>> Day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAY_NUMBERS = {
+  Sunday: 0,
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+};
+
+//>>> Format time from HH:mm to hh:mm am/pm
+const formatTime = (timeStr) => {
+  if (!timeStr) return '';
+  const [hours, minutes] = timeStr.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'pm' : 'am';
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minutes} ${ampm}`;
+};
 
 export const ManageSessionSchedules = () => {
-  const [grade, setGrade] = useState('9th Grade');
-  const schedulesData = [
-    { day: 'Monday', start: '08:00 am', end: '02:00 pm', active: true },
-    { day: 'Tuesday', start: '08:00 am', end: '02:00 pm', active: false },
-    { day: 'Wednesday', start: '08:00 am', end: '02:00 pm', active: false },
-    { day: 'Thursday', start: '08:00 am', end: '02:00 pm', active: false },
-    { day: 'Friday', start: '08:00 am', end: '02:00 pm', active: false },
-    { day: 'Saturday', start: '08:00 am', end: '02:00 pm', active: false },
-    { day: 'Sunday', start: '08:00 am', end: '02:00 pm', active: false },
-  ];
-
-  const [visibleCount, setVisibleCount] = useState(5);
+  const [selectedGradeId, setSelectedGradeId] = useState(null);
+  const [selectedGradeName, setSelectedGradeName] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
+  //>>> Fetch grades for dropdown
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  //>>> API returns { success: true, data: [...grades], pagination: {...} }
+  const grades = gradesData?.data || [];
+
+  //>>> Set default grade when grades load
+  React.useEffect(() => {
+    if (grades.length > 0 && !selectedGradeId) {
+      const firstGrade = grades[0];
+      setSelectedGradeId(firstGrade.id);
+      setSelectedGradeName(firstGrade.gradeName);
+    }
+  }, [grades, selectedGradeId]);
+
+  //>>> Fetch schedules filtered by grade
+  const { data: schedulesData, isLoading, refetch } = useGetSchedules({
+    gradeId: selectedGradeId,
+    page: 1,
+    limit: 100, // Get all schedules for the grade
+  });
+
+  const deleteScheduleMutation = useDeleteSchedule();
+
+  //>>> API returns { success: true, data: [...schedules], pagination: {...} }
+  const schedules = schedulesData?.data || [];
+
+  //>>> Group schedules by day of week and get the first one for each day
+  const schedulesByDay = useMemo(() => {
+    const grouped = {};
+    schedules.forEach(schedule => {
+      const dayName = DAY_NAMES[schedule.dayOfWeek];
+      if (!grouped[dayName]) {
+        grouped[dayName] = schedule;
+      }
+    });
+    return grouped;
+  }, [schedules]);
+
+  //>>> Get current day of week (0=Sunday, 1=Monday, etc.)
+  const currentDayOfWeek = new Date().getDay();
+  const currentDayName = DAY_NAMES[currentDayOfWeek];
+
+  //>>> Create array of all days with their schedules
+  const allDaysWithSchedules = DAY_NAMES.map(dayName => ({
+    day: dayName,
+    dayOfWeek: DAY_NUMBERS[dayName],
+    schedule: schedulesByDay[dayName] || null,
+    active: dayName === currentDayName,
+  }));
+
+  const handleGradeChange = (gradeId) => {
+    const grade = grades.find(g => g.id === gradeId);
+    setSelectedGradeId(gradeId);
+    setSelectedGradeName(grade?.gradeName || null);
+  };
+
   const handleEdit = schedule => {
-    setSelectedSchedule(schedule);
-    setIsEditOpen(true);
+    if (schedule) {
+      setSelectedSchedule(schedule);
+      setIsEditOpen(true);
+    }
   };
 
   const handleDelete = schedule => {
-    setSelectedSchedule(schedule);
-    setIsDeleteOpen(true);
+    if (schedule) {
+      setSelectedSchedule(schedule);
+      setIsDeleteOpen(true);
+    }
   };
 
-  const handleLoadMore = () => setVisibleCount(prev => prev + 5);
+  const handleDeleteConfirm = async () => {
+    if (selectedSchedule) {
+      try {
+        await deleteScheduleMutation.mutateAsync(selectedSchedule.id);
+        setIsDeleteOpen(false);
+        setSelectedSchedule(null);
+        refetch();
+      } catch (error) {
+        // Error is handled by the mutation hook
+      }
+    }
+  };
 
   return (
     <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
@@ -44,106 +130,131 @@ export const ManageSessionSchedules = () => {
           Manage Session Schedules
         </h2>
         <Select
-          value={grade}
-          onChange={setGrade}
+          value={selectedGradeId}
+          onChange={handleGradeChange}
           size='small'
           style={{
             width: 140,
           }}
-          options={[
-            { value: '8th Grade', label: '8th Grade' },
-            { value: '9th Grade', label: '9th Grade' },
-            { value: '10th Grade', label: '10th Grade' },
-            { value: '11th Grade', label: '11th Grade' },
-            { value: '12th Grade', label: '12th Grade' },
-          ]}
+          loading={!gradesData}
+          placeholder='Select Grade'
+          options={grades.map(grade => ({
+            value: grade.id,
+            label: grade.gradeName,
+          }))}
         />
       </div>
 
       {/* Schedules */}
-      <div className='h-full flex flex-col justify-between gap-[38px]'>
-        {schedulesData.slice(0, visibleCount).map((schedule, index) => (
-          <div
-            key={index}
-            className={`relative py-4 flex items-center justify-between gap-5 border-2 shadow-lg rounded-lg px-4 transition-all duration-300
-              max-sm:flex-col max-sm:items-start max-sm:gap-3 ${
-                schedule.active
-                  ? 'bg-[#2f2f2f] dark:bg-gray-700 text-white border-[#2f2f2f] dark:border-gray-600'
-                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
-              }`}
-          >
-            {/* Active badge */}
-            {schedule.active && (
-              <div className='absolute -top-[26px] right-0 flex items-center justify-center gap-2 text-[#00B894] text-sm max-sm:text-xs'>
-                <HiMiniSignal className='text-[#00B894] w-5 h-5 max-sm:w-4 max-sm:h-4' />
-                <span>Active</span>
-              </div>
-            )}
+      {isLoading ? (
+        <div className='flex justify-center items-center py-8'>
+          <Spin size='large' />
+        </div>
+      ) : !selectedGradeId ? (
+        <div className='text-center py-8 text-gray-500'>
+          Please select a grade to view schedules
+        </div>
+      ) : allDaysWithSchedules.length === 0 ? (
+        <div className='text-center py-8 text-gray-500'>
+          No schedules found for {selectedGradeName || 'this grade'}
+        </div>
+      ) : (
+        <div className='h-full flex flex-col justify-between gap-[38px]'>
+          {allDaysWithSchedules.map((dayData, index) => {
+            const schedule = dayData.schedule;
+            const hasSchedule = !!schedule;
+            
+            return (
+              <div
+                key={index}
+                className={`relative py-4 flex items-center justify-between gap-5 border-2 shadow-lg rounded-lg px-4 transition-all duration-300
+                  max-sm:flex-col max-sm:items-start max-sm:gap-3 ${
+                    dayData.active
+                      ? 'bg-[#2f2f2f] dark:bg-gray-700 text-white border-[#2f2f2f] dark:border-gray-600'
+                      : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+                  }`}
+              >
+                {/* Active badge */}
+                {dayData.active && (
+                  <div className='absolute -top-[26px] right-0 flex items-center justify-center gap-2 text-[#00B894] text-sm max-sm:text-xs'>
+                    <HiMiniSignal className='text-[#00B894] w-5 h-5 max-sm:w-4 max-sm:h-4' />
+                    <span>Active</span>
+                  </div>
+                )}
 
-            <div className='flex flex-col sm:flex-row justify-start gap-24 max-md:gap-10 max-lg:gap-18 max-xl:gap-5 w-full'>
-              {/* Day */}
-              <div className='font-medium text-base max-sm:text-sm w-[100px]'>
-                {schedule.day}
-              </div>
+                <div className='flex flex-col sm:flex-row justify-start gap-24 max-md:gap-10 max-lg:gap-18 max-xl:gap-5 w-full'>
+                  {/* Day */}
+                  <div className='font-medium text-base max-sm:text-sm w-[100px]'>
+                    {dayData.day}
+                  </div>
 
-              {/* Time line */}
-              <div className='flex items-center max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
-                <div className='flex items-center justify-between w-full max-sm:w-full'>
-                  <span className='mr-2 text-sm max-sm:text-xs'>
-                    {schedule.start}
-                  </span>
-                  <div
-                    className='flex-1 mx-2 h-[1px] w-full lg:w-20'
-                    style={{ borderBottom: '3px dotted #00B894' }}
-                  ></div>
-                  <span className='ml-2 text-sm max-sm:text-xs'>
-                    {schedule.end}
-                  </span>
+                  {/* Time line */}
+                  <div className='flex items-center max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
+                    {hasSchedule ? (
+                      <div className='flex items-center justify-between w-full max-sm:w-full'>
+                        <span className='mr-2 text-sm max-sm:text-xs'>
+                          {formatTime(schedule.startTime)}
+                        </span>
+                        <div
+                          className='flex-1 mx-2 h-[1px] w-full lg:w-20'
+                          style={{ borderBottom: '3px dotted #00B894' }}
+                        ></div>
+                        <span className='ml-2 text-sm max-sm:text-xs'>
+                          {formatTime(schedule.endTime)}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className='text-sm text-gray-400 italic'>No schedule</span>
+                    )}
+                  </div>
                 </div>
+
+                {/* Action icons */}
+                {hasSchedule && (
+                  <div className='flex space-x-2 max-sm:mt-2 max-sm:self-end'>
+                    <RiDeleteBinLine
+                      onClick={() => handleDelete(schedule)}
+                      className={`w-5 h-5 cursor-pointer ${
+                        dayData.active ? 'text-red-500' : 'text-[#801818]'
+                      }`}
+                    />
+                    <TbEdit
+                      onClick={() => handleEdit(schedule)}
+                      className={`w-5 h-5 cursor-pointer ${
+                        dayData.active ? 'text-green-500' : 'text-[#00B894]'
+                      }`}
+                    />
+                  </div>
+                )}
               </div>
-            </div>
-
-            {/* Action icons */}
-            <div className='flex space-x-2 max-sm:mt-2 max-sm:self-end'>
-              <RiDeleteBinLine
-                onClick={() => handleDelete(schedule)}
-                className={`w-5 h-5 cursor-pointer ${
-                  schedule.active ? 'text-red-500' : 'text-[#801818]'
-                }`}
-              />
-              <TbEdit
-                onClick={() => handleEdit(schedule)}
-                className={`w-5 h-5 cursor-pointer ${
-                  schedule.active ? 'text-green-500' : 'text-[#00B894]'
-                }`}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Load More Button */}
-      {visibleCount < schedulesData.length && (
-        <div className='mt-5 flex justify-center'>
-          <button
-            onClick={handleLoadMore}
-            className='bg-[#00B894] text-white px-5 py-2 rounded-md hover:bg-[#01956e] transition-all max-sm:w-full max-sm:text-sm'
-          >
-            Load More
-          </button>
+            );
+          })}
         </div>
       )}
 
       {/* Modals */}
       <EditSessionModal
         open={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
+        onClose={() => {
+          setIsEditOpen(false);
+          setSelectedSchedule(null);
+        }}
         session={selectedSchedule}
+        onSuccess={() => {
+          setIsEditOpen(false);
+          setSelectedSchedule(null);
+          refetch();
+        }}
       />
       <DeleteSessionModal
         open={isDeleteOpen}
-        onClose={() => setIsDeleteOpen(false)}
+        onClose={() => {
+          setIsDeleteOpen(false);
+          setSelectedSchedule(null);
+        }}
         session={selectedSchedule}
+        onConfirm={handleDeleteConfirm}
+        loading={deleteScheduleMutation.isPending}
       />
     </div>
   );

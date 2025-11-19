@@ -9,30 +9,96 @@ import {
   ResponsiveContainer,
   Rectangle,
 } from 'recharts';
-import { Select } from 'antd';
-import { useState, useEffect } from 'react';
+import { Select, Spin } from 'antd';
+import { useState, useEffect, useMemo } from 'react';
+import { useGetSessions } from '@/hooks/useSessions';
+import { useGetGrades } from '@/hooks/useGrades';
+import dayjs from 'dayjs';
 
 export const SessionChart = () => {
-  const [grade, setGrade] = useState('9th Grade');
+  const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Fetch grades to populate dropdown
+  const { data: gradesData, isLoading: gradesLoading } = useGetGrades({ page: 1, limit: 100 });
+  const grades = gradesData?.data || [];
+
+  // Set default grade on mount
+  useEffect(() => {
+    if (grades.length > 0 && !selectedGradeId) {
+      // Default to grade 9 if available, otherwise first grade
+      const defaultGrade = grades.find(g => g.gradeName === '9') || grades[0];
+      if (defaultGrade) {
+        setSelectedGradeId(defaultGrade.id);
+      }
+    }
+  }, [grades, selectedGradeId]);
+
+
+  // Fetch sessions for the last 7 days
+  const endDate = dayjs().endOf('day').toISOString();
+  const startDate = dayjs().subtract(6, 'days').startOf('day').toISOString();
+  
+  const { data: sessionsData, isLoading: sessionsLoading } = useGetSessions({
+    page: 1,
+    limit: 100, // Max allowed by API
+    startDate,
+    endDate,
+    ...(selectedGradeId && { gradeId: selectedGradeId })
+  });
+  const sessions = sessionsData?.data || [];
 
   useEffect(() => {
     // Detect small screen dynamically
-    const handleResize = () => setIsMobile(window.innerWidth < 1024); // sm breakpoint
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const chartData = [
-    { day: 'Monday\n13-Oct', inSession: 120, notInSession: 30 },
-    { day: 'Tuesday\n14-Oct', inSession: 125, notInSession: 30 },
-    { day: 'Wednesday\n15-Oct', inSession: 30, notInSession: 30 },
-    { day: 'Thursday\n16-Oct', inSession: 60, notInSession: 30 },
-    { day: 'Friday\n17-Oct', inSession: 90, notInSession: 30 },
-    { day: 'Saturday\n18-Oct', inSession: 0, notInSession: 0 },
-    { day: 'Sunday\n19-Oct', inSession: 0, notInSession: 0 },
-  ];
+  // Process sessions data to group by day
+  const chartData = useMemo(() => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = dayjs().subtract(6 - i, 'days');
+      return {
+        date,
+        dayName: date.format('dddd'),
+        dateStr: date.format('DD-MMM'),
+      };
+    });
+
+    return last7Days.map(({ date, dayName, dateStr }) => {
+      // Filter sessions for this day
+      const daySessions = sessions.filter(session => {
+        const sessionStart = dayjs(session.startTimestamp);
+        return sessionStart.isSame(date, 'day');
+      });
+
+      // Count active sessions (students in session)
+      const activeSessions = daySessions.filter(s => s.status === 'active').length;
+      
+      // Count ended/cancelled sessions (students not in session)
+      const endedSessions = daySessions.filter(s => s.status === 'ended' || s.status === 'cancelled').length;
+
+      return {
+        day: `${dayName}\n${dateStr}`,
+        inSession: activeSessions,
+        notInSession: endedSessions,
+      };
+    });
+  }, [sessions]);
+
+  const isLoading = gradesLoading || sessionsLoading;
+
+  if (isLoading) {
+    return (
+      <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
+        <div className='flex justify-center items-center h-64'>
+          <Spin size="large" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
@@ -43,17 +109,15 @@ export const SessionChart = () => {
         </h2>
 
         <Select
-          value={grade}
-          onChange={setGrade}
+          value={selectedGradeId}
+          onChange={setSelectedGradeId}
           size='small'
           style={{ width: 140 }}
-          options={[
-            { value: '8th Grade', label: '8th Grade' },
-            { value: '9th Grade', label: '9th Grade' },
-            { value: '10th Grade', label: '10th Grade' },
-            { value: '11th Grade', label: '11th Grade' },
-            { value: '12th Grade', label: '12th Grade' },
-          ]}
+          placeholder="Select Grade"
+          options={grades.map(grade => ({
+            value: grade.id,
+            label: `${grade.gradeName}${grade.gradeName.match(/^\d+$/) ? 'th Grade' : ''}`,
+          }))}
         />
       </div>
 

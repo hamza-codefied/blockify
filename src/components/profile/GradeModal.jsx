@@ -1,83 +1,88 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Modal, Form, Input, Button } from 'antd';
+import { useCreateGrade, useUpdateGrade } from '@/hooks/useGrades';
 
-export const GradeModal = ({ open, onClose, mode, gradeData }) => {
+export const GradeModal = ({ open, onClose, mode, gradeData, onSuccess }) => {
   const [form] = Form.useForm();
+  const createGradeMutation = useCreateGrade();
+  const updateGradeMutation = useUpdateGrade();
 
   // When opening modal, pre-fill form if in edit mode
-  React.useEffect(() => {
-    if (mode === 'edit' && gradeData) {
-      form.setFieldsValue({
-        grade: gradeData.grade,
-        students: gradeData.students,
-      });
-    } else {
-      form.resetFields();
+  useEffect(() => {
+    if (open) {
+      if (mode === 'edit' && gradeData) {
+        form.setFieldsValue({
+          gradeName: gradeData.gradeName,
+        });
+      } else {
+        form.resetFields();
+      }
     }
-  }, [mode, gradeData, form]);
+  }, [mode, gradeData, form, open]);
 
-  const handleSubmit = () => {
-    form.validateFields().then(values => {
-      console.log(`${mode === 'edit' ? 'Editing' : 'Adding'} grade:`, values);
-      onClose(); // Close modal for now (no API yet)
-    });
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      
+      if (mode === 'edit' && gradeData) {
+        // Update grade
+        const updateData = {
+          gradeName: values.gradeName,
+        };
+        await updateGradeMutation.mutateAsync({
+          gradeId: gradeData.id,
+          data: updateData,
+        });
+      } else {
+        // Create grade
+        const createData = {
+          gradeName: values.gradeName,
+        };
+        await createGradeMutation.mutateAsync(createData);
+      }
+      
+      form.resetFields();
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      // Error is already handled by the mutation hook
+      console.error('Form validation or API error:', error);
+    }
   };
+
+  const isLoading = mode === 'edit' 
+    ? updateGradeMutation.isPending 
+    : createGradeMutation.isPending;
 
   return (
     <Modal
       title={mode === 'edit' ? 'Edit Grade' : 'Add Grade'}
       open={open}
       onCancel={onClose}
-      footer={null}
+      onOk={handleSubmit}
+      okText={mode === 'edit' ? 'Update' : 'Add'}
+      cancelText='Cancel'
+      confirmLoading={isLoading}
       centered
+      okButtonProps={{
+        style: {
+          backgroundColor: '#00B894',
+          borderColor: '#00B894',
+        },
+      }}
     >
       <Form form={form} layout='vertical'>
         {/* ===== Grade Name ===== */}
         <Form.Item
-          label='Grade'
-          name='grade'
-          rules={[{ required: true, message: 'Please enter grade name' }]}
-        >
-          <Input placeholder='Enter grade name' />
-        </Form.Item>
-
-        {/* ===== Number of Students ===== */}
-        <Form.Item
-          label='Number of Students'
-          name='students'
+          label='Grade Name'
+          name='gradeName'
           rules={[
-            { required: true, message: 'Please enter number of students' },
-            {
-              validator: (_, value) => {
-                if (value === undefined || value === '')
-                  return Promise.resolve();
-                if (Number(value) <= 0)
-                  return Promise.reject(
-                    new Error('Number of students must be greater than 0')
-                  );
-                return Promise.resolve();
-              },
-            },
+            { required: true, message: 'Please enter grade name' },
+            { min: 2, message: 'Grade name must be at least 2 characters' },
+            { max: 100, message: 'Grade name must not exceed 100 characters' },
           ]}
         >
-          <Input
-            type='number'
-            placeholder='Enter number of students'
-            min={1} // ✅ prevents negative numbers using HTML input control
-            onWheel={e => e.target.blur()} // optional: disables scroll changing value
-          />
-        </Form.Item>
-
-        {/* ===== Submit Button ===== */}
-        <Form.Item className='text-center mt-4'>
-          <Button
-            type='primary'
-            onClick={handleSubmit}
-            className='bg-[#00B894] hover:bg-[#019a7d] border-none px-10 py-2 rounded-[4px]'
-          >
-            {mode === 'edit' ? 'Update' : 'Add'}
-          </Button>
+          <Input placeholder='e.g., Grade 9, 9th Grade' />
         </Form.Item>
       </Form>
     </Modal>
