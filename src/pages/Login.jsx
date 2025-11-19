@@ -1,58 +1,57 @@
 import { useState, useEffect } from 'react';
-// import { useThrow } from '@hooks/useThrow'
-// import { useAuthStore } from '@stores/useAuthStore'
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-// import { useMessage } from '@context/MessageProvider'
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Form, Input, Button, Typography, Image, Divider, Alert } from 'antd';
+import { Form, Input, Button, Typography, Alert, message } from 'antd';
+import { useLogin } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
 import logo from '@/images/logo.png';
 
 const { Text } = Typography;
 
 export default function Login() {
-  // const { login } = useAuthStore();
-  // const { showMessage } = useMessage();
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const suspended = queryParams.get('suspended');
   const [showAlert, setShowAlert] = useState(false);
+  const { isAuthenticated } = useAuthStore();
+  
+  // React Query mutation for login
+  const loginMutation = useLogin();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     if (suspended) {
       setShowAlert(true);
-      // setTimeout(() => {
-      //     setShowAlert(false);
-      //     navigate('/login');
-      // }, 12000);
     }
   }, [suspended]);
 
-  // ✅ Temporary static onFinish handler
-  const onFinish = values => {
-    console.log('Logging in with:', values);
-    setLoading(true);
-    // Simulate login delay
-    setTimeout(() => {
-      setLoading(false);
-      navigate('/dashboard'); // 👈 Redirect to Dashboard
-    }, 1000);
+  // Handle form submission
+  const onFinish = async (values) => {
+    try {
+      await loginMutation.mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
+      
+      // Success message
+      message.success('Login successful!');
+    } catch (error) {
+      // Error handling
+      const errorMessage = 
+        error?.response?.data?.message || 
+        error?.message || 
+        'Login failed. Please check your credentials.';
+      
+      message.error(errorMessage);
+    }
   };
-
-  // const onFinish = async (values) => {
-  //     try {
-  //         const res = await login(values.email, values.password);
-  //         // console.log("Login response:", res); // <-- debug
-
-  //         showMessage('success', res.data.message || 'Login successful', 4);
-  //         navigate('/overview');
-  //     } catch (err) {
-  //         showMessage('error', err.response?.data?.error || err.message || err || 'Login failed', 8);
-  //     }
-  // };
-
-  // useThrow({ navigate });
 
   return (
     <>
@@ -111,7 +110,7 @@ export default function Login() {
                 type='primary'
                 htmlType='submit'
                 block
-                loading={loading}
+                loading={loginMutation.isPending}
                 className='!bg-[#00b894] !border-[#00b894] hover:!bg-[#00a884] hover:!border-[#00a884] focus:!bg-[#00a884] focus:!border-[#00a884]'
               >
                 Login

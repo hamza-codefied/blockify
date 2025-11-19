@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Card,
   List,
@@ -12,6 +12,9 @@ import {
   Row,
   Col,
   Table,
+  Spin,
+  Empty,
+  Pagination,
 } from 'antd';
 import {
   SearchOutlined,
@@ -27,6 +30,9 @@ import { PiStudentFill } from 'react-icons/pi';
 import { AddUserModal } from '@/components/userManagement/AddUserModal';
 import { EditUserModal } from '@/components/userManagement/EditUserModal';
 import { DeleteConfirmModal } from '@/components/userManagement/DeleteConfirmModal';
+import { CSVImportModal } from '@/components/userManagement/CSVImportModal';
+import { useGetStudents } from '@/hooks/useStudents';
+import { useGetManagers } from '@/hooks/useManagers';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -34,11 +40,49 @@ const { Option } = Select;
 export const UserManagement = () => {
   const [activeTab, setActiveTab] = useState('students');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [gradeFilter, setGradeFilter] = useState(null);
+  const [departmentFilter, setDepartmentFilter] = useState(null);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCSVImportModalOpen, setIsCSVImportModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // Query params for API
+  const studentsParams = useMemo(() => ({
+    page,
+    limit,
+    sort: 'created_at',
+    sortOrder: 'DESC',
+    ...(gradeFilter && gradeFilter !== 'all' && { gradeLevel: parseInt(gradeFilter) }),
+    ...(search && { search }),
+  }), [page, limit, gradeFilter, search]);
+
+  const managersParams = useMemo(() => ({
+    page,
+    limit,
+    sort: 'created_at',
+    sortOrder: 'DESC',
+    ...(departmentFilter && departmentFilter !== 'all' && { department: departmentFilter }),
+    ...(search && { search }),
+  }), [page, limit, departmentFilter, search]);
+
+  // Fetch data
+  const { data: studentsData, isLoading: studentsLoading, refetch: refetchStudents } = useGetStudents(studentsParams);
+  const { data: managersData, isLoading: managersLoading, refetch: refetchManagers } = useGetManagers(managersParams);
+
+  const isLoading = activeTab === 'students' ? studentsLoading : managersLoading;
+  
+  // Backend returns: { success: true, data: [...], pagination: {...} }
+  const data = activeTab === 'students' 
+    ? studentsData?.data || []
+    : managersData?.data || [];
+  const pagination = activeTab === 'students'
+    ? studentsData?.pagination
+    : managersData?.pagination;
 
   useEffect(() => {
     const handleResize = () => setIsMobileView(window.innerWidth < 1024);
@@ -47,34 +91,19 @@ export const UserManagement = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const dummyStudents = Array.from({ length: 10 }).map((_, i) => ({
-    id: i + 1,
-    name: 'Andrews',
-    contact: '+1 (123) 123-1234',
-    email: 'andrew@gmail.com',
-    grade: '9th Grade',
-    guardian: 'Andrew Jackson',
-    guardianContact: '+1 (123) 123-125534',
-    guardianEmail: 'andrew@gmail.com',
-    address: 'H-1, BLVD, Street 1, 001...',
-    zip: '00124',
-  }));
+  // Reset page when tab changes
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab]);
 
-  const dummyManagers = Array.from({ length: 8 }).map((_, i) => ({
-    id: i + 1,
-    name: 'Sarah Collins',
-    contact: '+1 (321) 456-7890',
-    email: 'sarah_collins@gmail.com',
-    role: 'Manager',
-    department: 'Administration',
-    address: 'H-2, BLVD, Street 5, 002...',
-    zip: '00214',
-  }));
-
-  const data = activeTab === 'students' ? dummyStudents : dummyManagers;
-  const filteredData = data.filter(item =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Handle successful operations
+  const handleSuccess = () => {
+    if (activeTab === 'students') {
+      refetchStudents();
+    } else {
+      refetchManagers();
+    }
+  };
 
   const handleEditClick = user => {
     setSelectedUser(user);
@@ -89,12 +118,12 @@ export const UserManagement = () => {
   const studentColumns = [
     {
       title: 'Name',
-      dataIndex: 'name',
+      dataIndex: 'fullName',
       width: 200,
       render: (text, record) => (
         <Space className='flex flex-col lg:flex lg:flex-row'>
           <Avatar src='https://i.pravatar.cc/50?img=10' />
-          <Text>{record.name}</Text>
+          <Text>{record.fullName}</Text>
         </Space>
       ),
     },
@@ -103,15 +132,6 @@ export const UserManagement = () => {
       render: (_, record) => (
         <div>
           <div className='flex items-center gap-1'>
-            <MdPhone className='text-[#00B894] w-4 h-4' />
-            <a
-              href={`tel:${record.contact}`}
-              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
-            >
-              {record.contact}
-            </a>
-          </div>
-          <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
             <a
               href={`mailto:${record.email}`}
@@ -125,41 +145,16 @@ export const UserManagement = () => {
     },
     {
       title: 'Grade',
-      dataIndex: 'grade',
+      render: (_, record) => record.gradeDisplayName || `${record.gradeLevel}th Grade`,
     },
     {
-      title: 'Guardian',
-      render: (_, record) => (
-        <div>
-          <Text strong>{record.guardian}</Text>
-          <div className='flex items-center gap-1'>
-            <MdPhone className='text-[#00B894] w-4 h-4' />
-            <a
-              href={`tel:${record.guardianContact}`}
-              className='text-inherit hover:text-[#00B894]'
-            >
-              {record.guardianContact}
-            </a>
-          </div>
-          <div className='flex items-center gap-1 text-gray-600'>
-            <FaEnvelope className='text-[#00B894] w-4 h-4' />
-            <a
-              href={`mailto:${record.guardianEmail}`}
-              className='text-inherit hover:text-[#00B894]'
-            >
-              {record.guardianEmail}
-            </a>
-          </div>
-        </div>
+      title: 'Status',
+      dataIndex: 'status',
+      render: (status) => (
+        <span className={`capitalize ${status === 'active' ? 'text-green-600' : 'text-gray-500'}`}>
+          {status}
+        </span>
       ),
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-    },
-    {
-      title: 'Zip',
-      dataIndex: 'zip',
     },
     {
       title: 'Action',
@@ -181,11 +176,11 @@ export const UserManagement = () => {
   const managerColumns = [
     {
       title: 'Name',
-      dataIndex: 'name',
+      dataIndex: 'fullName',
       render: (text, record) => (
         <Space className='flex flex-col lg:flex lg:flex-row items-start'>
           <Avatar src='https://i.pravatar.cc/50?img=10' />
-          <Text>{record.name}</Text>
+          <Text>{record.fullName}</Text>
         </Space>
       ),
     },
@@ -194,10 +189,6 @@ export const UserManagement = () => {
       render: (_, record) => (
         <div>
           <div className='flex items-center gap-1'>
-            <MdPhone className='text-[#00B894] w-4 h-4' />
-            <a href={`tel:${record.contact}`}>{record.contact}</a>
-          </div>
-          <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
             <a
               href={`mailto:${record.email}`}
@@ -210,16 +201,17 @@ export const UserManagement = () => {
       ),
     },
     {
-      title: 'Role',
-      dataIndex: 'role',
+      title: 'Department',
+      render: (_, record) => record.departmentDisplayName || record.department || 'N/A',
     },
     {
-      title: 'Address',
-      dataIndex: 'address',
-    },
-    {
-      title: 'Zip',
-      dataIndex: 'zip',
+      title: 'Status',
+      dataIndex: 'status',
+      render: (status) => (
+        <span className={`capitalize ${status === 'active' ? 'text-green-600' : 'text-gray-500'}`}>
+          {status}
+        </span>
+      ),
     },
     {
       title: 'Action',
@@ -304,8 +296,20 @@ export const UserManagement = () => {
                 className='hover:!border-[#00b894]'
               />
               {activeTab === 'students' ? (
-                <Select defaultValue='Grade' className='w-40'>
+                <Select 
+                  value={gradeFilter || 'all'} 
+                  onChange={setGradeFilter}
+                  className='w-40'
+                  placeholder='Filter by Grade'
+                >
                   <Option value='all'>All Grades</Option>
+                  <Option value='1'>1st Grade</Option>
+                  <Option value='2'>2nd Grade</Option>
+                  <Option value='3'>3rd Grade</Option>
+                  <Option value='4'>4th Grade</Option>
+                  <Option value='5'>5th Grade</Option>
+                  <Option value='6'>6th Grade</Option>
+                  <Option value='7'>7th Grade</Option>
                   <Option value='8'>8th Grade</Option>
                   <Option value='9'>9th Grade</Option>
                   <Option value='10'>10th Grade</Option>
@@ -313,10 +317,16 @@ export const UserManagement = () => {
                   <Option value='12'>12th Grade</Option>
                 </Select>
               ) : (
-                <Select defaultValue='Role' className='w-40'>
-                  <Option value='all'>All Roles</Option>
-                  <Option value='superadmin'>Super Admin</Option>
-                  <Option value='admin'>Admin</Option>
+                <Select 
+                  value={departmentFilter || 'all'} 
+                  onChange={setDepartmentFilter}
+                  className='w-40'
+                  placeholder='Filter by Department'
+                >
+                  <Option value='all'>All Departments</Option>
+                  <Option value='Administration'>Administration</Option>
+                  <Option value='Academics'>Academics</Option>
+                  <Option value='Operations'>Operations</Option>
                 </Select>
               )}
             </div>
@@ -338,24 +348,39 @@ export const UserManagement = () => {
             <Button
               icon={<UploadOutlined />}
               className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
+              onClick={() => setIsCSVImportModalOpen(true)}
             >
               Import CSV
             </Button>
           </Col>
         </Row>
 
-        {/* Responsive View */}
-        {isMobileView ? (
-          <Table
-            columns={activeTab === 'students' ? studentColumns : managerColumns}
-            dataSource={filteredData}
-            pagination={{ pageSize: 5 }}
-            rowKey='id'
-            scroll={{ x: true }}
-          />
+        {/* Loading State */}
+        {isLoading ? (
+          <div className='flex justify-center items-center py-12'>
+            <Spin size='large' />
+          </div>
+        ) : data.length === 0 ? (
+          <Empty description='No users found' />
         ) : (
           <>
-            {/* Headings */}
+            {/* Responsive View */}
+            {isMobileView ? (
+              <Table
+                columns={activeTab === 'students' ? studentColumns : managerColumns}
+                dataSource={data}
+                pagination={{
+                  current: pagination?.currentPage || page,
+                  pageSize: pagination?.limit || limit,
+                  total: pagination?.total || 0,
+                  onChange: setPage,
+                }}
+                rowKey='id'
+                scroll={{ x: true }}
+              />
+            ) : (
+              <>
+                {/* Headings */}
             <div
               className='grid items-center text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 px-4 py-3 border-2 border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 box-border rounded-lg shadow-sm'
               style={{
@@ -388,8 +413,32 @@ export const UserManagement = () => {
             {/* List */}
             <List
               itemLayout='horizontal'
-              dataSource={filteredData}
-              renderItem={item => (
+              dataSource={data}
+              renderItem={item => {
+                // Map API response to UI format
+                const displayItem = activeTab === 'students' ? {
+                  id: item.id,
+                  name: item.fullName,
+                  email: item.email,
+                  grade: item.gradeDisplayName || `${item.gradeLevel}th Grade`,
+                  contact: item.contact || 'N/A',
+                  guardian: item.guardian || 'N/A',
+                  guardianContact: item.guardianContact || 'N/A',
+                  guardianEmail: item.guardianEmail || 'N/A',
+                  address: item.address || 'N/A',
+                  zip: item.zip || 'N/A',
+                } : {
+                  id: item.id,
+                  name: item.fullName,
+                  email: item.email,
+                  role: 'Manager',
+                  department: item.departmentDisplayName || item.department || 'N/A',
+                  contact: item.contact || 'N/A',
+                  address: item.address || 'N/A',
+                  zip: item.zip || 'N/A',
+                };
+
+                return (
                 <List.Item
                   className='dark:!bg-gray-800 dark:!border-gray-700'
                   style={{
@@ -409,7 +458,7 @@ export const UserManagement = () => {
                           src='https://i.pravatar.cc/50?img=10'
                           size={40}
                         />
-                        <Text className='dark:text-gray-200'>{item.name}</Text>
+                        <Text className='dark:text-gray-200'>{displayItem.name}</Text>
                       </Space>
                     </Col>
 
@@ -418,19 +467,19 @@ export const UserManagement = () => {
           <div className='flex items-center gap-1'>
             <MdPhone className='text-[#00B894] w-4 h-4' />
             <a
-              href={`tel:${item.contact}`}
+              href={`tel:${displayItem.contact}`}
               className='text-inherit hover:text-[#00B894] dark:text-gray-300'
             >
-              {item.contact}
+              {displayItem.contact}
             </a>
           </div>
                         <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
                           <FaEnvelope className='text-[#00B894] w-4 h-4' />
                           <a
-                            href={`mailto:${item.email}`}
+                            href={`mailto:${displayItem.email}`}
                             className='text-inherit hover:text-[#00B894] dark:text-gray-300'
                           >
-                            {item.email}
+                            {displayItem.email}
                           </a>
                         </div>
                       </div>
@@ -438,32 +487,32 @@ export const UserManagement = () => {
 
                     {activeTab === 'students' ? (
                       <>
-                        <Col flex='1' className='dark:text-gray-200'>{item.grade}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{displayItem.grade}</Col>
                         <Col flex='2'>
-                          <Text strong className='dark:text-gray-200'>{item.guardian}</Text>
+                          <Text strong className='dark:text-gray-200'>{displayItem.guardian}</Text>
                           <div className='flex flex-col'>
                             <div className='flex items-center gap-1'>
                               <MdPhone className='text-[#00B894] w-4 h-4' />
                               <a
-                                href={`tel:${item.guardianContact}`}
+                                href={`tel:${displayItem.guardianContact}`}
                                 className='text-inherit hover:text-[#00B894] dark:text-gray-300'
                               >
-                                {item.guardianContact}
+                                {displayItem.guardianContact}
                               </a>
                             </div>
                             <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
                               <FaEnvelope className='text-[#00B894] w-4 h-4' />
                               <a
-                                href={`mailto:${item.guardianEmail}`}
+                                href={`mailto:${displayItem.guardianEmail}`}
                                 className='text-inherit hover:text-[#00B894] dark:text-gray-300'
                               >
-                                {item.guardianEmail}
+                                {displayItem.guardianEmail}
                               </a>
                             </div>
                           </div>
                         </Col>
-                        <Col flex='2' className='dark:text-gray-200'>{item.address}</Col>
-                        <Col flex='1' className='dark:text-gray-200'>{item.zip}</Col>
+                        <Col flex='2' className='dark:text-gray-200'>{displayItem.address}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{displayItem.zip}</Col>
                         <Col flex='1'>
                           <div className='flex space-x-4'>
                             <Col flex='1'>
@@ -483,9 +532,9 @@ export const UserManagement = () => {
                       </>
                     ) : (
                       <>
-                        <Col flex='1' className='dark:text-gray-200'>{item.role}</Col>
-                        <Col flex='2' className='dark:text-gray-200'>{item.address}</Col>
-                        <Col flex='1' className='dark:text-gray-200'>{item.zip}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{displayItem.department}</Col>
+                        <Col flex='2' className='dark:text-gray-200'>{displayItem.address}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{displayItem.zip}</Col>
                         <Col flex='1'>
                           <div className='flex space-x-4'>
                             <RiDeleteBinLine
@@ -502,8 +551,25 @@ export const UserManagement = () => {
                     )}
                   </Row>
                 </List.Item>
-              )}
+                );
+              }}
             />
+            
+                {/* Pagination */}
+                {pagination && pagination.totalPages > 1 && (
+                  <div className='flex justify-center mt-6'>
+                    <Pagination
+                      current={pagination.currentPage || page}
+                      total={pagination.total || 0}
+                      pageSize={pagination.limit || limit}
+                      onChange={setPage}
+                      showSizeChanger={false}
+                      showTotal={(total) => `Total ${total} users`}
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
       </Card>
@@ -511,17 +577,28 @@ export const UserManagement = () => {
       <AddUserModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSuccess={handleSuccess}
         activeTab={activeTab}
       />
       <EditUserModal
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
+        onSuccess={handleSuccess}
         user={selectedUser}
+        activeTab={activeTab}
       />
       <DeleteConfirmModal
         open={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
+        onSuccess={handleSuccess}
         user={selectedUser}
+        activeTab={activeTab}
+      />
+      <CSVImportModal
+        open={isCSVImportModalOpen}
+        onClose={() => setIsCSVImportModalOpen(false)}
+        onSuccess={handleSuccess}
+        activeTab={activeTab}
       />
     </>
   );

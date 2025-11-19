@@ -1,14 +1,27 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import { SEOProvider } from '@contexts/SEOContext';
 import { DarkModeProvider, useDarkMode } from '@contexts/DarkModeContext';
 import { getAntdTheme } from '@config/antdTheme';
 import { Layout } from '@layouts/Layout';
+import { ProtectedRoute } from '@components/auth/ProtectedRoute';
 import { PWAInstallPrompt } from '@components/pwa/PWAInstallPrompt';
 import { PWAUpdatePrompt } from '@components/pwa/PWAUpdatePrompt';
 import { PerformanceMonitor } from '@components/performance/PerformanceMonitor';
 import { preloadCriticalResources } from '@utils/performance';
+
+// Create React Query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // Pages
 import { Dashboard } from '@pages/Dashboard';
@@ -29,33 +42,37 @@ function AppContent() {
   }, []);
 
   return (
-    <ConfigProvider theme={getAntdTheme(darkMode)}>
-      <SEOProvider>
-        <Router>
-          <Routes>
-            {/* Login page as default */}
-            <Route path='/' element={<Login />} />
-            <Route path='/signup' element={<SignUp />} />
-            <Route path='/forgot-password' element={<ForgotPassword />} />
+    <QueryClientProvider client={queryClient}>
+      <ConfigProvider theme={getAntdTheme(darkMode)}>
+        <SEOProvider>
+          <Router>
+            <Routes>
+              {/* Public routes */}
+              <Route path='/' element={<Login />} />
+              <Route path='/signup' element={<SignUp />} />
+              <Route path='/forgot-password' element={<ForgotPassword />} />
 
-            {/* Protected routes under layout */}
-            <Route element={<Layout />}>
-              <Route path='/dashboard' element={<Dashboard />} />
-              <Route path='/attendance' element={<Attendance />} />
-              <Route path='/session' element={<Session />} />
-              <Route path='/users' element={<UserManagement />} />
-              <Route path='/profile' element={<Profile />} />
-            </Route>
+              {/* Protected routes under layout */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<Layout />}>
+                  <Route path='/dashboard' element={<Dashboard />} />
+                  <Route path='/attendance' element={<Attendance />} />
+                  <Route path='/session' element={<Session />} />
+                  <Route path='/users' element={<UserManagement />} />
+                  <Route path='/profile' element={<Profile />} />
+                </Route>
+              </Route>
 
-            <Route path='*' element={<NotFound />} />
-          </Routes>
+              <Route path='*' element={<NotFound />} />
+            </Routes>
 
-          <PWAInstallPrompt />
-          <PWAUpdatePrompt />
-          <PerformanceMonitor enabled={process.env.NODE_ENV === 'development'} />
-        </Router>
-      </SEOProvider>
-    </ConfigProvider>
+            <PWAInstallPrompt />
+            <PWAUpdatePrompt />
+            <PerformanceMonitor enabled={process.env.NODE_ENV === 'development'} />
+          </Router>
+        </SEOProvider>
+      </ConfigProvider>
+    </QueryClientProvider>
   );
 }
 

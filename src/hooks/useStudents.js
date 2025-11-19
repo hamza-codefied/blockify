@@ -1,0 +1,140 @@
+/**
+ * Students React Query Hooks
+ * Custom hooks for student operations using React Query
+ */
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  getStudents,
+  getStudentById,
+  createStudent,
+  updateStudent,
+  deleteStudent,
+  importStudentsCSV,
+} from '@/api/students.api';
+import { message } from 'antd';
+
+/**
+ * Hook for getting all students
+ */
+export const useGetStudents = (params = {}) => {
+  return useQuery({
+    queryKey: ['students', params],
+    queryFn: () => getStudents(params),
+    staleTime: 30 * 1000, // 30 seconds
+  });
+};
+
+/**
+ * Hook for getting a single student
+ */
+export const useGetStudent = (studentId, enabled = true) => {
+  return useQuery({
+    queryKey: ['students', studentId],
+    queryFn: () => getStudentById(studentId),
+    enabled: enabled && !!studentId,
+  });
+};
+
+/**
+ * Hook for creating a student
+ */
+export const useCreateStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createStudent,
+    onSuccess: (data) => {
+      message.success('Student created successfully');
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create student';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
+/**
+ * Hook for updating a student
+ */
+export const useUpdateStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ studentId, data }) => updateStudent(studentId, data),
+    onSuccess: (data, variables) => {
+      message.success('Student updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['students', variables.studentId] });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to update student';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
+/**
+ * Hook for deleting a student
+ */
+export const useDeleteStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteStudent,
+    onSuccess: () => {
+      message.success('Student deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to delete student';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
+/**
+ * Hook for importing students from CSV
+ */
+export const useImportStudentsCSV = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: importStudentsCSV,
+    onSuccess: (data) => {
+      const { successCount, failureCount } = data.data || {};
+      if (failureCount > 0) {
+        message.warning(
+          `Import completed: ${successCount} succeeded, ${failureCount} failed`
+        );
+      } else {
+        message.success(`Successfully imported ${successCount} students`);
+      }
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to import students';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
