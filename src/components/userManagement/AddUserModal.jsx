@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select } from 'antd';
 import { useCreateStudent } from '@/hooks/useStudents';
 import { useCreateManager } from '@/hooks/useManagers';
+import { useGetGrades } from '@/hooks/useGrades';
 
 const { Option } = Select;
 
@@ -10,6 +11,14 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
   const [form] = Form.useForm();
   const createStudentMutation = useCreateStudent();
   const createManagerMutation = useCreateManager();
+  
+  // Fetch grades for dropdown
+  const { data: gradesData } = useGetGrades({ 
+    limit: 100, 
+    sort: 'grade_name', 
+    sortOrder: 'ASC' 
+  });
+  const grades = gradesData?.data || [];
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -23,23 +32,24 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
       const values = await form.validateFields();
       
       if (activeTab === 'students') {
-        // Map form values to API format
+        // Map form values to API format - use gradeName (or gradeId if provided)
         const studentData = {
           fullName: values.name || values.fullName,
           email: values.email,
-          gradeLevel: values.grade ? parseInt(values.grade) : values.gradeLevel,
+          gradeName: values.gradeName, // Use gradeName from dropdown
           password: values.password || null, // Optional for students
           status: values.status || 'active',
         };
         
         await createStudentMutation.mutateAsync(studentData);
       } else {
-        // Map form values to API format
+        // Map form values to API format - use gradeNames array
         const managerData = {
           fullName: values.name || values.fullName,
           email: values.email,
           password: values.password, // Required for managers
           department: values.department || null,
+          gradeNames: values.gradeNames || [], // Array of grade names
           status: values.status || 'active',
         };
         
@@ -118,17 +128,21 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
         {activeTab === 'students' ? (
           <>
             <Form.Item 
-              label='Grade Level' 
-              name='gradeLevel'
-              rules={[{ required: true, message: 'Grade level is required' }]}
+              label='Grade' 
+              name='gradeName'
+              rules={[{ required: true, message: 'Grade is required' }]}
             >
-              <Select placeholder='Select grade'>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
-                  <Option key={grade} value={grade}>
-                    {grade}th Grade
-                  </Option>
-                ))}
-              </Select>
+              <Select 
+                placeholder='Select grade'
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={grades.map(grade => ({
+                  value: grade.gradeName,
+                  label: grade.gradeName
+                }))}
+              />
             </Form.Item>
 
             <Form.Item 
@@ -154,6 +168,29 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
 
             <Form.Item label='Department' name='department'>
               <Input placeholder='Enter department (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Grades' 
+              name='gradeNames'
+              rules={[
+                { required: true, message: 'At least one grade is required' },
+                { type: 'array', min: 1, message: 'Manager must be assigned to at least one grade' }
+              ]}
+              tooltip='Select one or more grades this manager will manage'
+            >
+              <Select
+                mode="multiple"
+                placeholder='Select grades'
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={grades.map(grade => ({
+                  value: grade.gradeName,
+                  label: grade.gradeName
+                }))}
+              />
             </Form.Item>
           </>
         )}

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Modal, Input, Form, Button, Select } from 'antd';
 import { useUpdateStudent } from '@/hooks/useStudents';
 import { useUpdateManager } from '@/hooks/useManagers';
+import { useGetGrades } from '@/hooks/useGrades';
 
 const { Option } = Select;
 
@@ -10,13 +11,22 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   const [form] = Form.useForm();
   const updateStudentMutation = useUpdateStudent();
   const updateManagerMutation = useUpdateManager();
+  
+  // Fetch grades for dropdown
+  const { data: gradesData } = useGetGrades({ 
+    limit: 100, 
+    sort: 'grade_name', 
+    sortOrder: 'ASC' 
+  });
+  const grades = gradesData?.data || [];
 
   useEffect(() => {
     if (open && user) {
       form.setFieldsValue({
         fullName: user.fullName,
         email: user.email,
-        gradeLevel: user.gradeLevel,
+        gradeName: user.gradeName, // Use gradeName instead of gradeLevel
+        gradeNames: user.grades?.map(g => g.gradeName) || user.gradeNames || [], // For managers
         department: user.department,
         status: user.status,
       });
@@ -33,7 +43,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         const updateData = {
           fullName: values.fullName,
           email: values.email,
-          gradeLevel: values.gradeLevel,
+          gradeName: values.gradeName, // Use gradeName instead of gradeLevel
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -47,6 +57,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           fullName: values.fullName,
           email: values.email,
           department: values.department || null,
+          gradeNames: values.gradeNames || [], // Array of grade names
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -112,17 +123,21 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         {activeTab === 'students' ? (
           <>
             <Form.Item 
-              label='Grade Level' 
-              name='gradeLevel'
-              rules={[{ required: true, message: 'Grade level is required' }]}
+              label='Grade' 
+              name='gradeName'
+              rules={[{ required: true, message: 'Grade is required' }]}
             >
-              <Select placeholder='Select grade'>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
-                  <Option key={grade} value={grade}>
-                    {grade}th Grade
-                  </Option>
-                ))}
-              </Select>
+              <Select 
+                placeholder='Select grade'
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={grades.map(grade => ({
+                  value: grade.gradeName,
+                  label: grade.gradeName
+                }))}
+              />
             </Form.Item>
 
             <Form.Item 
@@ -137,6 +152,29 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           <>
             <Form.Item label='Department' name='department'>
               <Input placeholder='Enter department (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Grades' 
+              name='gradeNames'
+              rules={[
+                { required: true, message: 'At least one grade is required' },
+                { type: 'array', min: 1, message: 'Manager must be assigned to at least one grade' }
+              ]}
+              tooltip='Select one or more grades this manager will manage'
+            >
+              <Select
+                mode="multiple"
+                placeholder='Select grades'
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={grades.map(grade => ({
+                  value: grade.gradeName,
+                  label: grade.gradeName
+                }))}
+              />
             </Form.Item>
 
             <Form.Item 

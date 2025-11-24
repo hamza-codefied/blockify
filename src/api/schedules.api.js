@@ -6,7 +6,7 @@ import apiClient from './client';
 
 /**
  * Get all schedules with pagination and filters
- * @param {Object} params - Query parameters (page, limit, sort, sortOrder, studentId, gradeId, dayOfWeek, search)
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, gradeId, managerId, dayOfWeek, search)
  * @returns {Promise} API response with schedules and pagination
  */
 export const getSchedules = async (params = {}) => {
@@ -26,7 +26,7 @@ export const getScheduleById = async (scheduleId) => {
 
 /**
  * Create a new schedule
- * @param {Object} data - Schedule data (studentId, dayOfWeek, startTime, endTime, breaks?, exceptions?)
+ * @param {Object} data - Schedule data (gradeId, managerId?, dayOfWeek, startTime, endTime, exceptions?)
  * @returns {Promise} API response with created schedule
  */
 export const createSchedule = async (data) => {
@@ -52,40 +52,6 @@ export const updateSchedule = async (scheduleId, data) => {
  */
 export const deleteSchedule = async (scheduleId) => {
   const response = await apiClient.delete(`/admin/schedules/${scheduleId}`);
-  return response.data;
-};
-
-/**
- * Create break for a schedule
- * @param {string} scheduleId - Schedule UUID
- * @param {Object} data - Break data (breakStart, breakEnd)
- * @returns {Promise} API response with created break
- */
-export const createBreak = async (scheduleId, data) => {
-  const response = await apiClient.post(`/admin/schedules/${scheduleId}/breaks`, data);
-  return response.data;
-};
-
-/**
- * Update break
- * @param {string} scheduleId - Schedule UUID
- * @param {string} breakId - Break UUID
- * @param {Object} data - Updated break data
- * @returns {Promise} API response with updated break
- */
-export const updateBreak = async (scheduleId, breakId, data) => {
-  const response = await apiClient.put(`/admin/schedules/${scheduleId}/breaks/${breakId}`, data);
-  return response.data;
-};
-
-/**
- * Delete break
- * @param {string} scheduleId - Schedule UUID
- * @param {string} breakId - Break UUID
- * @returns {Promise} API response
- */
-export const deleteBreak = async (scheduleId, breakId) => {
-  const response = await apiClient.delete(`/admin/schedules/${scheduleId}/breaks/${breakId}`);
   return response.data;
 };
 

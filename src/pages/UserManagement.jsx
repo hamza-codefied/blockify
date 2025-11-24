@@ -33,6 +33,7 @@ import { DeleteConfirmModal } from '@/components/userManagement/DeleteConfirmMod
 import { CSVImportModal } from '@/components/userManagement/CSVImportModal';
 import { useGetStudents } from '@/hooks/useStudents';
 import { useGetManagers } from '@/hooks/useManagers';
+import { useGetGrades } from '@/hooks/useGrades';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -51,13 +52,21 @@ export const UserManagement = () => {
   const [isCSVImportModalOpen, setIsCSVImportModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Fetch grades for filter dropdown
+  const { data: gradesData } = useGetGrades({ 
+    limit: 100, 
+    sort: 'grade_name', 
+    sortOrder: 'ASC' 
+  });
+  const grades = gradesData?.data || [];
+
   // Query params for API
   const studentsParams = useMemo(() => ({
     page,
     limit,
     sort: 'created_at',
     sortOrder: 'DESC',
-    ...(gradeFilter && gradeFilter !== 'all' && { gradeLevel: parseInt(gradeFilter) }),
+    ...(gradeFilter && gradeFilter !== 'all' && { gradeId: gradeFilter }),
     ...(search && { search }),
   }), [page, limit, gradeFilter, search]);
 
@@ -145,7 +154,7 @@ export const UserManagement = () => {
     },
     {
       title: 'Grade',
-      render: (_, record) => record.gradeDisplayName || `${record.gradeLevel}th Grade`,
+      render: (_, record) => record.gradeName || 'N/A',
     },
     {
       title: 'Status',
@@ -301,20 +310,17 @@ export const UserManagement = () => {
                   onChange={setGradeFilter}
                   className='w-40'
                   placeholder='Filter by Grade'
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
                 >
                   <Option value='all'>All Grades</Option>
-                  <Option value='1'>1st Grade</Option>
-                  <Option value='2'>2nd Grade</Option>
-                  <Option value='3'>3rd Grade</Option>
-                  <Option value='4'>4th Grade</Option>
-                  <Option value='5'>5th Grade</Option>
-                  <Option value='6'>6th Grade</Option>
-                  <Option value='7'>7th Grade</Option>
-                  <Option value='8'>8th Grade</Option>
-                  <Option value='9'>9th Grade</Option>
-                  <Option value='10'>10th Grade</Option>
-                  <Option value='11'>11th Grade</Option>
-                  <Option value='12'>12th Grade</Option>
+                  {grades.map(grade => (
+                    <Option key={grade.id} value={grade.id} label={grade.gradeName}>
+                      {grade.gradeName}
+                    </Option>
+                  ))}
                 </Select>
               ) : (
                 <Select 
@@ -420,7 +426,7 @@ export const UserManagement = () => {
                   id: item.id,
                   name: item.fullName,
                   email: item.email,
-                  grade: item.gradeDisplayName || `${item.gradeLevel}th Grade`,
+                  grade: item.gradeName || 'N/A',
                   contact: item.contact || 'N/A',
                   guardian: item.guardian || 'N/A',
                   guardianContact: item.guardianContact || 'N/A',

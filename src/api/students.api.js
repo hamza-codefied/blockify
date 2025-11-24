@@ -6,7 +6,7 @@ import apiClient from './client';
 
 /**
  * Get all students with pagination and filters
- * @param {Object} params - Query parameters (page, limit, sort, sortOrder, gradeLevel, status, search)
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, gradeId, status, search)
  * @returns {Promise} API response with students and pagination
  */
 export const getStudents = async (params = {}) => {
@@ -26,8 +26,8 @@ export const getStudentById = async (studentId) => {
 
 /**
  * Create a new student
- * @param {Object} data - Student data (fullName, email, gradeLevel, password?, status?)
- * @returns {Promise} API response with created student
+ * @param {Object} data - Student data (fullName, email, gradeId OR gradeName, password?, status?)
+ * @returns {Promise} API response with created student (includes enrolledAt)
  */
 export const createStudent = async (data) => {
   const response = await apiClient.post('/admin/students', data);

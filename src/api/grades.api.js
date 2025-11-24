@@ -6,7 +6,7 @@ import apiClient from './client';
 
 /**
  * Get all grades with pagination and filters
- * @param {Object} params - Query parameters (page, limit, sort, sortOrder, managerId, search)
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, search)
  * @returns {Promise} API response with grades and pagination
  */
 export const getGrades = async (params = {}) => {
@@ -26,7 +26,7 @@ export const getGradeById = async (gradeId) => {
 
 /**
  * Create a new grade
- * @param {Object} data - Grade data (gradeName, managerId?)
+ * @param {Object} data - Grade data (gradeName)
  * @returns {Promise} API response with created grade
  */
 export const createGrade = async (data) => {

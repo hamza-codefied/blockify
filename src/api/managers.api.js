@@ -26,8 +26,8 @@ export const getManagerById = async (managerId) => {
 
 /**
  * Create a new manager
- * @param {Object} data - Manager data (fullName, email, password, department?, status?)
- * @returns {Promise} API response with created manager
+ * @param {Object} data - Manager data (fullName, email, password, department?, gradeIds OR gradeNames, status?)
+ * @returns {Promise} API response with created manager (includes grades array)
  */
 export const createManager = async (data) => {
   const response = await apiClient.post('/admin/managers', data);

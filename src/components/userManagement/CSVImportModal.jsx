@@ -89,7 +89,7 @@ export const CSVImportModal = ({ open, onClose, activeTab, onSuccess }) => {
     : importManagersMutation.isPending;
 
   const csvFormat = activeTab === 'students' 
-    ? 'fullName, email, gradeLevel (optional: password, status)'
+    ? 'fullName, email, gradeLevel (required: 1-12, optional: password, status)'
     : 'fullName, email, password (optional: department, status)';
 
   return (

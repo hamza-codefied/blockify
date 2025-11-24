@@ -9,9 +9,6 @@ import {
   createSchedule,
   updateSchedule,
   deleteSchedule,
-  createBreak,
-  updateBreak,
-  deleteBreak,
   createException,
   updateException,
   deleteException,
@@ -106,80 +103,6 @@ export const useDeleteSchedule = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to delete schedule';
-      message.error(errorMessage);
-      throw error;
-    },
-  });
-};
-
-/**
- * Hook for creating a break
- */
-export const useCreateBreak = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ scheduleId, data }) => createBreak(scheduleId, data),
-    onSuccess: (data, variables) => {
-      message.success('Break added successfully');
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
-      queryClient.invalidateQueries({ queryKey: ['schedules', variables.scheduleId] });
-      return data;
-    },
-    onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to add break';
-      message.error(errorMessage);
-      throw error;
-    },
-  });
-};
-
-/**
- * Hook for updating a break
- */
-export const useUpdateBreak = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ scheduleId, breakId, data }) => updateBreak(scheduleId, breakId, data),
-    onSuccess: (data, variables) => {
-      message.success('Break updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
-      queryClient.invalidateQueries({ queryKey: ['schedules', variables.scheduleId] });
-      return data;
-    },
-    onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to update break';
-      message.error(errorMessage);
-      throw error;
-    },
-  });
-};
-
-/**
- * Hook for deleting a break
- */
-export const useDeleteBreak = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ scheduleId, breakId }) => deleteBreak(scheduleId, breakId),
-    onSuccess: (data, variables) => {
-      message.success('Break deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['schedules'] });
-      queryClient.invalidateQueries({ queryKey: ['schedules', variables.scheduleId] });
-    },
-    onError: (error) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        'Failed to delete break';
       message.error(errorMessage);
       throw error;
     },
