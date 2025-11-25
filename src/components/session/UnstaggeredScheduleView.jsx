@@ -32,7 +32,7 @@ const formatTime = (timeStr) => {
   return `${hour12}:${minutes} ${ampm}`;
 };
 
-export const ManageSessionSchedules = () => {
+export const UnstaggeredScheduleView = () => {
   const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [selectedGradeName, setSelectedGradeName] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState(null);

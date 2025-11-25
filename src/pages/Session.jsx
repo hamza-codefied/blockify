@@ -8,12 +8,14 @@ import {
   generateOrganizationStructuredData,
 } from '@utils/seo';
 import { EarlySessionRequests } from '@/components/session/EarlySessionRequests';
-import { ManageSessionSchedules } from '@/components/session/ManageSessionSchedules';
+import { UnstaggeredScheduleView } from '@/components/session/UnstaggeredScheduleView';
 import { SessionChart } from '@/components/session/SessionChart';
 import { AddSessionModal } from '@/components/session/AddSessionModal';
 import { SessionsList } from '@/components/session/SessionsList';
 import { SessionModal } from '@/components/session/SessionModal';
-import UnstaggeredSessionSchedule from '@/components/session/UnstaggeredSessionSchedule';
+import { StaggeredScheduleView } from '@/components/session/StaggeredScheduleView';
+import { useAuthStore } from '@/store/authStore';
+import { useGetSchoolSettings } from '@/hooks/useSchool';
 
 export const Session = () => {
   const structuredData = [
@@ -24,22 +26,13 @@ export const Session = () => {
   const { Title } = Typography;
   const [openScheduleModal, setOpenScheduleModal] = useState(false); // For schedules (AddSessionModal)
   const [openSessionModal, setOpenSessionModal] = useState(false); // For actual sessions (SessionModal)
-  const [isStaggered, setIsStaggered] = useState(true);
-
-  const loadSetting = () => {
-    const settings = localStorage.getItem('appSettings');
-    if (settings) {
-      const parsed = JSON.parse(settings);
-      setIsStaggered(parsed.weekendSettings?.staggeredSession ?? true);
-    }
-  };
-
-  useEffect(() => {
-    loadSetting();
-    // Listen for updates from settings modal
-    window.addEventListener('appSettingsUpdated', loadSetting);
-    return () => window.removeEventListener('appSettingsUpdated', loadSetting);
-  }, []);
+  
+  const { user } = useAuthStore();
+  const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+  
+  // Fetch school settings to determine staggered/unstaggered
+  const { data: settingsData } = useGetSchoolSettings(schoolId, !!schoolId);
+  const isStaggered = settingsData?.data?.enableStaggeredSessions || false;
 
   return (
     <>
@@ -50,6 +43,12 @@ export const Session = () => {
         <div className='flex justify-between items-center mb-4'>
           <Title level={3} className='dark:text-gray-200'>Sessions</Title>
           <div className='flex gap-2'>
+            <button
+              onClick={() => setOpenScheduleModal(true)}
+              className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
+            >
+              Add Schedule +
+            </button>
             <button
               onClick={() => setOpenSessionModal(true)}
               className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
@@ -67,9 +66,9 @@ export const Session = () => {
         <div className='grid grid-cols-1 xl:grid-cols-2 items-start gap-4 mt-4'>
           <EarlySessionRequests />
           {isStaggered ? (
-            <ManageSessionSchedules />
+            <StaggeredScheduleView />
           ) : (
-            <UnstaggeredSessionSchedule />
+            <UnstaggeredScheduleView />
           )}
         </div>
       </div>
@@ -84,8 +83,14 @@ export const Session = () => {
         }}
       />
       
-      {/* Schedule Modal - For creating Schedule templates (kept for future use) */}
-      <AddSessionModal open={openScheduleModal} onClose={() => setOpenScheduleModal(false)} />
+      {/* Schedule Modal - For creating Schedule templates */}
+      <AddSessionModal 
+        open={openScheduleModal} 
+        onClose={() => setOpenScheduleModal(false)}
+        onSuccess={() => {
+          setOpenScheduleModal(false);
+        }}
+      />
     </>
   );
 };

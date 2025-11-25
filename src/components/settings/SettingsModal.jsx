@@ -1,39 +1,144 @@
 import { useEffect, useState } from 'react';
-import { Modal, Switch, Input, Button } from 'antd';
+import { Modal, Switch, Input, Button, Spin } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { useLogout } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
+import { useGetSchoolSettings, useUpdateSchoolSettings } from '@/hooks/useSchool';
 import './settings.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
+  const { user } = useAuthStore();
+  const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+  
   const [formData, setFormData] = useState(null);
+  const [originalSettings, setOriginalSettings] = useState(null); // Store original values
+  const [acceptingEnrollment, setAcceptingEnrollment] = useState(true); // Keep in localStorage
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [pendingSaveData, setPendingSaveData] = useState(null);
   const logoutMutation = useLogout();
+  
+  // Fetch school settings from API
+  const { data: settingsData, isLoading } = useGetSchoolSettings(schoolId, isOpen && !!schoolId);
+  const updateSettingsMutation = useUpdateSchoolSettings();
 
-  // ✅ Load from localStorage or defaults
+  // ✅ Load accepting enrollment from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('appSettings');
     if (saved) {
-      setFormData(JSON.parse(saved));
-    } else {
-      setFormData({
-        schoolDomain: 'institute.edu.com',
-        studentEmergencySessionEnd: true,
-        studentScheduleChangeRequests: true,
-        weekendSettings: {
-          staggeredSession: true,
-          sessionWithMultipleBreaks: false,
-          unstaggeredSession: false,
-        },
-        acceptingEnrollment: true,
-      });
+      const parsed = JSON.parse(saved);
+      setAcceptingEnrollment(parsed.acceptingEnrollment ?? true);
     }
   }, []);
 
-  // ✅ Save settings
-  const handleSave = () => {
-    if (formData) {
-      localStorage.setItem('appSettings', JSON.stringify(formData));
-      window.dispatchEvent(new Event('appSettingsUpdated'));
+  // ✅ Load settings from API when data is fetched
+  useEffect(() => {
+    if (settingsData?.data) {
+      const data = settingsData.data;
+      const newFormData = {
+        schoolDomain: data.schoolDomain && data.schoolDomain.length > 0 
+          ? data.schoolDomain.join(', ') 
+          : '',
+        studentEmergencySessionEnd: data.allowStudentEarlySessionEndRequests ?? true,
+        studentScheduleChangeRequests: data.allowStudentScheduleChangeRequests ?? true,
+        weekendSettings: {
+          staggeredSession: data.enableStaggeredSessions ?? true,
+          sessionWithMultipleBreaks: data.enableWeekendSessions ?? false,
+          unstaggeredSession: data.enableUnstaggeredSessions ?? true,
+        },
+      };
+      setFormData(newFormData);
+      // Store original values to detect changes
+      setOriginalSettings({
+        enableStaggeredSessions: data.enableStaggeredSessions ?? true,
+        enableUnstaggeredSessions: data.enableUnstaggeredSessions ?? true,
+      });
     }
-    onClose();
+  }, [settingsData]);
+
+  // ✅ Check if schedule type is changing
+  const isScheduleTypeChanging = () => {
+    if (!originalSettings || !formData) return false;
+    
+    const oldStaggered = originalSettings.enableStaggeredSessions;
+    const oldUnstaggered = originalSettings.enableUnstaggeredSessions;
+    const newStaggered = formData.weekendSettings.staggeredSession;
+    const newUnstaggered = formData.weekendSettings.unstaggeredSession;
+    
+    return (oldStaggered !== newStaggered) || (oldUnstaggered !== newUnstaggered);
+  };
+
+  // ✅ Save settings
+  const handleSave = async () => {
+    if (!formData || !schoolId) return;
+
+    // Check if schedule type is changing
+    if (isScheduleTypeChanging()) {
+      // Store the save data and show warning
+      setPendingSaveData({
+        schoolId,
+        data: {
+          allowStudentEarlySessionEndRequests: formData.studentEmergencySessionEnd,
+          allowStudentScheduleChangeRequests: formData.studentScheduleChangeRequests,
+          enableWeekendSessions: formData.weekendSettings.sessionWithMultipleBreaks,
+          enableStaggeredSessions: formData.weekendSettings.staggeredSession,
+          enableUnstaggeredSessions: formData.weekendSettings.unstaggeredSession,
+        },
+      });
+      setShowWarningModal(true);
+      return;
+    }
+
+    // If not changing, proceed with normal save
+    await performSave();
+  };
+
+  // ✅ Perform the actual save
+  const performSave = async () => {
+    if (!formData || !schoolId) return;
+
+    try {
+      // Save accepting enrollment to localStorage (not in API)
+      const settingsToSave = {
+        ...formData,
+        acceptingEnrollment,
+      };
+      localStorage.setItem('appSettings', JSON.stringify(settingsToSave));
+      window.dispatchEvent(new Event('appSettingsUpdated'));
+
+      // Use pendingSaveData if available (from warning confirmation), otherwise use current formData
+      const saveData = pendingSaveData || {
+        schoolId,
+        data: {
+          allowStudentEarlySessionEndRequests: formData.studentEmergencySessionEnd,
+          allowStudentScheduleChangeRequests: formData.studentScheduleChangeRequests,
+          enableWeekendSessions: formData.weekendSettings.sessionWithMultipleBreaks,
+          enableStaggeredSessions: formData.weekendSettings.staggeredSession,
+          enableUnstaggeredSessions: formData.weekendSettings.unstaggeredSession,
+        },
+      };
+
+      // Update settings via API
+      await updateSettingsMutation.mutateAsync(saveData);
+
+      // Clear pending data
+      setPendingSaveData(null);
+      onClose();
+    } catch (error) {
+      // Error is already handled by the mutation hook
+      console.error('Failed to save settings:', error);
+    }
+  };
+
+  // ✅ Handle warning confirmation
+  const handleWarningConfirm = async () => {
+    setShowWarningModal(false);
+    await performSave();
+  };
+
+  // ✅ Handle warning cancel
+  const handleWarningCancel = () => {
+    setShowWarningModal(false);
+    setPendingSaveData(null);
   };
 
   const handleSwitchChange = (field, value) => {
@@ -48,18 +153,22 @@ const SettingsModal = ({ isOpen, onClose }) => {
       const updated = { ...prev.weekendSettings };
 
       if (field === 'staggeredSession') {
+        //>>> Mutual exclusivity: if enabling staggered, disable unstaggered
         if (value) {
           updated.staggeredSession = true;
           updated.unstaggeredSession = false;
         } else {
+          //>>> If disabling staggered, enable unstaggered (at least one must be true)
           updated.staggeredSession = false;
           updated.unstaggeredSession = true;
         }
       } else if (field === 'unstaggeredSession') {
+        //>>> Mutual exclusivity: if enabling unstaggered, disable staggered
         if (value) {
           updated.unstaggeredSession = true;
           updated.staggeredSession = false;
         } else {
+          //>>> If disabling unstaggered, enable staggered (at least one must be true)
           updated.unstaggeredSession = false;
           updated.staggeredSession = true;
         }
@@ -71,7 +180,23 @@ const SettingsModal = ({ isOpen, onClose }) => {
     });
   };
 
-  if (!formData) return null;
+  if (isLoading || !formData) {
+    return (
+      <Modal
+        title='Settings'
+        open={isOpen}
+        onCancel={onClose}
+        footer={null}
+        width='50vw'
+        className='custom-settings-modal'
+        centered
+      >
+        <div className='flex justify-center items-center py-8'>
+          <Spin size='large' />
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
@@ -96,9 +221,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
           <label>School Domain</label>
           <Input
             value={formData.schoolDomain}
-            onChange={e => handleSwitchChange('schoolDomain', e.target.value)}
-            placeholder='Enter school domain'
-            className='border-2 border-gray-100 w-[200px] text-center py-2 text-primary-600 underline'
+            readOnly
+            placeholder='School domain'
+            className='border-2 border-gray-100 w-[200px] text-center py-2 text-primary-600 underline cursor-not-allowed'
+            disabled
           />
         </div>
 
@@ -208,12 +334,10 @@ const SettingsModal = ({ isOpen, onClose }) => {
           <div className='border-2 border-gray-100 flex items-center justify-between px-2 py-1 rounded-lg'>
             <label>Accepting Enrollment</label>
             <Switch
-              checked={formData.acceptingEnrollment}
-              onChange={value =>
-                handleSwitchChange('acceptingEnrollment', value)
-              }
+              checked={acceptingEnrollment}
+              onChange={value => setAcceptingEnrollment(value)}
               style={{
-                backgroundColor: formData.acceptingEnrollment
+                backgroundColor: acceptingEnrollment
                   ? '#00B894'
                   : '#fff',
               }}
@@ -245,6 +369,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           <Button
             type='primary'
             onClick={handleSave}
+            loading={updateSettingsMutation.isPending}
             style={{
               backgroundColor: '#00B894',
               borderColor: '#00B894',
@@ -256,6 +381,41 @@ const SettingsModal = ({ isOpen, onClose }) => {
           </Button>
         </div>
       </div>
+
+      {/* Warning Modal for Schedule Type Change */}
+      <Modal
+        title={
+          <div className='flex items-center gap-2'>
+            <ExclamationCircleOutlined className='text-orange-500 text-xl' />
+            <span>Warning: Schedule Type Change</span>
+          </div>
+        }
+        open={showWarningModal}
+        onOk={handleWarningConfirm}
+        onCancel={handleWarningCancel}
+        okText='Yes, Reset All Schedules'
+        cancelText='Cancel'
+        okButtonProps={{
+          danger: true,
+          style: {
+            backgroundColor: '#ff4d4f',
+            borderColor: '#ff4d4f',
+          },
+        }}
+        centered
+      >
+        <div className='py-4'>
+          <p className='mb-4 text-gray-700 dark:text-gray-300'>
+            Changing the schedule type (Staggered/Unstaggered) will <strong>delete all existing schedules</strong> for all grades in your school.
+          </p>
+          <p className='mb-2 text-gray-700 dark:text-gray-300'>
+            This action cannot be undone. You will need to create new schedules after this change.
+          </p>
+          <p className='text-gray-600 dark:text-gray-400 text-sm'>
+            Are you sure you want to proceed?
+          </p>
+        </div>
+      </Modal>
     </Modal>
   );
 };

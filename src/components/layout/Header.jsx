@@ -6,10 +6,12 @@ import { MoonOutlined, SunOutlined, SettingOutlined } from '@ant-design/icons';
 import { IoIosQrScanner } from 'react-icons/io';
 import { FiBell } from 'react-icons/fi';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
-import { Popover, Badge, List, Typography } from 'antd';
+import { Popover, Badge, List, Typography, Spin } from 'antd';
 import client from '@/images/user_client.png';
 import SettingsModal from '@/components/settings/SettingsModal';
 import { useDarkMode } from '@contexts/DarkModeContext';
+import { useAuthStore } from '@/store/authStore';
+import { useGetSchoolInformation } from '@/hooks/useSchool';
 
 const { Text } = Typography;
 
@@ -17,6 +19,23 @@ export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { darkMode, toggleDarkMode } = useDarkMode();
+  const { user } = useAuthStore();
+  
+  // Get schoolId from user object
+  const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+  
+  // Fetch school information (only for logo)
+  const { data: schoolInfoData, isLoading: isLoadingSchoolInfo } = useGetSchoolInformation(
+    schoolId,
+    !!schoolId
+  );
+  
+  const schoolInfo = schoolInfoData?.data || {};
+  const schoolLogo = schoolInfo.image || client;
+  
+  // Get user information
+  const userName = user?.fullName || 'User';
+  const userRole = user?.roleDisplayName || user?.role || 'Role';
 
   const notifications = [
     {
@@ -125,19 +144,28 @@ export const Header = () => {
               </Popover>
             </div>
 
-            {/* customer */}
+            {/* User Info */}
             <div className='bg-[#f2fbfa] dark:bg-gray-800 h-[100%] flex items-center justify-center gap-1 p-3 rounded-lg'>
-              <div>
-                <img
-                  src={client}
-                  alt='customer'
-                  className='w-12 h-12 rounded-full'
-                />
-              </div>
-              <div className='text-sm dark:text-gray-200'>
-                The Campus Institute <br />
-                <span className='text-[#00B894] text-xs'>School</span>
-              </div>
+              {isLoadingSchoolInfo ? (
+                <Spin size='small' />
+              ) : (
+                <>
+                  <div>
+                    <img
+                      src={schoolLogo}
+                      alt='School Logo'
+                      className='w-12 h-12 rounded-full object-cover'
+                      onError={(e) => {
+                        e.target.src = client;
+                      }}
+                    />
+                  </div>
+                  <div className='text-sm dark:text-gray-200'>
+                    {userName} <br />
+                    <span className='text-[#00B894] text-xs'>{userRole}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -194,15 +222,24 @@ export const Header = () => {
             </div>
 
             <div className='flex items-center justify-center gap-2 bg-[#f2fbfa] dark:bg-gray-800 p-2 rounded-lg w-[90%]'>
-              <img
-                src={client}
-                alt='customer'
-                className='w-10 h-10 rounded-full'
-              />
-              <div className='text-sm text-center dark:text-gray-200'>
-                <p>The Campus Institute</p>
-                <span className='text-[#00B894] text-xs'>School</span>
-              </div>
+              {isLoadingSchoolInfo ? (
+                <Spin size='small' />
+              ) : (
+                <>
+                  <img
+                    src={schoolLogo}
+                    alt='School Logo'
+                    className='w-10 h-10 rounded-full object-cover'
+                    onError={(e) => {
+                      e.target.src = client;
+                    }}
+                  />
+                  <div className='text-sm text-center dark:text-gray-200'>
+                    <p>{userName}</p>
+                    <span className='text-[#00B894] text-xs'>{userRole}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
