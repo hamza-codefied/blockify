@@ -1,0 +1,3 @@
+# Proxy API requests to backend (to avoid mixed content HTTPS -> HTTP)
+/api/*  http://development.test-school.148.230.94.171.sslip.io/api/:splat  200
+
