@@ -67,11 +67,11 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
       const endTimeStr = endTime ? endTime.format('HH:mm') : null;
       
       // Create a schedule for each selected day
-      const schedulePromises = selectedDays.map(day => {
+        const schedulePromises = selectedDays.map(day => {
         const dayOfWeek = DAY_NUMBERS[day];
         return createScheduleMutation.mutateAsync({
           gradeId,
-          managerId: managerId || null,
+          managerId,
           dayOfWeek,
           startTime: startTimeStr,
           endTime: endTimeStr,

@@ -11,7 +11,6 @@ import { EarlySessionRequests } from '@/components/session/EarlySessionRequests'
 import { UnstaggeredScheduleView } from '@/components/session/UnstaggeredScheduleView';
 import { SessionChart } from '@/components/session/SessionChart';
 import { AddSessionModal } from '@/components/session/AddSessionModal';
-import { SessionsList } from '@/components/session/SessionsList';
 import { SessionModal } from '@/components/session/SessionModal';
 import { StaggeredScheduleView } from '@/components/session/StaggeredScheduleView';
 import { useAuthStore } from '@/store/authStore';
@@ -59,9 +58,6 @@ export const Session = () => {
         </div>
 
         <SessionChart />
-
-        {/* Sessions List - Actual Session Instances */}
-        <SessionsList />
 
         <div className='grid grid-cols-1 xl:grid-cols-2 items-start gap-4 mt-4'>
           <EarlySessionRequests />

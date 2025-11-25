@@ -64,26 +64,28 @@ export const SessionChart = () => {
         date,
         dayName: date.format('dddd'),
         dateStr: date.format('DD-MMM'),
+        dateOnly: date.format('YYYY-MM-DD'), // For comparison with sessionDate
       };
     });
 
-    return last7Days.map(({ date, dayName, dateStr }) => {
-      // Filter sessions for this day
+    return last7Days.map(({ date, dayName, dateStr, dateOnly }) => {
+      // Filter sessions for this day using sessionDate
       const daySessions = sessions.filter(session => {
-        const sessionStart = dayjs(session.startTimestamp);
-        return sessionStart.isSame(date, 'day');
+        if (!session.sessionDate) return false;
+        const sessionDateOnly = dayjs(session.sessionDate).format('YYYY-MM-DD');
+        return sessionDateOnly === dateOnly;
       });
 
-      // Count active sessions (students in session)
-      const activeSessions = daySessions.filter(s => s.status === 'active').length;
+      // Count sessions where startTimestamp is NOT null (students in session)
+      const inSession = daySessions.filter(s => s.startTimestamp !== null && s.startTimestamp !== undefined).length;
       
-      // Count ended/cancelled sessions (students not in session)
-      const endedSessions = daySessions.filter(s => s.status === 'ended' || s.status === 'cancelled').length;
+      // Count sessions where startTimestamp IS null (students not in session)
+      const notInSession = daySessions.filter(s => s.startTimestamp === null || s.startTimestamp === undefined).length;
 
       return {
         day: `${dayName}\n${dateStr}`,
-        inSession: activeSessions,
-        notInSession: endedSessions,
+        inSession,
+        notInSession,
       };
     });
   }, [sessions]);
