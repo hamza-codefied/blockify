@@ -8,6 +8,7 @@ import { useGetSchedules, useDeleteSchedule, useUpdateSchedule } from '@/hooks/u
 import { useGetGrades } from '@/hooks/useGrades';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
+import { formatTime } from '@/utils/time';
 import dayjs from 'dayjs';
 
 // Day mapping: Monday=1, Tuesday=2, ..., Sunday=0
@@ -23,16 +24,6 @@ const DAY_NUMBERS = {
 };
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-
-// Format time from HH:mm to hh:mm am/pm
-const formatTime = (timeStr) => {
-  if (!timeStr) return '';
-  const [hours, minutes] = timeStr.split(':');
-  const hour = parseInt(hours);
-  const ampm = hour >= 12 ? 'pm' : 'am';
-  const hour12 = hour % 12 || 12;
-  return `${hour12}:${minutes} ${ampm}`;
-};
 
 export const StaggeredScheduleView = () => {
   const [selectedGradeId, setSelectedGradeId] = useState(null);

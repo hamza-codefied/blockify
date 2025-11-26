@@ -9,6 +9,7 @@ import { Select, Spin } from 'antd';
 import { useGetSchedules } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useDeleteSchedule } from '@/hooks/useSchedules';
+import { formatTime } from '@/utils/time';
 
 //>>> Day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -20,16 +21,6 @@ const DAY_NUMBERS = {
   Thursday: 4,
   Friday: 5,
   Saturday: 6,
-};
-
-//>>> Format time from HH:mm to hh:mm am/pm
-const formatTime = (timeStr) => {
-  if (!timeStr) return '';
-  const [hours, minutes] = timeStr.split(':');
-  const hour = parseInt(hours);
-  const ampm = hour >= 12 ? 'pm' : 'am';
-  const hour12 = hour % 12 || 12;
-  return `${hour12}:${minutes} ${ampm}`;
 };
 
 export const UnstaggeredScheduleView = () => {

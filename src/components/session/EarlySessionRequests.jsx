@@ -1,60 +1,47 @@
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Avatar, Typography, Tag } from 'antd';
+import { Card, List, Row, Col, Avatar, Typography, Tag, Select, Pagination, Spin, Empty } from 'antd';
 import './early-session-requests.css';
 import { RequestModal } from './RequestModal';
+import { useGetRequests } from '@/hooks/useRequests';
+import { useGetGrades } from '@/hooks/useGrades';
+import { formatTime } from '@/utils/time';
 
 const { Title, Text } = Typography;
+
+// Generate avatar URL from name (for consistent avatars)
+const getAvatarUrl = (name) => {
+  if (!name) return null;
+  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return `https://i.pravatar.cc/40?img=${(hash % 70) + 1}`;
+};
 
 export const EarlySessionRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [gradeId, setGradeId] = useState(null);
 
-  const requestsData = [
-    {
-      id: 1,
-      name: 'Andrews, Aiden',
-      grade: '9th Grade',
-      time: '01:00 pm',
-      img: 'https://i.pravatar.cc/40?img=5',
-    },
-    {
-      id: 2,
-      name: 'Miller, Olivia',
-      grade: '10th Grade',
-      time: '01:20 pm',
-      img: 'https://i.pravatar.cc/40?img=6',
-    },
-    {
-      id: 3,
-      name: 'Johnson, Noah',
-      grade: '11th Grade',
-      time: '12:45 pm',
-      img: 'https://i.pravatar.cc/40?img=7',
-    },
-    {
-      id: 4,
-      name: 'Davis, Emma',
-      grade: '8th Grade',
-      time: '01:10 pm',
-      img: 'https://i.pravatar.cc/40?img=8',
-    },
-    {
-      id: 5,
-      name: 'Smith, Liam',
-      grade: '9th Grade',
-      time: '12:55 pm',
-      img: 'https://i.pravatar.cc/40?img=9',
-    },
-    {
-      id: 6,
-      name: 'Brown, Ava',
-      grade: '10th Grade',
-      time: '01:05 pm',
-      img: 'https://i.pravatar.cc/40?img=10',
-    },
-  ];
+  // Fetch grades for filter dropdown
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const grades = gradesData?.data || [];
 
-  const handleView = req => {
+  // Fetch requests with filters
+  // Hardcoded: requestType='early-end', status='pending', date=current (handled by backend)
+  const { data: requestsData, isLoading, refetch } = useGetRequests({
+    requestType: 'early-end',
+    status: 'pending',
+    gradeId: gradeId || undefined,
+    page,
+    limit,
+    sort: 'created_at',
+    sortOrder: 'DESC',
+  });
+
+  const requests = requestsData?.data?.requests || [];
+  const pagination = requestsData?.data?.pagination || {};
+
+  const handleView = (req) => {
     setSelectedRequest(req);
     setIsModalOpen(true);
   };
@@ -62,6 +49,16 @@ export const EarlySessionRequests = () => {
   const handleClose = () => {
     setIsModalOpen(false);
     setSelectedRequest(null);
+    refetch(); // Refresh list after modal closes (in case request was approved/denied)
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleGradeFilterChange = (value) => {
+    setGradeId(value);
+    setPage(1); // Reset to first page when filter changes
   };
 
   return (
@@ -72,9 +69,25 @@ export const EarlySessionRequests = () => {
         boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
       }}
     >
-      <h1 className='text-lg sm:text-xl font-semibold'>
-        Early Session End Requests
-      </h1>
+      <div className='flex justify-between items-center mb-4'>
+        <h1 className='text-lg sm:text-xl font-semibold'>
+          Early Session End Requests
+        </h1>
+        <Select
+          placeholder='Filter by Grade'
+          allowClear
+          value={gradeId}
+          onChange={handleGradeFilterChange}
+          style={{ width: 200 }}
+          options={[
+            { label: 'All Grades', value: null },
+            ...grades.map(grade => ({
+              label: grade.gradeName,
+              value: grade.id,
+            })),
+          ]}
+        />
+      </div>
 
       <div className='early-session-wrapper'>
         <Row
@@ -97,55 +110,97 @@ export const EarlySessionRequests = () => {
           <Col flex='1'>Action</Col>
         </Row>
 
-        <List
-          itemLayout='horizontal'
-          dataSource={requestsData}
-          renderItem={req => (
-            <List.Item
-              style={{
-                background: '#fff',
-                borderRadius: 12,
-                marginBottom: 8,
-                padding: '12px 16px',
-                boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-                border: '2px solid rgba(0,0,0,0.05)',
-              }}
-            >
-              <Row align='middle' style={{ width: '100%' }}>
-                <Col flex='2'>
-                  <div className='flex items-center gap-2'>
-                    <Avatar src={req.img} size={40} />
-                    <Text>{req.name}</Text>
-                  </div>
-                </Col>
-                <Col flex='1'>
-                  <Text>{req.grade}</Text>
-                </Col>
-                <Col flex='1'>
-                  <Tag
-                    color='cyan'
-                    style={{
-                      borderRadius: 12,
-                      fontWeight: 500,
-                      padding: '2px 10px',
-                    }}
-                  >
-                    {req.time}
-                  </Tag>
-                </Col>
-                <Col flex='1'>
-                  <button
-                    className='view-request-btn'
-                    onClick={() => handleView(req)}
-                  >
-                    View Request
-                  </button>
-                </Col>
-              </Row>
-            </List.Item>
-          )}
-        />
+        {isLoading ? (
+          <div className='flex justify-center items-center py-8'>
+            <Spin size='large' />
+          </div>
+        ) : requests.length === 0 ? (
+          <div className='text-center py-8 text-gray-500'>
+            <Empty description='No pending early session end requests' />
+          </div>
+        ) : (
+          <List
+            itemLayout='horizontal'
+            dataSource={requests}
+            renderItem={req => {
+              const studentName = req.student?.fullName || 'Unknown';
+              const gradeName = req.student?.grade?.gradeName || 'N/A';
+              const scheduleEndTime = req.session?.schedule?.endTime;
+              const formattedTime = scheduleEndTime ? formatTime(scheduleEndTime) : 'N/A';
+
+              return (
+                <List.Item
+                  style={{
+                    background: '#fff',
+                    borderRadius: 12,
+                    marginBottom: 8,
+                    padding: '12px 16px',
+                    boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
+                    border: '2px solid rgba(0,0,0,0.05)',
+                  }}
+                >
+                  <Row align='middle' style={{ width: '100%' }}>
+                    <Col flex='2'>
+                      <div className='flex items-center gap-2'>
+                        <Avatar src={getAvatarUrl(studentName)} size={40} />
+                        <Text>{studentName}</Text>
+                      </div>
+                    </Col>
+                    <Col flex='1'>
+                      <Text>{gradeName}</Text>
+                    </Col>
+                    <Col flex='1'>
+                      <Tag
+                        color='cyan'
+                        style={{
+                          borderRadius: 12,
+                          fontWeight: 500,
+                          padding: '2px 10px',
+                        }}
+                      >
+                        {formattedTime}
+                      </Tag>
+                    </Col>
+                    <Col flex='1'>
+                      <button
+                        className='view-request-btn'
+                        onClick={() => handleView(req)}
+                      >
+                        View Request
+                      </button>
+                    </Col>
+                  </Row>
+                </List.Item>
+              );
+            }}
+          />
+        )}
       </div>
+
+      {/* Pagination */}
+      {!isLoading && requests.length > 0 && (
+        <Row justify='space-between' align='middle' style={{ marginTop: 16 }}>
+          <Col>
+            <Text type='secondary' style={{ fontSize: 12 }}>
+              {pagination.total
+                ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
+                : 'No requests'}
+            </Text>
+          </Col>
+          {pagination.totalPages > 1 && (
+            <Col>
+              <Pagination
+                current={page}
+                total={pagination.total}
+                pageSize={limit}
+                onChange={handlePageChange}
+                showSizeChanger={false}
+                size='small'
+              />
+            </Col>
+          )}
+        </Row>
+      )}
 
       {/* Modal render */}
       <RequestModal
