@@ -117,16 +117,6 @@ export default function Login() {
               </Button>
             </Form.Item>
           </Form>
-
-          <div className='text-center text-sm mt-4'>
-            Don't have an account?{' '}
-            <Link
-              className='text-[#00b894] hover:text-[#00b894] focus:text-[#00b894]'
-              to='/signup'
-            >
-              Sign Up
-            </Link>
-          </div>
         </div>
       </section>
 

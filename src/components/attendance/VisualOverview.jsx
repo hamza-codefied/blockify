@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Card,
   List,
@@ -12,23 +12,34 @@ import {
   Typography,
   Tag,
   Table,
+  Spin,
+  Empty,
+  Pagination,
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import './visual-overview.css';
+import { useGetAttendanceSessionsList } from '@/hooks/useAttendance';
+import { useGetGrades } from '@/hooks/useGrades';
+import { formatTime } from '@/utils/time';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+// Generate avatar URL from name (for consistent avatars)
+const getAvatarUrl = (name) => {
+  if (!name) return null;
+  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return `https://i.pravatar.cc/40?img=${(hash % 70) + 1}`;
+};
+
 export default function VisualOverview() {
   const [search, setSearch] = useState('');
   const [isMobileView, setIsMobileView] = useState(false);
-  const [gradeFilter, setGradeFilter] = useState('');
-  const [attendanceFilter, setAttendanceFilter] = useState('');
-  const [arrivalFilter, setArrivalFilter] = useState('');
-  const [sessionFilter, setSessionFilter] = useState('');
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [gradeFilter, setGradeFilter] = useState(null);
+  const [attendanceFilter, setAttendanceFilter] = useState(null);
+  const [arrivalFilter, setArrivalFilter] = useState(null);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
 
   // ✅ Detect screen width dynamically
   useEffect(() => {
@@ -38,87 +49,87 @@ export default function VisualOverview() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const students = [
-    {
-      id: 1,
-      name: 'Andrews, Aiden',
-      email: 'andrews_aiden@gmail.com',
-      contact: '+1 (123) 123-1234',
-      grade: '9th Grade',
-      attendance: 'Signed In',
-      time: '07:30 am',
-      session: 'Morning',
-      img: 'https://i.pravatar.cc/40?img=1',
-    },
-    {
-      id: 2,
-      name: 'Miller, Jane',
-      email: 'miller_jane@gmail.com',
-      contact: '+1 (321) 321-1234',
-      grade: '10th Grade',
-      attendance: 'Not Signed In',
-      time: 'N/A',
-      session: 'Afternoon',
-      img: 'https://i.pravatar.cc/40?img=2',
-    },
-    {
-      id: 3,
-      name: 'Smith, John',
-      email: 'smith_john@gmail.com',
-      contact: '+1 (555) 888-9999',
-      grade: '11th Grade',
-      attendance: 'Signed In',
-      time: '08:45 am',
-      session: 'Morning',
-      img: 'https://i.pravatar.cc/40?img=3',
-    },
-    {
-      id: 4,
-      name: 'Khan, Sara',
-      email: 'sara.khan@gmail.com',
-      contact: '+1 (444) 555-6666',
-      grade: '12th Grade',
-      attendance: 'Signed In',
-      time: '09:15 am',
-      session: 'Evening',
-      img: 'https://i.pravatar.cc/40?img=4',
-    },
-    {
-      id: 5,
-      name: 'Ali, Ahmed',
-      email: 'ahmed.ali@gmail.com',
-      contact: '+1 (999) 777-2222',
-      grade: '10th Grade',
-      attendance: 'Not Signed In',
-      time: 'N/A',
-      session: 'Afternoon',
-      img: 'https://i.pravatar.cc/40?img=5',
-    },
-  ];
+  // Fetch grades for filter dropdown
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const grades = gradesData?.data || [];
 
-  // ✅ Filtering logic
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesGrade = !gradeFilter || student.grade === gradeFilter;
-    const matchesAttendance =
-      !attendanceFilter || student.attendance === attendanceFilter;
-    const matchesArrival =
-      !arrivalFilter ||
-      (arrivalFilter === 'Signed In' && student.attendance === 'Signed In') ||
-      (arrivalFilter === 'Not Signed In' &&
-        student.attendance === 'Not Signed In');
-    const matchesSession = !sessionFilter || student.session === sessionFilter;
+  // Build query params for API
+  const queryParams = useMemo(() => {
+    const params = {
+      page,
+      limit,
+      sort: 'created_at',
+      sortOrder: 'DESC',
+    };
 
-    return (
-      matchesSearch &&
-      matchesGrade &&
-      matchesAttendance &&
-      matchesArrival &&
-      matchesSession
-    );
-  });
+    if (gradeFilter) {
+      params.gradeId = gradeFilter;
+    }
+
+    if (attendanceFilter) {
+      params.attendanceStatus = attendanceFilter === 'Signed In' ? 'signed-in' : 'not-signed-in';
+    }
+
+    if (arrivalFilter) {
+      params.arrivalTime = arrivalFilter === 'Before 08:00 am' ? 'before-8am' : 'after-8am';
+    }
+
+    if (search) {
+      params.search = search;
+    }
+
+    return params;
+  }, [page, limit, gradeFilter, attendanceFilter, arrivalFilter, search]);
+
+  // Fetch attendance sessions
+  const { data: sessionsData, isLoading } = useGetAttendanceSessionsList(queryParams);
+  const sessions = sessionsData?.data?.sessions || [];
+  const pagination = sessionsData?.data?.pagination || {};
+
+  // Format sessions for display
+  const formattedStudents = useMemo(() => {
+    return sessions.map(session => {
+      const student = session.student;
+      const arrivalTime = session.arrivalTime === 'N/A' 
+        ? 'N/A' 
+        : formatTime(session.arrivalTime);
+
+      return {
+        id: session.id,
+        name: student?.fullName || 'N/A',
+        email: student?.email || 'N/A',
+        contact: student?.contact || 'N/A',
+        grade: student?.grade?.gradeName || 'N/A',
+        attendance: session.isSignedIn ? 'Signed In' : 'Not Signed In',
+        time: arrivalTime,
+        img: getAvatarUrl(student?.fullName),
+      };
+    });
+  }, [sessions]);
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setPage(1); // Reset to first page on search
+  };
+
+  const handleGradeFilterChange = (value) => {
+    setGradeFilter(value);
+    setPage(1); // Reset to first page on filter change
+  };
+
+  const handleAttendanceFilterChange = (value) => {
+    setAttendanceFilter(value);
+    setPage(1); // Reset to first page on filter change
+  };
+
+  const handleArrivalFilterChange = (value) => {
+    setArrivalFilter(value);
+    setPage(1); // Reset to first page on filter change
+  };
 
   // ✅ Table Columns (for mobile)
   const columns = [
@@ -142,15 +153,23 @@ export default function VisualOverview() {
       key: 'contact',
       render: (text, record) => (
         <div className='flex flex-col items-start gap-2'>
-          <a href={`tel:${record.contact}`} className='text-xs hover:underline'>
-            {record.contact}
-          </a>
-          <a
-            href={`mailto:${record.email}`}
-            className='text-xs hover:underline'
-          >
-            {record.email}
-          </a>
+          {record.contact && record.contact !== 'N/A' ? (
+            <a href={`tel:${record.contact}`} className='text-xs hover:underline'>
+              {record.contact}
+            </a>
+          ) : (
+            <span className='text-xs text-gray-400'>{record.contact || 'N/A'}</span>
+          )}
+          {record.email && record.email !== 'N/A' ? (
+            <a
+              href={`mailto:${record.email}`}
+              className='text-xs hover:underline'
+            >
+              {record.email}
+            </a>
+          ) : (
+            <span className='text-xs text-gray-400'>{record.email || 'N/A'}</span>
+          )}
         </div>
       ),
     },
@@ -198,7 +217,7 @@ export default function VisualOverview() {
               placeholder='Search by name'
               prefix={<SearchOutlined />}
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => handleSearchChange(e.target.value)}
               allowClear
               style={{ width: 180, borderRadius: 8 }}
               className='hover:!border-[#00b894]'
@@ -206,51 +225,75 @@ export default function VisualOverview() {
 
             {/* 🧩 Filters */}
             <Select
-              value={gradeFilter || 'Grade'}
+              placeholder='Grade'
+              allowClear
+              value={gradeFilter}
               style={{ width: 120 }}
-              onChange={v => setGradeFilter(v === 'Grade' ? '' : v)}
+              onChange={handleGradeFilterChange}
             >
-              <Option value='Grade'>Grade</Option>
-              <Option value='9th Grade'>9th Grade</Option>
-              <Option value='10th Grade'>10th Grade</Option>
-              <Option value='11th Grade'>11th Grade</Option>
-              <Option value='12th Grade'>12th Grade</Option>
+              {grades.map(grade => (
+                <Option key={grade.id} value={grade.id}>
+                  {grade.gradeName}
+                </Option>
+              ))}
             </Select>
 
             <Select
-              value={attendanceFilter || 'Attendance'}
+              placeholder='Attendance'
+              allowClear
+              value={attendanceFilter}
               style={{ width: 130 }}
-              onChange={v => setAttendanceFilter(v === 'Attendance' ? '' : v)}
+              onChange={handleAttendanceFilterChange}
             >
-              <Option value='Attendance'>Attendance</Option>
               <Option value='Signed In'>Signed In</Option>
               <Option value='Not Signed In'>Not Signed In</Option>
             </Select>
 
             <Select
-              value={arrivalFilter || 'Arrival'}
-              style={{ width: 120 }}
-              onChange={v => setArrivalFilter(v === 'Arrival' ? '' : v)}
+              placeholder='Arrival'
+              allowClear
+              value={arrivalFilter}
+              style={{ width: 140 }}
+              onChange={handleArrivalFilterChange}
             >
-              <Option value='Arrival'>Arrival</Option>
-              <Option value='Signed In'>Signed In</Option>
-              <Option value='Not Signed In'>Not Signed In</Option>
+              <Option value='Before 08:00 am'>Before 08:00 am</Option>
+              <Option value='After 08:00 am'>After 08:00 am</Option>
             </Select>
           </Space>
         </Col>
       </Row>
 
       {/* ===== Conditional Layout ===== */}
-      {isMobileView ? (
+      {isLoading ? (
+        <div className='flex justify-center items-center py-8'>
+          <Spin size='large' />
+        </div>
+      ) : formattedStudents.length === 0 ? (
+        <div className='text-center py-8 text-gray-500'>
+          <Empty description='No attendance data found' />
+        </div>
+      ) : isMobileView ? (
         <div className='mt-4'>
           <Table
             columns={columns}
-            dataSource={filteredStudents}
-            pagination={{ pageSize: 5 }}
+            dataSource={formattedStudents}
+            pagination={false}
             rowKey='id'
             scroll={{ x: 400 }}
             size='middle'
           />
+          {pagination.totalPages > 1 && (
+            <div className='flex justify-center mt-4'>
+              <Pagination
+                current={page}
+                total={pagination.total}
+                pageSize={limit}
+                onChange={handlePageChange}
+                showSizeChanger={false}
+                size='small'
+              />
+            </div>
+          )}
         </div>
       ) : (
         <div className='visual-overview-wrapper'>
@@ -279,7 +322,7 @@ export default function VisualOverview() {
 
           <List
             itemLayout='horizontal'
-            dataSource={filteredStudents}
+            dataSource={formattedStudents}
             renderItem={student => (
               <List.Item
                 style={{
@@ -300,18 +343,26 @@ export default function VisualOverview() {
                   </Col>
                   <Col flex='2'>
                     <div className='flex flex-col'>
-                      <a
-                        href={`mailto:${student.email}`}
-                        className='text-inherit hover:text-[#00B894]'
-                      >
-                        {student.email}
-                      </a>
-                      <a
-                        href={`tel:${student.contact.replace(/\D/g, '')}`}
-                        className='text-inherit hover:text-[#00B894]'
-                      >
-                        {student.contact}
-                      </a>
+                      {student.email && student.email !== 'N/A' ? (
+                        <a
+                          href={`mailto:${student.email}`}
+                          className='text-inherit hover:text-[#00B894]'
+                        >
+                          {student.email}
+                        </a>
+                      ) : (
+                        <span className='text-gray-400'>{student.email || 'N/A'}</span>
+                      )}
+                      {student.contact && student.contact !== 'N/A' ? (
+                        <a
+                          href={`tel:${student.contact.replace(/\D/g, '')}`}
+                          className='text-inherit hover:text-[#00B894]'
+                        >
+                          {student.contact}
+                        </a>
+                      ) : (
+                        <span className='text-gray-400'>{student.contact || 'N/A'}</span>
+                      )}
                     </div>
                   </Col>
                   <Col flex='1'>
@@ -347,6 +398,27 @@ export default function VisualOverview() {
               </List.Item>
             )}
           />
+          {pagination.totalPages > 1 && (
+            <Row justify='space-between' align='middle' style={{ marginTop: 16 }}>
+              <Col>
+                <Text type='secondary' style={{ fontSize: 12 }}>
+                  {pagination.total
+                    ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
+                    : 'No sessions'}
+                </Text>
+              </Col>
+              <Col>
+                <Pagination
+                  current={page}
+                  total={pagination.total}
+                  pageSize={limit}
+                  onChange={handlePageChange}
+                  showSizeChanger={false}
+                  size='small'
+                />
+              </Col>
+            </Row>
+          )}
         </div>
       )}
     </Card>

@@ -116,13 +116,13 @@ export const useImportStudentsCSV = () => {
   return useMutation({
     mutationFn: importStudentsCSV,
     onSuccess: (data) => {
-      const { successCount, failureCount } = data.data || {};
-      if (failureCount > 0) {
+      const { successful, failed } = data.data || {};
+      if (failed > 0) {
         message.warning(
-          `Import completed: ${successCount} succeeded, ${failureCount} failed`
+          `Import completed: ${successful || 0} succeeded, ${failed || 0} failed`
         );
       } else {
-        message.success(`Successfully imported ${successCount} students`);
+        message.success(`Successfully imported ${successful || 0} ${successful === 1 ? 'student' : 'students'}`);
       }
       queryClient.invalidateQueries({ queryKey: ['students'] });
       return data;

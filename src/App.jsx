@@ -31,7 +31,6 @@ import { UserManagement } from '@pages/UserManagement';
 import { Profile } from '@pages/Profile';
 import NotFound from '@pages/NotFound';
 import Login from '@pages/Login';
-import SignUp from '@/pages/SignUp';
 import ForgotPassword from '@pages/ForgotPassword';
 
 function AppContent() {
@@ -49,7 +48,6 @@ function AppContent() {
             <Routes>
               {/* Public routes */}
               <Route path='/' element={<Login />} />
-              <Route path='/signup' element={<SignUp />} />
               <Route path='/forgot-password' element={<ForgotPassword />} />
 
               {/* Protected routes under layout */}

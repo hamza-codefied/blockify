@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   List,
   Card,
@@ -13,32 +13,40 @@ import {
   Tag,
   Pagination,
   Table,
+  Spin,
+  Empty,
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import './student-table.css';
-import { RiDeleteBinLine } from 'react-icons/ri';
-import { TbEdit } from 'react-icons/tb';
-import EditStudentModal from './EditStudentModal';
-import DeleteStudentModal from './DeleteStudentModal';
+import { useGetAttendanceSessionsList } from '@/hooks/useAttendance';
+import { useGetGrades } from '@/hooks/useGrades';
+import { useUpdateSession } from '@/hooks/useSessions';
+import { formatTime } from '@/utils/time';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+// Generate avatar URL from name (for consistent avatars)
+const getAvatarUrl = (name) => {
+  if (!name) return null;
+  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return `https://i.pravatar.cc/40?img=${(hash % 70) + 1}`;
+};
+
 export default function StudentTable() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedGrade, setSelectedGrade] = useState('All Grades');
-  const [selectedAttendance, setSelectedAttendance] = useState('All');
-  const [selectedArrival, setSelectedArrival] = useState('All');
-  const [selectedSession, setSelectedSession] = useState('All');
-  const [filteredStudents, setFilteredStudents] = useState([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedGrade, setSelectedGrade] = useState(null);
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [selectedArrival, setSelectedArrival] = useState(null);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
 
   const [isDarkMode, setIsDarkMode] = useState(
     document.documentElement.classList.contains('dark')
   );
+
+  const updateSessionMutation = useUpdateSession();
 
   // Watch for dark mode toggle dynamically
   useEffect(() => {
@@ -54,137 +62,112 @@ export default function StudentTable() {
     return () => observer.disconnect();
   }, []);
 
-  const students = [
-    {
-      name: 'Andrews',
-      email: 'andrews_aiden@gmail.com',
-      contact: '+1 (123) 123-1234',
-      grade: '9th Grade',
-      attendance: 'Not Signed In',
-      time: '07:30 am',
-      session: 'In Session',
-      img: 'https://i.pravatar.cc/40?img=1',
-    },
-    {
-      name: 'Miller',
-      email: 'miller_jane@gmail.com',
-      contact: '+1 (123) 222-9876',
-      grade: '8th Grade',
-      attendance: 'Not Signed In',
-      time: 'N/A',
-      session: 'Not In Session',
-      img: 'https://i.pravatar.cc/40?img=2',
-    },
-    {
-      name: 'Smith',
-      email: 'smith_joe@gmail.com',
-      contact: '+1 (123) 321-7777',
-      grade: '10th Grade',
-      attendance: 'Signed In',
-      time: '07:50 am',
-      session: 'In Session',
-      img: 'https://i.pravatar.cc/40?img=3',
-    },
-    {
-      name: 'Hamza',
-      email: 'hamza@gmail.com',
-      contact: '+1 (123) 123-1234',
-      grade: '9th Grade',
-      attendance: 'Signed In',
-      time: '07:30 am',
-      session: 'In Session',
-      img: 'https://i.pravatar.cc/40?img=1',
-    },
-    {
-      name: 'Hammad',
-      email: 'Hammad@gmail.com',
-      contact: '+1 (123) 222-9876',
-      grade: '8th Grade',
-      attendance: 'Not Signed In',
-      time: 'N/A',
-      session: 'Not In Session',
-      img: 'https://i.pravatar.cc/40?img=2',
-    },
-    {
-      name: 'Rohail',
-      email: 'Rohail@gmail.com',
-      contact: '+1 (123) 321-7777',
-      grade: '10th Grade',
-      attendance: 'Signed In',
-      time: '07:50 am',
-      session: 'In Session',
-      img: 'https://i.pravatar.cc/40?img=3',
-    },
-  ];
+  // Fetch grades for filter dropdown
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const grades = gradesData?.data || [];
+
+  // Build query params for API
+  const queryParams = useMemo(() => {
+    const params = {
+      page,
+      limit,
+      sort: 'created_at',
+      sortOrder: 'DESC',
+    };
+
+    if (selectedGrade) {
+      params.gradeId = selectedGrade;
+    }
+
+    if (selectedAttendance) {
+      params.attendanceStatus = selectedAttendance === 'Signed In' ? 'signed-in' : 'not-signed-in';
+    }
+
+    if (selectedArrival) {
+      params.arrivalTime = selectedArrival === 'Before 08:00 am' ? 'before-8am' : 'after-8am';
+    }
+
+    if (searchTerm) {
+      params.search = searchTerm;
+    }
+
+    return params;
+  }, [page, limit, selectedGrade, selectedAttendance, selectedArrival, searchTerm]);
+
+  // Fetch attendance sessions
+  const { data: sessionsData, isLoading, refetch } = useGetAttendanceSessionsList(queryParams);
+  const sessions = sessionsData?.data?.sessions || [];
+  const pagination = sessionsData?.data?.pagination || {};
+
+  // Format sessions for display
+  const formattedStudents = useMemo(() => {
+    return sessions.map(session => {
+      const student = session.student;
+      const arrivalTime = session.arrivalTime === 'N/A' 
+        ? 'N/A' 
+        : formatTime(session.arrivalTime);
+
+      return {
+        id: session.id,
+        sessionId: session.id,
+        name: student?.fullName || 'N/A',
+        email: student?.email || 'N/A',
+        contact: student?.contact || 'N/A',
+        grade: student?.grade?.gradeName || 'N/A',
+        attendance: session.isSignedIn ? 'Signed In' : 'Not Signed In',
+        time: arrivalTime,
+        img: getAvatarUrl(student?.fullName),
+        startTimestamp: session.startTimestamp,
+      };
+    });
+  }, [sessions]);
 
   // Detect screen width dynamically
   useEffect(() => {
     const handleResize = () => setIsMobileView(window.innerWidth < 1024);
-    handleResize(); // run on mount
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 🧠 Filtering logic
-  useEffect(() => {
-    let filtered = students;
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
-    // Search filter (name, email, contact)
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        s =>
-          s.name.toLowerCase().includes(search) ||
-          s.email.toLowerCase().includes(search) ||
-          s.contact.toLowerCase().includes(search)
-      );
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
+
+  const handleGradeFilterChange = (value) => {
+    setSelectedGrade(value);
+    setPage(1);
+  };
+
+  const handleAttendanceFilterChange = (value) => {
+    setSelectedAttendance(value);
+    setPage(1);
+  };
+
+  const handleArrivalFilterChange = (value) => {
+    setSelectedArrival(value);
+    setPage(1);
+  };
+
+  const handleAttendanceStatusChange = async (sessionId, newStatus) => {
+    try {
+      // If changing to "Signed In", set start_timestamp to current time
+      // If changing to "Not Signed In", set start_timestamp to null
+      const updateData = {
+        startTimestamp: newStatus === 'Signed In' ? new Date().toISOString() : null,
+      };
+
+      await updateSessionMutation.mutateAsync({ sessionId, data: updateData });
+      refetch(); // Refresh the list
+    } catch (error) {
+      // Error is handled by the mutation hook
     }
-
-    // Grade filter
-    if (selectedGrade !== 'All Grades' && selectedGrade !== 'Grade') {
-      filtered = filtered.filter(s => s.grade === selectedGrade);
-    }
-
-    // Attendance filter
-    if (selectedAttendance !== 'All' && selectedAttendance !== 'Attendance') {
-      if (selectedAttendance === 'Present') {
-        filtered = filtered.filter(s => s.attendance === 'Signed In');
-      } else if (selectedAttendance === 'Absent') {
-        filtered = filtered.filter(s => s.attendance === 'Not Signed In');
-      } else {
-        // just placeholder for Late/Excused (you can expand logic)
-        filtered = filtered;
-      }
-    }
-
-    // Arrival filter (simple time logic)
-    if (selectedArrival !== 'All' && selectedArrival !== 'Arrival') {
-      if (selectedArrival === 'On Time') {
-        filtered = filtered.filter(s => s.time !== 'N/A');
-      } else if (selectedArrival === 'Late Arrival') {
-        filtered = filtered.filter(s => s.time > '07:45 am');
-      } else if (selectedArrival === 'Early Departure') {
-        filtered = filtered.filter(s => s.time < '07:30 am');
-      }
-    }
-
-    // Session filter
-    if (selectedSession !== 'All' && selectedSession !== 'Sessions') {
-      filtered = filtered.filter(s =>
-        selectedSession === 'InSession'
-          ? s.session === 'In Session'
-          : s.session === 'Not In Session'
-      );
-    }
-
-    setFilteredStudents(filtered);
-  }, [
-    searchTerm,
-    selectedGrade,
-    selectedAttendance,
-    selectedArrival,
-    selectedSession,
-  ]);
+  };
 
   // Columns for Table View (mobile/tablet)
   const columns = [
@@ -214,9 +197,11 @@ export default function StudentTable() {
           >
             {record.email}
           </a>
-          <a href={`tel:${record.contact}`} className='text-xs hover:underline'>
-            {record.contact}
-          </a>
+          {record.contact && record.contact !== 'N/A' && (
+            <a href={`tel:${record.contact}`} className='text-xs hover:underline'>
+              {record.contact}
+            </a>
+          )}
         </div>
       ),
     },
@@ -251,13 +236,9 @@ export default function StudentTable() {
               { value: 'Not Signed In', label: 'Not Signed In' },
             ]}
             onChange={val => {
-              // Update filteredStudents state properly
-              setFilteredStudents(prev =>
-                prev.map(s =>
-                  s.email === record.email ? { ...s, attendance: val } : s
-                )
-              );
+              handleAttendanceStatusChange(record.sessionId, val);
             }}
+            loading={updateSessionMutation.isPending}
           />
         );
       },
@@ -266,75 +247,16 @@ export default function StudentTable() {
       title: 'Time',
       dataIndex: 'time',
       key: 'time',
-      render: (time, record) => (
+      render: (time) => (
         <Input
-          defaultValue={time}
+          value={time}
           size='small'
           style={{ width: 70 }}
           bordered={false}
           variant='outlined'
-          styles={{}}
-          className='cursor-pointer bg-[#e6fffb] border-[#87e8de] rounded-lg text-center text-[#08979c]'
+          readOnly
+          className='cursor-default bg-[#e6fffb] border-[#87e8de] rounded-lg text-center text-[#08979c]'
         />
-      ),
-    },
-    {
-      title: 'Session',
-      dataIndex: 'session',
-      key: 'session',
-
-      render: (session, record) => {
-        // Instead of useState here, use the record's value directly
-        const isInSession = session === 'In Session';
-        const bgColor = isInSession ? '#f6ffed' : '#fff2e8';
-        const textColor = isInSession ? '#389e0d' : '#ff4d4d';
-
-        return (
-          <Select
-            value={session}
-            size='small'
-            variant='borderless'
-            className='custom-select rounded-xl'
-            style={{
-              backgroundColor: isDarkMode ? 'transparent' : bgColor,
-              color: textColor,
-              width: 120,
-            }}
-            options={[
-              { value: 'In Session', label: 'In Session' },
-              { value: 'Not In Session', label: 'Not In Session' },
-            ]}
-            onChange={val => {
-              // Update filteredStudents state properly
-              setFilteredStudents(prev =>
-                prev.map(s =>
-                  s.email === record.email ? { ...s, session: val } : s
-                )
-              );
-            }}
-          />
-        );
-      },
-    },
-    {
-      title: 'Action',
-      render: (_, student) => (
-        <div className='flex space-x-4'>
-          <TbEdit
-            className='w-5 h-5 cursor-pointer text-[#00B894]'
-            onClick={() => {
-              setSelectedStudent(student);
-              setIsEditModalOpen(true);
-            }}
-          />
-          <RiDeleteBinLine
-            className='w-5 h-5 cursor-pointer text-[#801818]'
-            onClick={() => {
-              setSelectedStudent(student);
-              setIsDeleteModalOpen(true);
-            }}
-          />
-        </div>
       ),
     },
   ];
@@ -364,67 +286,74 @@ export default function StudentTable() {
                 prefix={<SearchOutlined />}
                 allowClear
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={e => handleSearchChange(e.target.value)}
                 style={{ width: 180, borderRadius: 8 }}
                 className='hover:!border-[#00b894]'
               />
 
               <Select
-                defaultValue='Grade'
+                placeholder='Grade'
                 style={{ width: 120 }}
-                onChange={val => setSelectedGrade(val)}
+                value={selectedGrade}
+                onChange={handleGradeFilterChange}
+                allowClear
               >
-                <Option value='All Grades'>All Grades</Option>
-                <Option value='8th Grade'>8th Grade</Option>
-                <Option value='9th Grade'>9th Grade</Option>
-                <Option value='10th Grade'>10th Grade</Option>
-                <Option value='11th Grade'>11th Grade</Option>
-                <Option value='12th Grade'>12th Grade</Option>
+                {grades.map(grade => (
+                  <Option key={grade.id} value={grade.id}>
+                    {grade.gradeName}
+                  </Option>
+                ))}
               </Select>
 
               <Select
-                defaultValue='Attendance'
+                placeholder='Attendance'
                 style={{ width: 120 }}
-                onChange={val => setSelectedAttendance(val)}
+                value={selectedAttendance}
+                onChange={handleAttendanceFilterChange}
+                allowClear
               >
-                <Option value='All'>All</Option>
-                <Option value='Present'>Present</Option>
-                <Option value='Absent'>Absent</Option>
+                <Option value='Signed In'>Present</Option>
+                <Option value='Not Signed In'>Absent</Option>
               </Select>
 
               <Select
-                defaultValue='Arrival'
+                placeholder='Arrival'
                 style={{ width: 120 }}
-                onChange={val => setSelectedArrival(val)}
+                value={selectedArrival}
+                onChange={handleArrivalFilterChange}
+                allowClear
               >
-                <Option value='All'>All</Option>
-                <Option value='On Time'>On Time</Option>
-                <Option value='Late Arrival'>Late Arrival</Option>
-              </Select>
-
-              <Select
-                defaultValue='Sessions'
-                style={{ width: 120 }}
-                onChange={val => setSelectedSession(val)}
-              >
-                <Option value='All'>All</Option>
-                <Option value='InSession'>In Session</Option>
-                <Option value='NotInSession'>Not In Session</Option>
+                <Option value='Before 08:00 am'>Before 08:00 am</Option>
+                <Option value='After 08:00 am'>After 08:00 am</Option>
               </Select>
             </Space>
           </Col>
         </Row>
 
         {/* ===== Conditional View ===== */}
-        {isMobileView ? (
+        {isLoading && formattedStudents.length === 0 ? (
+          <div className='flex justify-center items-center py-8'>
+            <Spin size='large' />
+          </div>
+        ) : formattedStudents.length === 0 ? (
+          <div className='text-center py-8'>
+            <Empty description='No students found' />
+          </div>
+        ) : isMobileView ? (
           <div className='mt-4'>
             <Table
               columns={columns}
-              dataSource={filteredStudents}
-              pagination={{ pageSize: 5 }}
-              rowKey='email'
+              dataSource={formattedStudents}
+              pagination={{
+                current: page,
+                pageSize: limit,
+                total: pagination.total || 0,
+                onChange: handlePageChange,
+              }}
+              rowKey='id'
               scroll={{ x: 'max-content' }}
               size='middle'
+              loading={isLoading}
             />
           </div>
         ) : (
@@ -451,15 +380,12 @@ export default function StudentTable() {
               <Col flex='1'>Grade</Col>
               <Col flex='2'>Attendance</Col>
               <Col flex='1'>Time</Col>
-              <Col flex='2'>Session</Col>
-              <Col flex='1' style={{ textAlign: 'right' }}>
-                Action
-              </Col>
             </Row>
 
             <List
               itemLayout='horizontal'
-              dataSource={filteredStudents}
+              dataSource={formattedStudents}
+              loading={isLoading}
               renderItem={student => (
                 <List.Item
                   style={{
@@ -521,78 +447,21 @@ export default function StudentTable() {
                           { value: 'Signed In', label: 'Signed In' },
                           { value: 'Not Signed In', label: 'Not Signed In' },
                         ]}
-                        onChange={val =>
-                          setFilteredStudents(prev =>
-                            prev.map(s =>
-                              s.email === student.email
-                                ? { ...s, attendance: val }
-                                : s
-                            )
-                          )
-                        }
+                        onChange={val => {
+                          handleAttendanceStatusChange(student.sessionId, val);
+                        }}
+                        loading={updateSessionMutation.isPending}
                       />
                     </Col>
                     <Col flex='1'>
                       <Input
-                        defaultValue={student.time}
+                        value={student.time}
                         size='small'
                         style={{ width: 80 }}
                         variant='outlined'
-                        styles={{}}
-                        className='cursor-pointer bg-[#e6fffb] border-[#87e8de] rounded-lg text-center text-[#08979c]'
+                        readOnly
+                        className='cursor-default bg-[#e6fffb] border-[#87e8de] rounded-lg text-center text-[#08979c]'
                       />
-                    </Col>
-                    <Col flex='2'>
-                      <Select
-                        value={student.session}
-                        size='small'
-                        variant='borderless'
-                        className='custom-select rounded-xl'
-                        style={{
-                          backgroundColor: !isDarkMode
-                            ? student.session === 'In Session'
-                              ? '#f6ffed'
-                              : '#fff2e8'
-                            : 'transparent',
-                          color:
-                            student.session === 'In Session'
-                              ? '#389e0d'
-                              : '#ff4d4d',
-                          width: 130,
-                        }}
-                        options={[
-                          { value: 'In Session', label: 'In Session' },
-                          { value: 'Not In Session', label: 'Not In Session' },
-                        ]}
-                        onChange={val =>
-                          setFilteredStudents(prev =>
-                            prev.map(s =>
-                              s.email === student.email
-                                ? { ...s, session: val }
-                                : s
-                            )
-                          )
-                        }
-                      />
-                    </Col>
-
-                    <Col flex='1'>
-                      <div className='flex space-x-4 justify-end'>
-                        <TbEdit
-                          className='w-5 h-5 cursor-pointer text-[#00B894]'
-                          onClick={() => {
-                            setSelectedStudent(student);
-                            setIsEditModalOpen(true);
-                          }}
-                        />
-                        <RiDeleteBinLine
-                          className='w-5 h-5 cursor-pointer text-[#801818]'
-                          onClick={() => {
-                            setSelectedStudent(student);
-                            setIsDeleteModalOpen(true);
-                          }}
-                        />
-                      </div>
                     </Col>
                   </Row>
                 </List.Item>
@@ -600,18 +469,18 @@ export default function StudentTable() {
             />
           </div>
         )}
+        {!isMobileView && formattedStudents.length > 0 && (
+          <div className='mt-4 flex justify-end'>
+            <Pagination
+              current={page}
+              pageSize={limit}
+              total={pagination.total || 0}
+              onChange={handlePageChange}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
       </Card>
-      <EditStudentModal
-        open={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        student={selectedStudent}
-      />
-
-      <DeleteStudentModal
-        open={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        student={selectedStudent}
-      />
     </>
   );
 }

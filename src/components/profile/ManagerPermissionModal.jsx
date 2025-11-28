@@ -45,21 +45,6 @@ export const ManagerPermissionModal = ({ open, onClose, role, readOnly = false }
     }
   }, [permissions]);
 
-  const handleMainCheck = (resource, checked) => {
-    const resourcePermissions = permissionsByResource[resource] || [];
-    const newSelected = new Set(selectedPermissionIds);
-    
-    resourcePermissions.forEach(perm => {
-      if (checked) {
-        newSelected.add(perm.id);
-      } else {
-        newSelected.delete(perm.id);
-      }
-    });
-    
-    setSelectedPermissionIds(newSelected);
-  };
-
   const handlePermissionCheck = (permissionId, checked) => {
     const newSelected = new Set(selectedPermissionIds);
     if (checked) {
@@ -82,12 +67,6 @@ export const ManagerPermissionModal = ({ open, onClose, role, readOnly = false }
     } catch (error) {
       // Error is handled by the mutation hook
     }
-  };
-
-  const isResourceAllChecked = (resource) => {
-    const resourcePermissions = permissionsByResource[resource] || [];
-    if (resourcePermissions.length === 0) return false;
-    return resourcePermissions.every(perm => selectedPermissionIds.has(perm.id));
   };
 
   const formatResourceName = (resource) => {
@@ -141,12 +120,6 @@ export const ManagerPermissionModal = ({ open, onClose, role, readOnly = false }
                   <h3 className='font-semibold text-gray-700 dark:text-gray-200'>
                     {formatResourceName(resource)}
                   </h3>
-                  <Checkbox
-                    checked={isResourceAllChecked(resource)}
-                    onChange={e => handleMainCheck(resource, e.target.checked)}
-                    disabled={readOnly}
-                    className='custom-checkbox'
-                  />
                 </div>
 
                 <Row gutter={[16, 8]}>

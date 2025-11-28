@@ -60,15 +60,20 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const { gradeId, managerId, startTime, endTime } = values;
+      const { gradeId, managerId } = values;
       
-      // Convert dayjs to HH:mm format
-      const startTimeStr = startTime ? startTime.format('HH:mm') : null;
-      const endTimeStr = endTime ? endTime.format('HH:mm') : null;
-      
-      // Create a schedule for each selected day
-        const schedulePromises = selectedDays.map(day => {
+      // Create a schedule for each selected day with its specific times
+      const schedulePromises = selectedDays.map(day => {
         const dayOfWeek = DAY_NUMBERS[day];
+        const startTimeKey = `startTime_${day}`;
+        const endTimeKey = `endTime_${day}`;
+        const startTime = values[startTimeKey];
+        const endTime = values[endTimeKey];
+        
+        // Convert dayjs to HH:mm format
+        const startTimeStr = startTime ? startTime.format('HH:mm') : null;
+        const endTimeStr = endTime ? endTime.format('HH:mm') : null;
+        
         return createScheduleMutation.mutateAsync({
           gradeId,
           managerId,
@@ -117,14 +122,14 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           </Select>
         </Form.Item>
 
-        {/* ===== Manager Select (Optional) ===== */}
+        {/* ===== Manager Select ===== */}
         <Form.Item
-          label='Manager (Optional)'
+          label='Manager'
           name='managerId'
+          rules={[{ required: true, message: 'Please select manager' }]}
         >
           <Select 
-            placeholder='Select manager (optional)' 
-            allowClear
+            placeholder='Select manager' 
             loading={!managersData}
           >
             {managers.map(manager => (
@@ -162,37 +167,46 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           </div>
         </Form.Item>
 
-        {/* ===== Time Selection (Same for all selected days) ===== */}
-        <Row gutter={16}>
-          <Col xs={12}>
-            <Form.Item
-              label='Start Time'
-              name='startTime'
-              rules={[{ required: true, message: 'Please select start time' }]}
-            >
-              <TimePicker
-                style={{ width: '100%' }}
-                format='HH:mm'
-                defaultOpenValue={dayjs('08:00', 'HH:mm')}
-                placeholder='Select start time'
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={12}>
-            <Form.Item
-              label='End Time'
-              name='endTime'
-              rules={[{ required: true, message: 'Please select end time' }]}
-            >
-              <TimePicker
-                style={{ width: '100%' }}
-                format='HH:mm'
-                defaultOpenValue={dayjs('17:00', 'HH:mm')}
-                placeholder='Select end time'
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        {/* ===== Time Selection (Separate for each selected day) ===== */}
+        {selectedDays.length > 0 && (
+          <div className='space-y-4'>
+            {selectedDays.map(day => (
+              <div key={day} className='border border-gray-200 dark:border-gray-700 rounded-lg p-4'>
+                <Text strong className='text-base mb-3 block'>{day}</Text>
+                <Row gutter={16}>
+                  <Col xs={12}>
+                    <Form.Item
+                      label='Start Time'
+                      name={`startTime_${day}`}
+                      rules={[{ required: true, message: 'Please select start time' }]}
+                    >
+                      <TimePicker
+                        style={{ width: '100%' }}
+                        format='HH:mm'
+                        defaultOpenValue={dayjs('08:00', 'HH:mm')}
+                        placeholder='Select start time'
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col xs={12}>
+                    <Form.Item
+                      label='End Time'
+                      name={`endTime_${day}`}
+                      rules={[{ required: true, message: 'Please select end time' }]}
+                    >
+                      <TimePicker
+                        style={{ width: '100%' }}
+                        format='HH:mm'
+                        defaultOpenValue={dayjs('17:00', 'HH:mm')}
+                        placeholder='Select end time'
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+            ))}
+          </div>
+        )}
 
         {selectedDays.length > 0 && (
           <div className='mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg'>

@@ -57,6 +57,12 @@ export const Grades = () => {
         await deleteGradeMutation.mutateAsync(gradeToDelete.id);
         setDeleteModalOpen(false);
         setGradeToDelete(null);
+        // Refetch grades list after successful deletion
+        refetch();
+        // If we deleted the last item on the current page and it's not page 1, go back a page
+        if (grades.length === 1 && page > 1) {
+          setPage(page - 1);
+        }
       } catch (error) {
         // Error is handled by the mutation hook
       }

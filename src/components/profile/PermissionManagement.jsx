@@ -15,7 +15,8 @@ export const PermissionManagement = () => {
 
   const { data: rolesData, isLoading } = useGetRoles();
 
-  const roles = rolesData?.data || [];
+  // Filter out student role (only needed for mobile, not for permission management)
+  const roles = (rolesData?.data || []).filter(role => role.roleName !== 'student');
 
   const handleEditRole = (role) => {
     setSelectedRole(role);

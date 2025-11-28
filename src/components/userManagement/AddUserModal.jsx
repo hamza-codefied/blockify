@@ -31,13 +31,13 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
     try {
       const values = await form.validateFields();
       
-      if (activeTab === 'students') {
+        if (activeTab === 'students') {
         // Map form values to API format - use gradeName (or gradeId if provided)
         const studentData = {
           fullName: values.name || values.fullName,
           email: values.email,
           gradeName: values.gradeName, // Use gradeName from dropdown
-          password: values.password || null, // Optional for students
+          // Password removed - students authenticate via email/NFC tokens
           status: values.status || 'active',
         };
         
@@ -144,14 +144,6 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
                 }))}
               />
             </Form.Item>
-
-            <Form.Item 
-              label='Password (Optional)' 
-              name='password'
-              tooltip='Students authenticate via email/NFC tokens. Password is optional.'
-            >
-              <Input.Password placeholder='Enter password (optional)' />
-            </Form.Item>
           </>
         ) : (
           <>
@@ -160,7 +152,11 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
               name='password'
               rules={[
                 { required: true, message: 'Password is required' },
-                { min: 8, message: 'Password must be at least 8 characters' }
+                { min: 8, message: 'Password must be at least 8 characters' },
+                {
+                  pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                  message: 'Password must contain at least one lowercase letter, one uppercase letter, and one number'
+                }
               ]}
             >
               <Input.Password placeholder='Enter password' />

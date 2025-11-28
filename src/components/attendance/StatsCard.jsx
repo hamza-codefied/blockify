@@ -1,19 +1,48 @@
 'use client';
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Spin } from 'antd';
 import studentBg from '@/images/student_bg.png';
 import studentIcon from '@/images/attendance_student_bg.png';
 import studentSession from '@/images/attendance_session_bg.png';
+import { useGetAttendanceStatistics } from '@/hooks/useAttendance';
 
 export default function StatsCard() {
+  const { data: statsData, isLoading } = useGetAttendanceStatistics();
+  
+  const statistics = statsData?.data || {
+    totalStudents: 0,
+    signedInStudents: 0,
+    notSignedInStudents: 0,
+    before8AM: 0,
+    after8AM: 0,
+  };
+
   const data1 = [
-    { name: 'Signed In', value: 140 },
-    { name: 'Not Signed In', value: 10 },
+    { name: 'Signed In', value: statistics.signedInStudents },
+    { name: 'Not Signed In', value: statistics.notSignedInStudents },
   ];
   const data2 = [
-    { name: 'Before 08:00 am', value: 98 },
-    { name: 'After 08:00 am', value: 42 },
+    { name: 'Before 08:00 am', value: statistics.before8AM },
+    { name: 'After 08:00 am', value: statistics.after8AM },
   ];
+
+  // Calculate percentages
+  const signedInPercentage = statistics.totalStudents > 0
+    ? Math.round((statistics.signedInStudents / statistics.totalStudents) * 100)
+    : 0;
+  
+  const before8AMPercentage = statistics.signedInStudents > 0
+    ? Math.round((statistics.before8AM / statistics.signedInStudents) * 100)
+    : 0;
+
+  if (isLoading) {
+    return (
+      <div className='flex justify-center items-center py-8'>
+        <Spin size='large' />
+      </div>
+    );
+  }
 
   const COLORS1 = ['#80dcae', '#ffb180'];
   const COLORS2 = ['#80dcd4', '#e58080'];
@@ -34,7 +63,7 @@ export default function StatsCard() {
           <div className='flex-1'>
             <p className='text-xl sm:text-2xl text-[#a0aec0] dark:text-gray-400'>Total Students</p>
             <h3 className='text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200'>
-              150
+              {statistics.totalStudents}
             </h3>
 
             {/* keys */}
@@ -73,7 +102,7 @@ export default function StatsCard() {
                 </PieChart>
               </ResponsiveContainer>
               <span className='absolute inset-0 flex items-center justify-center text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-200'>
-                95%
+                {signedInPercentage}%
               </span>
             </div>
 
@@ -81,11 +110,11 @@ export default function StatsCard() {
             <div className='flex flex-col items-start justify-start gap-4 sm:gap-10 text-xs sm:text-sm'>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#80dcae]'></span>
-                <span className='text-gray-800 dark:text-gray-200'>140 Students Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>{statistics.signedInStudents} Students Signed In</span>
               </div>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#ffb180]'></span>
-                <span className='text-gray-800 dark:text-gray-200'>10 Students Not Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>{statistics.notSignedInStudents} Students Not Signed In</span>
               </div>
             </div>
           </div>
@@ -105,7 +134,7 @@ export default function StatsCard() {
           <div className='flex-1'>
             <p className='text-xl sm:text-2xl text-[#a0aec0] dark:text-gray-400'>Total Students</p>
             <h3 className='text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200'>
-              140
+              {statistics.signedInStudents}
             </h3>
 
             {/* keys */}
@@ -144,7 +173,7 @@ export default function StatsCard() {
                 </PieChart>
               </ResponsiveContainer>
               <span className='absolute inset-0 flex items-center justify-center text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-200'>
-                70%
+                {before8AMPercentage}%
               </span>
             </div>
 
@@ -152,11 +181,11 @@ export default function StatsCard() {
             <div className='flex flex-col items-start justify-start gap-4 sm:gap-10 text-xs sm:text-sm'>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#80dcd4]'></span>
-                <span className='text-gray-800 dark:text-gray-200'>98 Students Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>{statistics.before8AM} Students Before 08:00 am</span>
               </div>
               <div className='flex items-center space-x-2'>
                 <span className='w-4 h-4 bg-[#e58080]'></span>
-                <span className='text-gray-800 dark:text-gray-200'>42 Students Not Signed In</span>
+                <span className='text-gray-800 dark:text-gray-200'>{statistics.after8AM} Students After 08:00 am</span>
               </div>
             </div>
           </div>

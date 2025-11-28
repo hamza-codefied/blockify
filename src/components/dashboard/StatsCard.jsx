@@ -1,20 +1,38 @@
 import React from 'react';
-import { Card, Row, Col, Typography, Avatar } from 'antd';
+import { Card, Row, Col, Typography, Avatar, Spin } from 'antd';
 import studentIcon from '@/images/student.png';
 import student_bg from '@/images/student_bg.png';
 import session_bg from '@/images/session_bg.png';
 import grade_bg from '@/images/grades_bg.png';
 import attendance_bg from '@/images/attendance_bg.png';
+import { useGetDashboardStatistics } from '@/hooks/useDashboard';
 
 const { Text, Title } = Typography;
 
 export default function StatsCard() {
+  const { data: statsData, isLoading } = useGetDashboardStatistics();
+  
+  const statistics = statsData?.data || {
+    totalStudents: 0,
+    totalGrades: 0,
+    totalSchedules: 0,
+    totalAttendanceToday: 0,
+  };
+
   const stats = [
-    { title: 'Students', value: 150, bg: student_bg },
-    { title: 'Sessions', value: 24, bg: session_bg },
-    { title: 'Grades', value: 12, bg: grade_bg },
-    { title: 'Attendance', value: 100, bg: attendance_bg },
+    { title: 'Students', value: statistics.totalStudents, bg: student_bg },
+    { title: 'Sessions', value: statistics.totalSchedules, bg: session_bg }, // Displaying schedules count as "Sessions"
+    { title: 'Grades', value: statistics.totalGrades, bg: grade_bg },
+    { title: 'Attendance', value: statistics.totalAttendanceToday, bg: attendance_bg },
   ];
+
+  if (isLoading) {
+    return (
+      <div className='flex justify-center items-center py-8'>
+        <Spin size='large' />
+      </div>
+    );
+  }
 
   return (
     <Row gutter={[16, 16]}>
