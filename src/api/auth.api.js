@@ -40,12 +40,23 @@ export const getProfile = async () => {
 };
 
 /**
- * Logout user (client-side only - token invalidation handled by backend)
+ * Logout user
+ * @param {string} refreshToken - Optional refresh token to logout from specific device
+ * @returns {Promise} API response
  */
-export const logout = async () => {
-  // Note: Backend doesn't have explicit logout endpoint
-  // Token invalidation happens on refresh token rotation
-  // This is just for client-side cleanup
-  return Promise.resolve();
+export const logout = async (refreshToken = null) => {
+  try {
+    // Try to call logout API if we have a token
+    // If token is expired, this will fail but that's okay - we'll still clear local state
+    const response = await apiClient.post('/auth/logout', {
+      ...(refreshToken && { refreshToken }),
+    });
+    return response.data;
+  } catch (error) {
+    // If logout API call fails (e.g., token expired), that's okay
+    // We'll still clear local state in the hook
+    console.warn('Logout API call failed (this is okay if token is expired):', error);
+    return Promise.resolve({ success: true, message: 'Logged out locally' });
+  }
 };
 

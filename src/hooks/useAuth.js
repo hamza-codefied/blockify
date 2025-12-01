@@ -105,10 +105,10 @@ export const useGetProfile = () => {
 export const useLogout = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { logout: logoutStore } = useAuthStore();
+  const { logout: logoutStore, refreshToken } = useAuthStore();
 
   return useMutation({
-    mutationFn: logout,
+    mutationFn: () => logout(refreshToken), // Pass refresh token to logout API
     onSuccess: () => {
       // Clear auth store (this also clears localStorage)
       logoutStore();

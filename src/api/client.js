@@ -15,6 +15,22 @@ const apiClient = axios.create({
   },
 });
 
+// Token refresh queue to prevent multiple simultaneous refresh attempts
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
+
 // Request interceptor - Add auth token to requests
 apiClient.interceptors.request.use(
   (config) => {
@@ -41,7 +57,22 @@ apiClient.interceptors.response.use(
 
     // Handle 401 Unauthorized - Token expired or invalid
     if (error.response?.status === 401 && !originalRequest._retry) {
+      // If already refreshing, queue this request
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return apiClient(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       const { refreshToken, logout } = useAuthStore.getState();
 
@@ -67,17 +98,26 @@ apiClient.interceptors.response.use(
               useAuthStore.getState().setRefreshToken(newRefreshToken);
             }
 
+            // Process queued requests with new token
+            processQueue(null, newToken);
+
             // Retry original request with new token
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             return apiClient(originalRequest);
+          } else {
+            throw new Error('No token received from refresh endpoint');
           }
         } catch (refreshError) {
-          // Refresh failed - logout user
+          // Refresh failed - process queue with error and logout user
+          processQueue(refreshError, null);
           logout();
           return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
         }
       } else {
         // No refresh token - logout
+        isRefreshing = false;
         logout();
       }
     }
