@@ -90,9 +90,31 @@ export default function VisualOverview() {
   const formattedStudents = useMemo(() => {
     return sessions.map(session => {
       const student = session.student;
-      const arrivalTime = session.arrivalTime === 'N/A' 
+      
+      // Format start time
+      let startTime = 'N/A';
+      if (session.startTimestamp) {
+        const startDate = new Date(session.startTimestamp);
+        const hours = String(startDate.getHours()).padStart(2, '0');
+        const minutes = String(startDate.getMinutes()).padStart(2, '0');
+        startTime = `${hours}:${minutes}`;
+      }
+      
+      // Format end time
+      let endTime = 'N/A';
+      if (session.endTimestamp) {
+        const endDate = new Date(session.endTimestamp);
+        const hours = String(endDate.getHours()).padStart(2, '0');
+        const minutes = String(endDate.getMinutes()).padStart(2, '0');
+        endTime = `${hours}:${minutes}`;
+      }
+      
+      // Combine start and end time
+      const timeDisplay = startTime === 'N/A' 
         ? 'N/A' 
-        : formatTime(session.arrivalTime);
+        : endTime === 'N/A' 
+          ? `${startTime} - Ongoing`
+          : `${startTime} - ${endTime}`;
 
       return {
         id: session.id,
@@ -101,7 +123,9 @@ export default function VisualOverview() {
         contact: student?.contact || 'N/A',
         grade: student?.grade?.gradeName || 'N/A',
         attendance: session.isSignedIn ? 'Signed In' : 'Not Signed In',
-        time: arrivalTime,
+        time: timeDisplay,
+        startTime,
+        endTime,
         img: getAvatarUrl(student?.fullName),
       };
     });
@@ -190,7 +214,16 @@ export default function VisualOverview() {
       title: 'Time',
       dataIndex: 'time',
       key: 'time',
-      render: t => <Tag color={t === 'N/A' ? 'default' : 'cyan'}>{t}</Tag>,
+      render: (t, record) => (
+        <div className='flex flex-col gap-1'>
+          <Tag color={record.startTime === 'N/A' ? 'default' : 'cyan'}>
+            Start: {record.startTime}
+          </Tag>
+          <Tag color={record.endTime === 'N/A' ? 'orange' : 'green'}>
+            End: {record.endTime === 'N/A' ? 'Ongoing' : record.endTime}
+          </Tag>
+        </div>
+      ),
     },
   ];
 
@@ -383,16 +416,28 @@ export default function VisualOverview() {
                     </Tag>
                   </Col>
                   <Col flex='1'>
-                    <Tag
-                      color={student.time === 'N/A' ? 'default' : 'cyan'}
-                      style={{
-                        borderRadius: 12,
-                        fontWeight: 500,
-                        padding: '2px 10px',
-                      }}
-                    >
-                      {student.time}
-                    </Tag>
+                    <div className='flex flex-col gap-1'>
+                      <Tag
+                        color={student.startTime === 'N/A' ? 'default' : 'cyan'}
+                        style={{
+                          borderRadius: 12,
+                          fontWeight: 500,
+                          padding: '2px 10px',
+                        }}
+                      >
+                        Start: {student.startTime}
+                      </Tag>
+                      <Tag
+                        color={student.endTime === 'N/A' ? 'orange' : 'green'}
+                        style={{
+                          borderRadius: 12,
+                          fontWeight: 500,
+                          padding: '2px 10px',
+                        }}
+                      >
+                        End: {student.endTime === 'N/A' ? 'Ongoing' : student.endTime}
+                      </Tag>
+                    </div>
                   </Col>
                 </Row>
               </List.Item>
