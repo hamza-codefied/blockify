@@ -13,6 +13,27 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Serialize array params as repeated keys (e.g., gradeIds=id1&gradeIds=id2 instead of gradeIds[]=id1&gradeIds[]=id2)
+  paramsSerializer: (params) => {
+    const searchParams = new URLSearchParams();
+    Object.keys(params).forEach(key => {
+      const value = params[key];
+      if (value === null || value === undefined) {
+        return; // Skip null/undefined values
+      }
+      if (Array.isArray(value)) {
+        // For arrays, add each value as a repeated key
+        value.forEach(item => {
+          if (item !== null && item !== undefined) {
+            searchParams.append(key, item);
+          }
+        });
+      } else {
+        searchParams.append(key, value);
+      }
+    });
+    return searchParams.toString();
+  },
 });
 
 // Token refresh queue to prevent multiple simultaneous refresh attempts

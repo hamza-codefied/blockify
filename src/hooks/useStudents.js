@@ -15,12 +15,17 @@ import { message } from 'antd';
 
 /**
  * Hook for getting all students
+ * @param {Object} params - Query parameters (page, limit, search, gradeId, etc.)
+ * @param {Object} options - React Query options (enabled, etc.)
  */
-export const useGetStudents = (params = {}) => {
+export const useGetStudents = (params = {}, options = {}) => {
+  const { enabled = true, ...restOptions } = options;
   return useQuery({
     queryKey: ['students', params],
     queryFn: () => getStudents(params),
     staleTime: 30 * 1000, // 30 seconds
+    enabled,
+    ...restOptions,
   });
 };
 
@@ -137,4 +142,3 @@ export const useImportStudentsCSV = () => {
     },
   });
 };
-
