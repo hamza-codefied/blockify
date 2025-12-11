@@ -13,6 +13,7 @@ import { Select, Spin } from 'antd';
 import { useState, useEffect, useMemo } from 'react';
 import { useGetSessions } from '@/hooks/useSessions';
 import { useGetGrades } from '@/hooks/useGrades';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 import dayjs from 'dayjs';
 
 export const SessionChart = () => {
@@ -20,7 +21,7 @@ export const SessionChart = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   // Fetch grades to populate dropdown
-  const { data: gradesData, isLoading: gradesLoading } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData, isLoading: gradesLoading } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const grades = gradesData?.data || [];
 
   // Set default grade on mount
@@ -118,7 +119,7 @@ export const SessionChart = () => {
           placeholder="Select Grade"
           options={grades.map(grade => ({
             value: grade.id,
-            label: `${grade.gradeName}${grade.gradeName.match(/^\d+$/) ? 'th Grade' : ''}`,
+            label: formatGradeDisplayName(grade),
           }))}
         />
       </div>

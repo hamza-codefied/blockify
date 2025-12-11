@@ -5,6 +5,7 @@ import { RequestModal } from './RequestModal';
 import { useGetRequests } from '@/hooks/useRequests';
 import { useGetGrades } from '@/hooks/useGrades';
 import { formatTime } from '@/utils/time';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Title, Text } = Typography;
 
@@ -23,7 +24,7 @@ export const EarlySessionRequests = () => {
   const [gradeId, setGradeId] = useState(null);
 
   // Fetch grades for filter dropdown
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const grades = gradesData?.data || [];
 
   // Fetch requests with filters
@@ -82,7 +83,7 @@ export const EarlySessionRequests = () => {
           options={[
             { label: 'All Grades', value: null },
             ...grades.map(grade => ({
-              label: grade.gradeName,
+              label: formatGradeDisplayName(grade),
               value: grade.id,
             })),
           ]}
@@ -124,7 +125,8 @@ export const EarlySessionRequests = () => {
             dataSource={requests}
             renderItem={req => {
               const studentName = req.student?.fullName || 'Unknown';
-              const gradeName = req.student?.grade?.gradeName || 'N/A';
+              const studentGrade = req.student?.grade;
+              const gradeName = studentGrade ? formatGradeDisplayName(studentGrade) : 'N/A';
               const scheduleEndTime = req.session?.schedule?.endTime;
               const formattedTime = scheduleEndTime ? formatTime(scheduleEndTime) : 'N/A';
 

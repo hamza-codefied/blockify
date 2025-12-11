@@ -4,6 +4,7 @@ import { Modal, Input, Form, Button, Select } from 'antd';
 import { useUpdateStudent } from '@/hooks/useStudents';
 import { useUpdateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Option } = Select;
 
@@ -15,23 +16,47 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   // Fetch grades for dropdown
   const { data: gradesData } = useGetGrades({ 
     limit: 100, 
-    sort: 'grade_name', 
-    sortOrder: 'ASC' 
+    ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
 
   useEffect(() => {
     if (open && user) {
+      // Find grade ID from gradeName for students
+      let gradeId = null;
+      if (user.gradeName && grades.length > 0) {
+        // Try to find exact match first (gradeName + section if exists)
+        const matchingGrade = grades.find(g => {
+          const displayName = formatGradeDisplayName(g);
+          return displayName === user.gradeName || g.gradeName === user.gradeName;
+        });
+        gradeId = matchingGrade?.id || null;
+      }
+      
+      // Find grade IDs from gradeNames for managers
+      let gradeIds = [];
+      if (user.grades && user.grades.length > 0) {
+        gradeIds = user.grades.map(grade => {
+          const matchingGrade = grades.find(g => g.gradeName === grade.gradeName);
+          return matchingGrade?.id;
+        }).filter(Boolean);
+      } else if (user.gradeNames && user.gradeNames.length > 0) {
+        gradeIds = user.gradeNames.map(gradeName => {
+          const matchingGrade = grades.find(g => g.gradeName === gradeName);
+          return matchingGrade?.id;
+        }).filter(Boolean);
+      }
+      
       form.setFieldsValue({
         fullName: user.fullName,
         email: user.email,
-        gradeName: user.gradeName, // Use gradeName instead of gradeLevel
-        gradeNames: user.grades?.map(g => g.gradeName) || user.gradeNames || [], // For managers
+        gradeId: gradeId, // Use gradeId instead of gradeName
+        gradeIds: gradeIds.length > 0 ? gradeIds : [], // For managers
         department: user.department,
         status: user.status,
       });
     }
-  }, [open, user, form]);
+  }, [open, user, form, grades]);
 
   if (!user) return null;
 
@@ -40,10 +65,12 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
       const values = await form.validateFields();
       
       if (activeTab === 'students') {
+        // Convert gradeId to gradeName
+        const selectedGrade = grades.find(g => g.id === values.gradeId);
         const updateData = {
           fullName: values.fullName,
           email: values.email,
-          gradeName: values.gradeName, // Use gradeName instead of gradeLevel
+          gradeName: selectedGrade?.gradeName || values.gradeName, // Use gradeName from selected grade
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -53,11 +80,17 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           data: updateData,
         });
       } else {
+        // Convert gradeIds to gradeNames array
+        const selectedGradeNames = (values.gradeIds || []).map(gradeId => {
+          const grade = grades.find(g => g.id === gradeId);
+          return grade?.gradeName;
+        }).filter(Boolean);
+        
         const updateData = {
           fullName: values.fullName,
           email: values.email,
           department: values.department || null,
-          gradeNames: values.gradeNames || [], // Array of grade names
+          gradeNames: selectedGradeNames.length > 0 ? selectedGradeNames : (values.gradeNames || []), // Array of grade names
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -124,7 +157,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           <>
             <Form.Item 
               label='Grade' 
-              name='gradeName'
+              name='gradeId'
               rules={[{ required: true, message: 'Grade is required' }]}
             >
               <Select 
@@ -134,8 +167,8 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 options={grades.map(grade => ({
-                  value: grade.gradeName,
-                  label: grade.gradeName
+                  value: grade.id,
+                  label: formatGradeDisplayName(grade)
                 }))}
               />
             </Form.Item>
@@ -156,7 +189,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
 
             <Form.Item 
               label='Grades' 
-              name='gradeNames'
+              name='gradeIds'
               rules={[
                 { required: true, message: 'At least one grade is required' },
                 { type: 'array', min: 1, message: 'Manager must be assigned to at least one grade' }
@@ -171,8 +204,8 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 options={grades.map(grade => ({
-                  value: grade.gradeName,
-                  label: grade.gradeName
+                  value: grade.id,
+                  label: formatGradeDisplayName(grade)
                 }))}
               />
             </Form.Item>

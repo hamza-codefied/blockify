@@ -13,6 +13,7 @@ import {
 import dayjs from 'dayjs';
 import { useCreateSchedule } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 import { useGetManagers } from '@/hooks/useManagers';
 
 const { Text } = Typography;
@@ -37,7 +38,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const createScheduleMutation = useCreateSchedule();
   
   // Fetch grades and managers
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const { data: managersData } = useGetManagers({ page: 1, limit: 100 });
   const grades = gradesData?.data || [];
   const managers = managersData?.data || [];
@@ -116,7 +117,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           <Select placeholder='Select grade' loading={!gradesData}>
             {grades.map(grade => (
               <Select.Option key={grade.id} value={grade.id}>
-                {grade.gradeName}
+                {formatGradeDisplayName(grade)}
               </Select.Option>
             ))}
           </Select>

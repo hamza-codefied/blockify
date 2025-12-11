@@ -9,6 +9,7 @@ import { useGetGrades } from '@/hooks/useGrades';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
 import { formatTime } from '@/utils/time';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 import dayjs from 'dayjs';
 
 // Day mapping: Monday=1, Tuesday=2, ..., Sunday=0
@@ -34,7 +35,7 @@ export const StaggeredScheduleView = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Fetch grades
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const grades = gradesData?.data || [];
 
   // Set default grade when grades load
@@ -42,7 +43,7 @@ export const StaggeredScheduleView = () => {
     if (grades.length > 0 && !selectedGradeId) {
       const firstGrade = grades[0];
       setSelectedGradeId(firstGrade.id);
-      setSelectedGradeName(firstGrade.gradeName);
+      setSelectedGradeName(formatGradeDisplayName(firstGrade));
     }
   }, [grades, selectedGradeId]);
 
@@ -65,7 +66,7 @@ export const StaggeredScheduleView = () => {
   const handleGradeChange = (gradeId) => {
     const grade = grades.find(g => g.id === gradeId);
     setSelectedGradeId(gradeId);
-    setSelectedGradeName(grade?.gradeName || null);
+    setSelectedGradeName(grade ? formatGradeDisplayName(grade) : null);
   };
 
   const handleEdit = (schedule) => {
@@ -107,7 +108,7 @@ export const StaggeredScheduleView = () => {
           placeholder='Select Grade'
           options={grades.map(grade => ({
             value: grade.id,
-            label: grade.gradeName,
+            label: formatGradeDisplayName(grade),
           }))}
         />
       </div>

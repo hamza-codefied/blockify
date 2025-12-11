@@ -34,6 +34,7 @@ import { CSVImportModal } from '@/components/userManagement/CSVImportModal';
 import { useGetStudents } from '@/hooks/useStudents';
 import { useGetManagers } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -55,8 +56,7 @@ export const UserManagement = () => {
   // Fetch grades for filter dropdown
   const { data: gradesData } = useGetGrades({ 
     limit: 100, 
-    sort: 'grade_name', 
-    sortOrder: 'ASC' 
+    ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
 
@@ -317,8 +317,8 @@ export const UserManagement = () => {
                 >
                   <Option value='all'>All Grades</Option>
                   {grades.map(grade => (
-                    <Option key={grade.id} value={grade.id} label={grade.gradeName}>
-                      {grade.gradeName}
+                    <Option key={grade.id} value={grade.id} label={formatGradeDisplayName(grade)}>
+                      {formatGradeDisplayName(grade)}
                     </Option>
                   ))}
                 </Select>

@@ -14,6 +14,7 @@ export const GradeModal = ({ open, onClose, mode, gradeData, onSuccess }) => {
       if (mode === 'edit' && gradeData) {
         form.setFieldsValue({
           gradeName: gradeData.gradeName,
+          section: gradeData.section || '',
         });
       } else {
         form.resetFields();
@@ -29,6 +30,7 @@ export const GradeModal = ({ open, onClose, mode, gradeData, onSuccess }) => {
         // Update grade
         const updateData = {
           gradeName: values.gradeName,
+          section: values.section || null,
         };
         await updateGradeMutation.mutateAsync({
           gradeId: gradeData.id,
@@ -38,6 +40,7 @@ export const GradeModal = ({ open, onClose, mode, gradeData, onSuccess }) => {
         // Create grade
         const createData = {
           gradeName: values.gradeName,
+          section: values.section || null,
         };
         await createGradeMutation.mutateAsync(createData);
       }
@@ -82,7 +85,19 @@ export const GradeModal = ({ open, onClose, mode, gradeData, onSuccess }) => {
             { max: 100, message: 'Grade name must not exceed 100 characters' },
           ]}
         >
-          <Input placeholder='e.g., Grade 9, 9th Grade' />
+          <Input placeholder='e.g., 8, Grade 9, 9th Grade' />
+        </Form.Item>
+
+        {/* ===== Section (Optional) ===== */}
+        <Form.Item
+          label='Section (Optional)'
+          name='section'
+          rules={[
+            { max: 10, message: 'Section must not exceed 10 characters' },
+          ]}
+          tooltip='Leave empty to auto-assign section. If same grade exists without section, it will become "A" and this will become "B".'
+        >
+          <Input placeholder='e.g., A, B, C (leave empty for auto-assignment)' />
         </Form.Item>
       </Form>
     </Modal>

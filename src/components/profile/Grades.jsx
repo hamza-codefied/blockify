@@ -153,7 +153,7 @@ export const Grades = () => {
                 >
                   <Row align='middle' style={{ width: '100%' }}>
                     <Col flex='2'>
-                      <Text>{grade.gradeName}</Text>
+                      <Text>{grade.section ? `${grade.gradeName} ${grade.section}` : grade.gradeName}</Text>
                     </Col>
                     <Col flex='1'>
                       <Text>{grade.studentCount || 0}</Text>
@@ -231,7 +231,7 @@ export const Grades = () => {
         title='Delete Grade'
         message={
           gradeToDelete
-            ? `Are you sure you want to delete "${gradeToDelete.gradeName}"? This action cannot be undone.`
+            ? `Are you sure you want to delete "${gradeToDelete.section ? `${gradeToDelete.gradeName} ${gradeToDelete.section}` : gradeToDelete.gradeName}"? This action cannot be undone.`
             : 'Are you sure you want to delete this grade?'
         }
         loading={deleteGradeMutation.isPending}

@@ -22,6 +22,7 @@ import { useGetAttendanceSessionsList } from '@/hooks/useAttendance';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useUpdateSession } from '@/hooks/useSessions';
 import { formatTime } from '@/utils/time';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -63,7 +64,7 @@ export default function StudentTable() {
   }, []);
 
   // Fetch grades for filter dropdown
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const grades = gradesData?.data || [];
 
   // Build query params for API
@@ -300,7 +301,7 @@ export default function StudentTable() {
               >
                 {grades.map(grade => (
                   <Option key={grade.id} value={grade.id}>
-                    {grade.gradeName}
+                    {formatGradeDisplayName(grade)}
                   </Option>
                 ))}
               </Select>

@@ -4,6 +4,7 @@ import { Modal, Form, Input, Select } from 'antd';
 import { useCreateStudent } from '@/hooks/useStudents';
 import { useCreateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Option } = Select;
 
@@ -15,8 +16,7 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
   // Fetch grades for dropdown
   const { data: gradesData } = useGetGrades({ 
     limit: 100, 
-    sort: 'grade_name', 
-    sortOrder: 'ASC' 
+    ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
 
@@ -32,24 +32,30 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
       const values = await form.validateFields();
       
         if (activeTab === 'students') {
-        // Map form values to API format - use gradeName (or gradeId if provided)
+        // Map form values to API format - convert gradeId to gradeName
+        const selectedGrade = grades.find(g => g.id === values.gradeId);
         const studentData = {
           fullName: values.name || values.fullName,
           email: values.email,
-          gradeName: values.gradeName, // Use gradeName from dropdown
+          gradeName: selectedGrade?.gradeName || values.gradeName, // Use gradeName from selected grade
           // Password removed - students authenticate via email/NFC tokens
           status: values.status || 'active',
         };
         
         await createStudentMutation.mutateAsync(studentData);
       } else {
-        // Map form values to API format - use gradeNames array
+        // Map form values to API format - convert gradeIds to gradeNames array
+        const selectedGradeNames = (values.gradeIds || []).map(gradeId => {
+          const grade = grades.find(g => g.id === gradeId);
+          return grade?.gradeName;
+        }).filter(Boolean);
+        
         const managerData = {
           fullName: values.name || values.fullName,
           email: values.email,
           password: values.password, // Required for managers
           department: values.department || null,
-          gradeNames: values.gradeNames || [], // Array of grade names
+          gradeNames: selectedGradeNames.length > 0 ? selectedGradeNames : (values.gradeNames || []), // Array of grade names
           status: values.status || 'active',
         };
         
@@ -129,7 +135,7 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
           <>
             <Form.Item 
               label='Grade' 
-              name='gradeName'
+              name='gradeId'
               rules={[{ required: true, message: 'Grade is required' }]}
             >
               <Select 
@@ -139,8 +145,8 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 options={grades.map(grade => ({
-                  value: grade.gradeName,
-                  label: grade.gradeName
+                  value: grade.id,
+                  label: formatGradeDisplayName(grade)
                 }))}
               />
             </Form.Item>
@@ -168,7 +174,7 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
 
             <Form.Item 
               label='Grades' 
-              name='gradeNames'
+              name='gradeIds'
               rules={[
                 { required: true, message: 'At least one grade is required' },
                 { type: 'array', min: 1, message: 'Manager must be assigned to at least one grade' }
@@ -183,8 +189,8 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 options={grades.map(grade => ({
-                  value: grade.gradeName,
-                  label: grade.gradeName
+                  value: grade.id,
+                  label: formatGradeDisplayName(grade)
                 }))}
               />
             </Form.Item>

@@ -16,6 +16,7 @@ import { useGetGrades } from '@/hooks/useGrades';
 import { useGetStudents } from '@/hooks/useStudents';
 import { useDebounce } from '@/hooks/useDebounce';
 import { CustomGroupScheduleSection, DAY_NUMBERS } from './CustomGroupScheduleSection';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 import './custom-groups.css';
 
 const { Text } = Typography;
@@ -35,7 +36,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData, onSuccess }) 
   const isEditMode = mode === 'edit';
 
   // Fetch grades
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const grades = gradesData?.data || [];
 
   // Debounce search input to avoid too many API calls
@@ -382,7 +383,7 @@ export const CustomGroupModal = ({ open, onClose, mode, groupData, onSuccess }) 
           >
             {grades.map(grade => (
               <Option key={grade.id} value={grade.id}>
-                {grade.gradeName}
+                {formatGradeDisplayName(grade)}
               </Option>
             ))}
           </Select>
