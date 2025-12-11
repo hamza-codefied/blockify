@@ -181,20 +181,33 @@ export const UnstaggeredScheduleView = () => {
                   </div>
 
                   {/* Time line */}
-                  <div className='flex items-center max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
+                  <div className='flex flex-col gap-1 max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
                     {hasSchedule ? (
-                      <div className='flex items-center justify-between w-full max-sm:w-full'>
-                        <span className='mr-2 text-sm max-sm:text-xs'>
-                          {formatTime(schedule.startTime)}
-                        </span>
-                        <div
-                          className='flex-1 mx-2 h-[1px] w-full lg:w-20'
-                          style={{ borderBottom: '3px dotted #00B894' }}
-                        ></div>
-                        <span className='ml-2 text-sm max-sm:text-xs'>
-                          {formatTime(schedule.endTime)}
-                        </span>
-                      </div>
+                      <>
+                        <div className='flex items-center justify-between w-full max-sm:w-full'>
+                          <span className='mr-2 text-sm max-sm:text-xs'>
+                            {formatTime(schedule.startTime)}
+                          </span>
+                          <div
+                            className='flex-1 mx-2 h-[1px] w-full lg:w-20'
+                            style={{ borderBottom: '3px dotted #00B894' }}
+                          ></div>
+                          <span className='ml-2 text-sm max-sm:text-xs'>
+                            {formatTime(schedule.endTime)}
+                          </span>
+                        </div>
+                        {schedule.subject && (
+                          <div className='text-xs text-gray-500 dark:text-gray-400'>
+                            {schedule.name && <span className='font-medium'>{schedule.name} - </span>}
+                            {schedule.subject.name}
+                          </div>
+                        )}
+                        {schedule.name && !schedule.subject && (
+                          <div className='text-xs text-gray-500 dark:text-gray-400'>
+                            {schedule.name}
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <span className='text-sm text-gray-400 italic'>No schedule</span>
                     )}

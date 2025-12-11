@@ -6,7 +6,7 @@ import apiClient from './client';
 
 /**
  * Get all managers with pagination and filters
- * @param {Object} params - Query parameters (page, limit, sort, sortOrder, department, status, search)
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, roleId, status, search)
  * @returns {Promise} API response with managers and pagination
  */
 export const getManagers = async (params = {}) => {
@@ -26,8 +26,8 @@ export const getManagerById = async (managerId) => {
 
 /**
  * Create a new manager
- * @param {Object} data - Manager data (fullName, email, password, department?, gradeIds OR gradeNames, status?)
- * @returns {Promise} API response with created manager (includes grades array)
+ * @param {Object} data - Manager data (fullName, email, password, roleId, phone?, address?, zipcode?, gradeIds OR gradeNames, status?)
+ * @returns {Promise} API response with created manager (includes role and grades array)
  */
 export const createManager = async (data) => {
   const response = await apiClient.post('/admin/managers', data);

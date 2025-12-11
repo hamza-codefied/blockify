@@ -26,8 +26,8 @@ export const getStudentById = async (studentId) => {
 
 /**
  * Create a new student
- * @param {Object} data - Student data (fullName, email, gradeId OR gradeName, password?, status?)
- * @returns {Promise} API response with created student (includes enrolledAt)
+ * @param {Object} data - Student data (fullName, email, gradeId OR gradeName, password?, phone?, address?, zipcode?, guardian_name?, guardian_phone?, guardian_email?, guardian_address?, guardian_zipcode?, status?)
+ * @returns {Promise} API response with created student (includes enrolledAt and contact/guardian fields)
  */
 export const createStudent = async (data) => {
   const response = await apiClient.post('/admin/students', data);

@@ -164,8 +164,13 @@ export const StaggeredScheduleView = () => {
               </div>
 
               <div className='text-gray-700 dark:text-white font-medium mb-2 text-sm'>
-                Schedule {index + 1}
+                {schedule.name || `Schedule ${index + 1}`}
               </div>
+              {schedule.subject && (
+                <div className='text-xs text-gray-500 dark:text-gray-400 mb-1'>
+                  {schedule.subject.name}
+                </div>
+              )}
               <div className='w-full bg-white dark:bg-gray-800 p-2 flex flex-col items-center gap-2 text-center border-2 border-gray-200 dark:border-gray-700 rounded-lg'>
                 <div className='text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-semibold text-center py-1 w-[80px]'>
                   {formatTime(schedule.startTime)}

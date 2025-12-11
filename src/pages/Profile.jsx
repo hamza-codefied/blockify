@@ -7,6 +7,7 @@ import {
 import { InstituteDetails } from '@/components/profile/InstituteDetails';
 import { PermissionManagement } from '@/components/profile/PermissionManagement';
 import { Grades } from '@/components/profile/Grades';
+import { Subjects } from '@/components/profile/Subjects';
 import { CustomGroups } from '@/components/profile/CustomGroups';
 
 export const Profile = () => {
@@ -33,8 +34,15 @@ export const Profile = () => {
         </div>
 
         <div className='flex flex-col lg:flex-row justify-between items-start gap-6'>
-          <CustomGroups />
-          <Grades />
+          <div className='w-full lg:w-1/3'>
+            <CustomGroups />
+          </div>
+          <div className='w-full lg:w-1/3'>
+            <Subjects />
+          </div>
+          <div className='w-full lg:w-1/3'>
+            <Grades />
+          </div>
         </div>
       </div>
     </>

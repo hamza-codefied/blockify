@@ -1,9 +1,10 @@
 'use client';
-import React, { useEffect } from 'react';
-import { Modal, Input, Form, Button, Select } from 'antd';
+import React, { useEffect, useMemo } from 'react';
+import { Modal, Input, Form, Button, Select, Divider } from 'antd';
 import { useUpdateStudent } from '@/hooks/useStudents';
 import { useUpdateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
+import { useGetRoles } from '@/hooks/useRoles';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Option } = Select;
@@ -19,6 +20,18 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
     ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
+
+  // Fetch roles for manager role selection
+  const { data: rolesData } = useGetRoles(activeTab === 'managers');
+  const roles = rolesData?.data || [];
+  
+  // Filter roles: only "manager" default role OR custom roles (isSystemRole = false)
+  const availableRoles = useMemo(() => {
+    if (activeTab !== 'managers') return [];
+    return roles.filter(role => 
+      role.roleName === 'manager' || !role.isSystemRole
+    );
+  }, [roles, activeTab]);
 
   useEffect(() => {
     if (open && user) {
@@ -52,7 +65,16 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         email: user.email,
         gradeId: gradeId, // Use gradeId instead of gradeName
         gradeIds: gradeIds.length > 0 ? gradeIds : [], // For managers
-        department: user.department,
+        roleId: user.roleId || user.role?.id, // For managers
+        phone: user.phone || null,
+        address: user.address || null,
+        zipcode: user.zipcode || null,
+        // Student guardian fields
+        guardian_name: user.guardian_name || null,
+        guardian_phone: user.guardian_phone || null,
+        guardian_email: user.guardian_email || null,
+        guardian_address: user.guardian_address || null,
+        guardian_zipcode: user.guardian_zipcode || null,
         status: user.status,
       });
     }
@@ -71,6 +93,14 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           fullName: values.fullName,
           email: values.email,
           gradeName: selectedGrade?.gradeName || values.gradeName, // Use gradeName from selected grade
+          phone: values.phone || null,
+          address: values.address || null,
+          zipcode: values.zipcode || null,
+          guardian_name: values.guardian_name || null,
+          guardian_phone: values.guardian_phone || null,
+          guardian_email: values.guardian_email || null,
+          guardian_address: values.guardian_address || null,
+          guardian_zipcode: values.guardian_zipcode || null,
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -80,17 +110,15 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           data: updateData,
         });
       } else {
-        // Convert gradeIds to gradeNames array
-        const selectedGradeNames = (values.gradeIds || []).map(gradeId => {
-          const grade = grades.find(g => g.id === gradeId);
-          return grade?.gradeName;
-        }).filter(Boolean);
-        
+        // Send gradeIds directly (UUIDs) - no need to convert to names
         const updateData = {
           fullName: values.fullName,
           email: values.email,
-          department: values.department || null,
-          gradeNames: selectedGradeNames.length > 0 ? selectedGradeNames : (values.gradeNames || []), // Array of grade names
+          roleId: values.roleId, // Required - UUID of role
+          phone: values.phone || null,
+          address: values.address || null,
+          zipcode: values.zipcode || null,
+          gradeIds: values.gradeIds || [], // Array of grade UUIDs (from dropdown selection)
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -173,6 +201,87 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
               />
             </Form.Item>
 
+            <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
+
+            <Form.Item 
+              label='Phone' 
+              name='phone'
+              rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter phone number (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Address' 
+              name='address'
+              rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
+            >
+              <Input.TextArea 
+                placeholder='Enter address (optional)' 
+                rows={2}
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Zipcode' 
+              name='zipcode'
+              rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter zipcode (optional)' />
+            </Form.Item>
+
+            <Divider orientation="left" style={{ margin: '16px 0' }}>Guardian Information</Divider>
+
+            <Form.Item 
+              label='Guardian Name' 
+              name='guardian_name'
+              rules={[{ max: 200, message: 'Guardian name must not exceed 200 characters' }]}
+            >
+              <Input placeholder='Enter guardian name (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Phone' 
+              name='guardian_phone'
+              rules={[{ max: 20, message: 'Guardian phone must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter guardian phone (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Email' 
+              name='guardian_email'
+              rules={[
+                { type: 'email', message: 'Please enter a valid email address' },
+                { max: 200, message: 'Guardian email must not exceed 200 characters' }
+              ]}
+            >
+              <Input placeholder='Enter guardian email (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Address' 
+              name='guardian_address'
+              rules={[{ max: 500, message: 'Guardian address must not exceed 500 characters' }]}
+            >
+              <Input.TextArea 
+                placeholder='Enter guardian address (optional)' 
+                rows={2}
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Zipcode' 
+              name='guardian_zipcode'
+              rules={[{ max: 20, message: 'Guardian zipcode must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter guardian zipcode (optional)' />
+            </Form.Item>
+
             <Form.Item 
               label='Password (Optional)' 
               name='password'
@@ -183,8 +292,23 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           </>
         ) : (
           <>
-            <Form.Item label='Department' name='department'>
-              <Input placeholder='Enter department (optional)' />
+            <Form.Item 
+              label='Role' 
+              name='roleId'
+              rules={[{ required: true, message: 'Role is required' }]}
+              tooltip='Select a role for this manager. Only manager default role and custom roles are available.'
+            >
+              <Select 
+                placeholder='Select role'
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={availableRoles.map(role => ({
+                  value: role.id,
+                  label: role.displayName || role.roleName
+                }))}
+              />
             </Form.Item>
 
             <Form.Item 
@@ -208,6 +332,37 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
                   label: formatGradeDisplayName(grade)
                 }))}
               />
+            </Form.Item>
+
+            <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
+
+            <Form.Item 
+              label='Phone' 
+              name='phone'
+              rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter phone number (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Address' 
+              name='address'
+              rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
+            >
+              <Input.TextArea 
+                placeholder='Enter address (optional)' 
+                rows={2}
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Zipcode' 
+              name='zipcode'
+              rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter zipcode (optional)' />
             </Form.Item>
 
             <Form.Item 

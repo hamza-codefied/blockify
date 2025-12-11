@@ -9,12 +9,14 @@ import {
   Button,
   TimePicker,
   Typography,
+  Input,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useCreateSchedule } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 import { useGetManagers } from '@/hooks/useManagers';
+import { useGetSubjects } from '@/hooks/useSubjects';
 
 const { Text } = Typography;
 
@@ -37,11 +39,13 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const [selectedDays, setSelectedDays] = useState([]);
   const createScheduleMutation = useCreateSchedule();
   
-  // Fetch grades and managers
+  // Fetch grades, managers, and subjects
   const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const { data: managersData } = useGetManagers({ page: 1, limit: 100 });
+  const { data: subjectsData } = useGetSubjects({ page: 1, limit: 100, status: 'active' });
   const grades = gradesData?.data || [];
   const managers = managersData?.data || [];
+  const subjects = subjectsData?.data || [];
 
   useEffect(() => {
     if (!open) {
@@ -61,7 +65,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const { gradeId, managerId } = values;
+      const { gradeId, managerId, subjectId, name } = values;
       
       // Create a schedule for each selected day with its specific times
       const schedulePromises = selectedDays.map(day => {
@@ -78,6 +82,8 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
         return createScheduleMutation.mutateAsync({
           gradeId,
           managerId,
+          subjectId,
+          name: name || null,
           dayOfWeek,
           startTime: startTimeStr,
           endTime: endTimeStr,
@@ -139,6 +145,36 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
               </Select.Option>
             ))}
           </Select>
+        </Form.Item>
+
+        {/* ===== Subject Select ===== */}
+        <Form.Item
+          label='Subject'
+          name='subjectId'
+          rules={[{ required: true, message: 'Please select subject' }]}
+        >
+          <Select 
+            placeholder='Select subject' 
+            loading={!subjectsData}
+          >
+            {subjects.map(subject => (
+              <Select.Option key={subject.id} value={subject.id}>
+                {subject.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        {/* ===== Name (Optional) ===== */}
+        <Form.Item
+          label='Schedule Name (Optional)'
+          name='name'
+          tooltip='Optional name for this schedule (e.g., "Morning Session", "Afternoon Session")'
+        >
+          <Input
+            placeholder='e.g., Morning Session'
+            maxLength={200}
+          />
         </Form.Item>
 
         {/* ===== Select Days (Mon–Fri) ===== */}

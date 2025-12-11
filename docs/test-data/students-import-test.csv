@@ -1,21 +1,21 @@
-fullName,email,gradeLevel,status
-Emma Johnson,emma.johnson@school.com,9,active
-Michael Chen,michael.chen@school.com,10,active
-Sophia Rodriguez,sophia.rodriguez@school.com,11,active
-James Williams,james.williams@school.com,12,active
-Olivia Brown,olivia.brown@school.com,9,active
-Liam Davis,liam.davis@school.com,10,active
-Ava Miller,ava.miller@school.com,11,active
-Noah Wilson,noah.wilson@school.com,12,active
-Isabella Moore,isabella.moore@school.com,9,active
-Ethan Taylor,ethan.taylor@school.com,10,active
-Mia Anderson,mia.anderson@school.com,11,active
-Alexander Thomas,alexander.thomas@school.com,12,active
-Charlotte Jackson,charlotte.jackson@school.com,9,active
-Benjamin White,benjamin.white@school.com,10,active
-Amelia Harris,amelia.harris@school.com,11,active
-Lucas Martin,lucas.martin@school.com,12,active
-Harper Thompson,harper.thompson@school.com,9,active
-Henry Garcia,henry.garcia@school.com,10,active
-Evelyn Martinez,evelyn.martinez@school.com,11,active
-Mason Robinson,mason.robinson@school.com,12,active
+fullName,email,gradeLevel,phone,address,zipcode,guardian_name,guardian_phone,guardian_email,guardian_address,guardian_zipcode,status
+Emma Johnson,emma.johnson@school.com,9,+1-555-1001,"101 Student St, City, State",20001,John Johnson,+1-555-2001,john.johnson@email.com,"101 Student St, City, State",20001,active
+Michael Chen,michael.chen@school.com,10,+1-555-1002,"102 Student Ave, City, State",20002,Mary Chen,+1-555-2002,mary.chen@email.com,"102 Student Ave, City, State",20002,active
+Sophia Rodriguez,sophia.rodriguez@school.com,11,+1-555-1003,"103 Student Rd, City, State",20003,Carlos Rodriguez,+1-555-2003,carlos.rodriguez@email.com,"103 Student Rd, City, State",20003,active
+James Williams,james.williams@school.com,12,+1-555-1004,"104 Student Dr, City, State",20004,Linda Williams,+1-555-2004,linda.williams@email.com,"104 Student Dr, City, State",20004,active
+Olivia Brown,olivia.brown@school.com,9,+1-555-1005,"105 Student Ln, City, State",20005,Robert Brown,+1-555-2005,robert.brown@email.com,"105 Student Ln, City, State",20005,active
+Liam Davis,liam.davis@school.com,10,+1-555-1006,"106 Student Way, City, State",20006,Jennifer Davis,+1-555-2006,jennifer.davis@email.com,"106 Student Way, City, State",20006,active
+Ava Miller,ava.miller@school.com,11,+1-555-1007,"107 Student Ct, City, State",20007,David Miller,+1-555-2007,david.miller@email.com,"107 Student Ct, City, State",20007,active
+Noah Wilson,noah.wilson@school.com,12,+1-555-1008,"108 Student Pl, City, State",20008,Sarah Wilson,+1-555-2008,sarah.wilson@email.com,"108 Student Pl, City, State",20008,active
+Isabella Moore,isabella.moore@school.com,9,+1-555-1009,"109 Student Blvd, City, State",20009,Thomas Moore,+1-555-2009,thomas.moore@email.com,"109 Student Blvd, City, State",20009,active
+Ethan Taylor,ethan.taylor@school.com,10,+1-555-1010,"110 Student St, City, State",20010,Patricia Taylor,+1-555-2010,patricia.taylor@email.com,"110 Student St, City, State",20010,active
+Mia Anderson,mia.anderson@school.com,11,+1-555-1011,"111 Student Ave, City, State",20011,Christopher Anderson,+1-555-2011,christopher.anderson@email.com,"111 Student Ave, City, State",20011,active
+Alexander Thomas,alexander.thomas@school.com,12,+1-555-1012,"112 Student Rd, City, State",20012,Elizabeth Thomas,+1-555-2012,elizabeth.thomas@email.com,"112 Student Rd, City, State",20012,active
+Charlotte Jackson,charlotte.jackson@school.com,9,+1-555-1013,"113 Student Dr, City, State",20013,Daniel Jackson,+1-555-2013,daniel.jackson@email.com,"113 Student Dr, City, State",20013,active
+Benjamin White,benjamin.white@school.com,10,+1-555-1014,"114 Student Ln, City, State",20014,Michelle White,+1-555-2014,michelle.white@email.com,"114 Student Ln, City, State",20014,active
+Amelia Harris,amelia.harris@school.com,11,+1-555-1015,"115 Student Way, City, State",20015,Mark Harris,+1-555-2015,mark.harris@email.com,"115 Student Way, City, State",20015,active
+Lucas Martin,lucas.martin@school.com,12,+1-555-1016,"116 Student Ct, City, State",20016,Lisa Martin,+1-555-2016,lisa.martin@email.com,"116 Student Ct, City, State",20016,active
+Harper Thompson,harper.thompson@school.com,9,+1-555-1017,"117 Student Pl, City, State",20017,Paul Thompson,+1-555-2017,paul.thompson@email.com,"117 Student Pl, City, State",20017,active
+Henry Garcia,henry.garcia@school.com,10,+1-555-1018,"118 Student Blvd, City, State",20018,Amanda Garcia,+1-555-2018,amanda.garcia@email.com,"118 Student Blvd, City, State",20018,active
+Evelyn Martinez,evelyn.martinez@school.com,11,+1-555-1019,"119 Student St, City, State",20019,Kevin Martinez,+1-555-2019,kevin.martinez@email.com,"119 Student St, City, State",20019,active
+Mason Robinson,mason.robinson@school.com,12,+1-555-1020,"120 Student Ave, City, State",20020,Nancy Robinson,+1-555-2020,nancy.robinson@email.com,"120 Student Ave, City, State",20020,active
