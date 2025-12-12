@@ -37,11 +37,13 @@ export const useCreateRole = () => {
 
 /**
  * Hook for getting all roles
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, search, status)
+ * @param {boolean} enabled - Whether the query is enabled
  */
-export const useGetRoles = (enabled = true) => {
+export const useGetRoles = (params = {}, enabled = true) => {
   return useQuery({
-    queryKey: ['roles'],
-    queryFn: () => getRoles(),
+    queryKey: ['roles', params],
+    queryFn: () => getRoles(params),
     enabled,
     staleTime: 30 * 1000, // 30 seconds
   });

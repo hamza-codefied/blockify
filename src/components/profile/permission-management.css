@@ -33,16 +33,13 @@
   padding: 12px 16px !important;
   box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.05);
   border: 2px solid rgba(0, 0, 0, 0.05);
-  height: 100%;
-  flex: 1;
+  flex-shrink: 0;
 }
 
-/* Make items spread evenly in available height */
+/* List items styling - remove height constraint that causes issues */
 .permission-management-wrapper .ant-list-items {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  height: 100%;
 }
 
 /* ===== Scrollbar Styling ===== */

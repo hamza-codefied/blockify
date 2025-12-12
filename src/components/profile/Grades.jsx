@@ -79,7 +79,6 @@ export const Grades = () => {
         variant='outlined'
         style={{
           borderRadius: 12,
-          marginTop: 24,
           boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
           height: '100%',
           display: 'flex',

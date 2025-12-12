@@ -15,11 +15,12 @@ export const createRole = async (roleData) => {
 };
 
 /**
- * Get all roles
- * @returns {Promise} API response with roles array
+ * Get all roles with pagination and filters
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, search, status)
+ * @returns {Promise} API response with roles array and pagination
  */
-export const getRoles = async () => {
-  const response = await apiClient.get('/admin/roles');
+export const getRoles = async (params = {}) => {
+  const response = await apiClient.get('/admin/roles', { params });
   return response.data;
 };
 

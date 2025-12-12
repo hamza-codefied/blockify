@@ -28,19 +28,26 @@ export const Profile = () => {
       <div>
         <h1 className='text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200'>Profile</h1>
 
-        <div className='flex flex-col lg:flex-row justify-between items-start gap-6'>
-          <InstituteDetails />
-          <PermissionManagement />
-        </div>
+        <div 
+          className='grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch'
+          style={{ gridTemplateRows: 'auto auto' }}
+        >
+          {/* Top Row */}
+          <div className='lg:row-start-1 lg:col-start-1' style={{ display: 'flex', alignItems: 'stretch' }}>
+            <InstituteDetails />
+          </div>
+          <div className='lg:row-start-1 lg:col-start-2 lg:col-span-2' style={{ display: 'flex', alignItems: 'stretch' }}>
+            <PermissionManagement />
+          </div>
 
-        <div className='flex flex-col lg:flex-row justify-between items-stretch gap-6'>
-          <div className='w-full lg:w-1/3' style={{ display: 'flex' }}>
+          {/* Bottom Row */}
+          <div className='lg:row-start-2 lg:col-start-1' style={{ display: 'flex' }}>
             <CustomGroups />
           </div>
-          <div className='w-full lg:w-1/3' style={{ display: 'flex' }}>
+          <div className='lg:row-start-2 lg:col-start-2' style={{ display: 'flex' }}>
             <Subjects />
           </div>
-          <div className='w-full lg:w-1/3' style={{ display: 'flex' }}>
+          <div className='lg:row-start-2 lg:col-start-3' style={{ display: 'flex' }}>
             <Grades />
           </div>
         </div>

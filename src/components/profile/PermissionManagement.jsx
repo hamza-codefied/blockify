@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Typography, Spin, Empty, Tag, Button, Modal, message } from 'antd';
+import { Card, List, Row, Col, Typography, Spin, Empty, Tag, Button, Modal, message, Pagination } from 'antd';
 import { TbEdit, TbEye, TbPlus, TbTrash } from 'react-icons/tb';
 import { ManagerPermissionModal } from './ManagerPermissionModal';
 import { CreateRoleModal } from './CreateRoleModal';
@@ -11,16 +11,26 @@ const { Title, Text } = Typography;
 const { confirm } = Modal;
 
 export const PermissionManagement = () => {
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
 
-  const { data: rolesData, isLoading, refetch } = useGetRoles();
+  // Fetch roles with pagination
+  const { data: rolesData, isLoading, refetch } = useGetRoles({
+    page,
+    limit,
+    sort: 'created_at',
+    sortOrder: 'DESC',
+  });
   const deleteRoleMutation = useDeleteRole();
 
-  // Filter out student role (only needed for mobile, not for permission management)
-  const roles = (rolesData?.data || []).filter(role => role.roleName !== 'student');
+  // Backend returns { success: true, data: [...roles], pagination: {...} }
+  // Student role is already excluded from backend
+  const roles = rolesData?.data || [];
+  const pagination = rolesData?.pagination || {};
 
   const handleEditRole = (role) => {
     setSelectedRole(role);
@@ -56,6 +66,10 @@ export const PermissionManagement = () => {
         try {
           await deleteRoleMutation.mutateAsync(role.id);
           refetch();
+          // If we deleted the last item on the current page and it's not page 1, go back a page
+          if (roles.length === 1 && page > 1) {
+            setPage(page - 1);
+          }
         } catch (error) {
           // Error is handled by the mutation hook
         }
@@ -63,9 +77,17 @@ export const PermissionManagement = () => {
     });
   };
 
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
   return (
     <>
-      <Card className='permission-management-card border-2 border-gray-200 w-full shadow-lg lg:w-2/3 h-full flex flex-col'>
+      <Card 
+        className='permission-management-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
+        style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
+        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+      >
         <Row justify='space-between' align='middle' gutter={[16, 16]}>
           <Col xs={24} md={12}>
             <Title level={5} style={{ marginBottom: 0 }}>
@@ -93,7 +115,7 @@ export const PermissionManagement = () => {
             </Col>
           </Row>
 
-          <div className='flex-1 mt-2 overflow-y-auto'>
+          <div className='mt-2' style={{ display: 'flex', flexDirection: 'column' }}>
             {isLoading ? (
               <div className='flex justify-center items-center py-8'>
                 <Spin size='large' />
@@ -101,11 +123,13 @@ export const PermissionManagement = () => {
             ) : roles.length === 0 ? (
               <Empty description='No roles found' className='py-8' />
             ) : (
-              <List
-                itemLayout='horizontal'
-                dataSource={roles}
-                split={false}
-                renderItem={role => {
+              <>
+                <div>
+                  <List
+                    itemLayout='horizontal'
+                    dataSource={roles}
+                    split={false}
+                    renderItem={role => {
                   // Cannot edit Admin role permissions (backend enforces this too)
                   // Cannot delete default roles (admin, manager, student)
                   const canEdit = role.roleName !== 'admin';
@@ -154,7 +178,40 @@ export const PermissionManagement = () => {
                     </List.Item>
                   );
                 }}
-              />
+                  />
+                </div>
+                {/* Pagination Footer */}
+                {pagination.totalPages > 1 && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                    <Row justify='space-between' align='middle'>
+                      <Col>
+                        <Text type='secondary' style={{ fontSize: 12 }}>
+                          {pagination.total
+                            ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
+                            : 'No roles'}
+                        </Text>
+                      </Col>
+                      <Col>
+                        <Pagination
+                          current={page}
+                          total={pagination.total}
+                          pageSize={limit}
+                          onChange={handlePageChange}
+                          showSizeChanger={false}
+                          size='small'
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+                {pagination.totalPages <= 1 && pagination.total > 0 && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                    <Text type='secondary' style={{ fontSize: 12 }}>
+                      Showing {pagination.total} of {pagination.total} roles
+                    </Text>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

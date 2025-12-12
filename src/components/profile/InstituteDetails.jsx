@@ -142,7 +142,10 @@ export const InstituteDetails = () => {
 
   if (!schoolId) {
     return (
-      <div className='w-full lg:w-1/3 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center justify-center border-2 border-gray-200 dark:border-gray-700 min-h-[300px]'>
+      <div 
+        className='w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center justify-center border-2 border-gray-200 dark:border-gray-700 min-h-[300px]'
+        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      >
         <p className='text-gray-500 dark:text-gray-400'>School ID not available</p>
       </div>
     );
@@ -150,14 +153,20 @@ export const InstituteDetails = () => {
 
   if (isLoading) {
     return (
-      <div className='w-full lg:w-1/3 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center justify-center border-2 border-gray-200 dark:border-gray-700 min-h-[300px]'>
+      <div 
+        className='w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center justify-center border-2 border-gray-200 dark:border-gray-700 min-h-[300px]'
+        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      >
         <Spin size='large' />
       </div>
     );
   }
 
   return (
-    <div className='w-full lg:w-1/3 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center lg:items-start border-2 border-gray-200 dark:border-gray-700'>
+    <div 
+      className='w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center lg:items-start border-2 border-gray-200 dark:border-gray-700'
+      style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
+    >
       {/* Image Section */}
       <div className='flex flex-col items-center w-full'>
         <div className='relative flex items-center justify-center w-24 h-24'>
