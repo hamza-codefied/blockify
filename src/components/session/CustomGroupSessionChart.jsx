@@ -19,8 +19,13 @@ export const CustomGroupSessionChart = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   // Fetch custom groups to populate dropdown (Admin)
-  const { data: customGroupsData, isLoading: customGroupsLoading } = useGetCustomGroups();
-  const customGroups = customGroupsData?.data?.groups || [];
+  const { data: customGroupsData, isLoading: customGroupsLoading } = useGetCustomGroups({
+    page: 1,
+    limit: 100, // Get all groups for dropdown
+    sort: 'created_at',
+    sortOrder: 'DESC',
+  });
+  const customGroups = customGroupsData?.data || [];
 
   // Set default custom group on mount
   useEffect(() => {

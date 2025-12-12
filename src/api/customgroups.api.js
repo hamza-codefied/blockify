@@ -7,12 +7,12 @@ import apiClient from './client';
 // ==================== Custom Groups CRUD (Admin) ====================
 
 /**
- * Get all custom groups (Admin)
- * @param {Object} filters - Optional filters (status, search)
- * @returns {Promise} API response with custom groups
+ * Get all custom groups (Admin) with pagination and filters
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, status, search)
+ * @returns {Promise} API response with custom groups and pagination
  */
-export const getCustomGroups = async (filters = {}) => {
-  const response = await apiClient.get('/admin/custom-groups', { params: filters });
+export const getCustomGroups = async (params = {}) => {
+  const response = await apiClient.get('/admin/custom-groups', { params });
   return response.data;
 };
 

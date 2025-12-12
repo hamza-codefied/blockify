@@ -42,9 +42,14 @@ export const Session = () => {
   const { data: settingsData } = useGetSchoolSettings(schoolId, !!schoolId);
   const isStaggered = settingsData?.data?.enableStaggeredSessions || false;
 
-  // Fetch custom groups for session creation
-  const { data: customGroupsData } = useGetCustomGroups();
-  const customGroups = customGroupsData?.data?.groups || [];
+  // Fetch custom groups for session creation (get all for dropdown)
+  const { data: customGroupsData } = useGetCustomGroups({
+    page: 1,
+    limit: 100, // Get all groups for dropdown
+    sort: 'created_at',
+    sortOrder: 'DESC',
+  });
+  const customGroups = customGroupsData?.data || [];
 
   // Grades Tab Content
   const GradesTabContent = () => (

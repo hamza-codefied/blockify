@@ -18,13 +18,13 @@ import { message } from 'antd';
 // ==================== Custom Groups CRUD Hooks (Admin) ====================
 
 /**
- * Hook for getting all custom groups (Admin)
- * @param {Object} filters - Optional filters (status, search)
+ * Hook for getting all custom groups (Admin) with pagination
+ * @param {Object} params - Query parameters (page, limit, sort, sortOrder, status, search)
  */
-export const useGetCustomGroups = (filters = {}) => {
+export const useGetCustomGroups = (params = {}) => {
   return useQuery({
-    queryKey: ['customGroups', filters],
-    queryFn: () => getCustomGroups(filters),
+    queryKey: ['customGroups', params],
+    queryFn: () => getCustomGroups(params),
     staleTime: 30 * 1000, // 30 seconds
   });
 };

@@ -24,8 +24,13 @@ export const CustomGroupStaggeredScheduleView = () => {
   const [activeDay, setActiveDay] = useState('Monday');
 
   // Fetch custom groups (Admin) - schedules are included in response
-  const { data: customGroupsData, isLoading } = useGetCustomGroups();
-  const customGroups = customGroupsData?.data?.groups || [];
+  const { data: customGroupsData, isLoading } = useGetCustomGroups({
+    page: 1,
+    limit: 100, // Get all groups for dropdown
+    sort: 'created_at',
+    sortOrder: 'DESC',
+  });
+  const customGroups = customGroupsData?.data || [];
 
   // Set default custom group when groups load
   useEffect(() => {
