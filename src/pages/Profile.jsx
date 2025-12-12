@@ -33,14 +33,14 @@ export const Profile = () => {
           <PermissionManagement />
         </div>
 
-        <div className='flex flex-col lg:flex-row justify-between items-start gap-6'>
-          <div className='w-full lg:w-1/3'>
+        <div className='flex flex-col lg:flex-row justify-between items-stretch gap-6'>
+          <div className='w-full lg:w-1/3' style={{ display: 'flex' }}>
             <CustomGroups />
           </div>
-          <div className='w-full lg:w-1/3'>
+          <div className='w-full lg:w-1/3' style={{ display: 'flex' }}>
             <Subjects />
           </div>
-          <div className='w-full lg:w-1/3'>
+          <div className='w-full lg:w-1/3' style={{ display: 'flex' }}>
             <Grades />
           </div>
         </div>

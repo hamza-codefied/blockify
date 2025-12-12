@@ -13,6 +13,7 @@ import {
   Divider,
   Spin,
   Empty,
+  Pagination,
 } from 'antd';
 import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import './grades.css';
@@ -28,6 +29,8 @@ import {
 const { Title, Text } = Typography;
 
 export const CustomGroups = () => {
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5);
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -36,10 +39,16 @@ export const CustomGroups = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
 
-  // Fetch custom groups (Admin)
-  const { data: customGroupsData, isLoading, refetch } = useGetCustomGroups();
-  // Backend returns { success: true, data: { groups: [...] } }
-  const groups = customGroupsData?.data?.groups || [];
+  // Fetch custom groups with pagination (Admin)
+  const { data: customGroupsData, isLoading, refetch } = useGetCustomGroups({
+    page,
+    limit,
+    sort: 'created_at',
+    sortOrder: 'DESC',
+  });
+  // Backend returns { success: true, data: [...groups], pagination: {...} }
+  const groups = customGroupsData?.data || [];
+  const pagination = customGroupsData?.pagination || {};
 
   // Fetch selected group details for view/edit
   const { data: groupDetailsData, isLoading: groupDetailsLoading } = useGetCustomGroup(
@@ -83,10 +92,18 @@ export const CustomGroups = () => {
         setDeleteModalOpen(false);
         setSelectedGroup(null);
         refetch();
+        // If we deleted the last item on the current page and it's not page 1, go back a page
+        if (groups.length === 1 && page > 1) {
+          setPage(page - 1);
+        }
       } catch (error) {
         // Error is handled by the mutation hook
       }
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
   };
 
   const handleModalSuccess = () => {
@@ -105,8 +122,12 @@ export const CustomGroups = () => {
           borderRadius: 12,
           marginTop: 22,
           boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         className='w-full bg-white rounded-xl shadow-lg border-2 border-gray-200'
+        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
       >
         {/* ===== Header ===== */}
         <Row justify='space-between' align='middle' gutter={[16, 16]}>
@@ -127,7 +148,7 @@ export const CustomGroups = () => {
         </Row>
 
         {/* ===== Scrollable Table Wrapper ===== */}
-        <div className='grades-wrapper'>
+        <div className='grades-wrapper' style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Row
             justify='space-between'
             className='grades-header'
@@ -158,10 +179,11 @@ export const CustomGroups = () => {
               <Empty description="No custom groups found. Create your first custom group!" />
             </div>
           ) : (
-            <List
-              itemLayout='horizontal'
-              dataSource={groups}
-              renderItem={group => (
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              <List
+                itemLayout='horizontal'
+                dataSource={groups}
+                renderItem={group => (
                 <List.Item
                   style={{
                     background: '#fff',
@@ -210,7 +232,8 @@ export const CustomGroups = () => {
                   </Row>
                 </List.Item>
               )}
-            />
+              />
+            </div>
           )}
         </div>
 
@@ -218,9 +241,23 @@ export const CustomGroups = () => {
         <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
           <Col>
             <Text type='secondary' style={{ fontSize: 12 }}>
-              Showing results {groups.length} of {groups.length}
+              {pagination.total
+                ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
+                : 'No custom groups'}
             </Text>
           </Col>
+          {pagination.totalPages > 1 && (
+            <Col>
+              <Pagination
+                current={page}
+                total={pagination.total}
+                pageSize={limit}
+                onChange={handlePageChange}
+                showSizeChanger={false}
+                size='small'
+              />
+            </Col>
+          )}
         </Row>
       </Card>
 

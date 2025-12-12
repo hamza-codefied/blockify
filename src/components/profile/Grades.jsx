@@ -13,7 +13,7 @@ const { Title, Text } = Typography;
 
 export const Grades = () => {
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(5);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' | 'edit'
   const [selectedGrade, setSelectedGrade] = useState(null);
@@ -81,8 +81,12 @@ export const Grades = () => {
           borderRadius: 12,
           marginTop: 24,
           boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         className='border-2 border-gray-200 w-full shadow-lg'
+        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
       >
         {/* ===== Header ===== */}
         <Row justify='space-between' align='middle' gutter={[16, 16]}>
@@ -103,7 +107,7 @@ export const Grades = () => {
         </Row>
 
         {/* ===== Scrollable Table Wrapper ===== */}
-        <div className='grades-wrapper'>
+        <div className='grades-wrapper' style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {/* ===== List Header Row ===== */}
           <Row
             justify='space-between'
@@ -120,7 +124,7 @@ export const Grades = () => {
             }}
           >
             <Col flex='2'>Grade</Col>
-            <Col flex='1'>Grade Students</Col>
+            <Col flex='1'>Students</Col>
             <Col flex='1'>Sessions</Col>
             <Col flex='1' className='text-right'>
               Action
@@ -137,10 +141,11 @@ export const Grades = () => {
               No grades found. Click "Add Grade +" to create one.
             </div>
           ) : (
-            <List
-              itemLayout='horizontal'
-              dataSource={grades}
-              renderItem={grade => (
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              <List
+                itemLayout='horizontal'
+                dataSource={grades}
+                renderItem={grade => (
                 <List.Item
                   style={{
                     background: '#fff',
@@ -176,7 +181,8 @@ export const Grades = () => {
                   </Row>
                 </List.Item>
               )}
-            />
+              />
+            </div>
           )}
         </div>
 
