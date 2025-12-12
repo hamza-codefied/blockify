@@ -34,6 +34,8 @@ import { CSVImportModal } from '@/components/userManagement/CSVImportModal';
 import { useGetStudents } from '@/hooks/useStudents';
 import { useGetManagers } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
+import { useGetRoles } from '@/hooks/useRoles';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -44,7 +46,7 @@ export const UserManagement = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [gradeFilter, setGradeFilter] = useState(null);
-  const [departmentFilter, setDepartmentFilter] = useState(null);
+  const [roleFilter, setRoleFilter] = useState(null);
   const [isMobileView, setIsMobileView] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -55,10 +57,21 @@ export const UserManagement = () => {
   // Fetch grades for filter dropdown
   const { data: gradesData } = useGetGrades({ 
     limit: 100, 
-    sort: 'grade_name', 
-    sortOrder: 'ASC' 
+    ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
+
+  // Fetch roles for manager role filter
+  const { data: rolesData } = useGetRoles(activeTab === 'managers');
+  const roles = rolesData?.data || [];
+  
+  // Filter roles: only "manager" default role OR custom roles (isSystemRole = false)
+  const availableRoles = useMemo(() => {
+    if (activeTab !== 'managers') return [];
+    return roles.filter(role => 
+      role.roleName === 'manager' || !role.isSystemRole
+    );
+  }, [roles, activeTab]);
 
   // Query params for API
   const studentsParams = useMemo(() => ({
@@ -75,9 +88,9 @@ export const UserManagement = () => {
     limit,
     sort: 'created_at',
     sortOrder: 'DESC',
-    ...(departmentFilter && departmentFilter !== 'all' && { department: departmentFilter }),
+    ...(roleFilter && roleFilter !== 'all' && { roleId: roleFilter }),
     ...(search && { search }),
-  }), [page, limit, departmentFilter, search]);
+  }), [page, limit, roleFilter, search]);
 
   // Fetch data
   const { data: studentsData, isLoading: studentsLoading, refetch: refetchStudents } = useGetStudents(studentsParams);
@@ -210,8 +223,8 @@ export const UserManagement = () => {
       ),
     },
     {
-      title: 'Department',
-      render: (_, record) => record.departmentDisplayName || record.department || 'N/A',
+      title: 'Role',
+      render: (_, record) => record.role?.displayName || record.role?.roleName || 'N/A',
     },
     {
       title: 'Status',
@@ -317,22 +330,28 @@ export const UserManagement = () => {
                 >
                   <Option value='all'>All Grades</Option>
                   {grades.map(grade => (
-                    <Option key={grade.id} value={grade.id} label={grade.gradeName}>
-                      {grade.gradeName}
+                    <Option key={grade.id} value={grade.id} label={formatGradeDisplayName(grade)}>
+                      {formatGradeDisplayName(grade)}
                     </Option>
                   ))}
                 </Select>
               ) : (
                 <Select 
-                  value={departmentFilter || 'all'} 
-                  onChange={setDepartmentFilter}
+                  value={roleFilter || 'all'} 
+                  onChange={setRoleFilter}
                   className='w-40'
-                  placeholder='Filter by Department'
+                  placeholder='Filter by Role'
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
                 >
-                  <Option value='all'>All Departments</Option>
-                  <Option value='Administration'>Administration</Option>
-                  <Option value='Academics'>Academics</Option>
-                  <Option value='Operations'>Operations</Option>
+                  <Option value='all'>All Roles</Option>
+                  {availableRoles.map(role => (
+                    <Option key={role.id} value={role.id} label={role.displayName || role.roleName}>
+                      {role.displayName || role.roleName}
+                    </Option>
+                  ))}
                 </Select>
               )}
             </div>
@@ -427,21 +446,20 @@ export const UserManagement = () => {
                   name: item.fullName,
                   email: item.email,
                   grade: item.gradeName || 'N/A',
-                  contact: item.contact || 'N/A',
-                  guardian: item.guardian || 'N/A',
-                  guardianContact: item.guardianContact || 'N/A',
-                  guardianEmail: item.guardianEmail || 'N/A',
+                  contact: item.phone || 'N/A',
+                  guardian: item.guardian_name || 'N/A',
+                  guardianContact: item.guardian_phone || 'N/A',
+                  guardianEmail: item.guardian_email || 'N/A',
                   address: item.address || 'N/A',
-                  zip: item.zip || 'N/A',
+                  zip: item.zipcode || 'N/A',
                 } : {
                   id: item.id,
                   name: item.fullName,
                   email: item.email,
-                  role: 'Manager',
-                  department: item.departmentDisplayName || item.department || 'N/A',
-                  contact: item.contact || 'N/A',
+                  role: item.role?.displayName || item.role?.roleName || 'N/A',
+                  contact: item.phone || 'N/A',
                   address: item.address || 'N/A',
-                  zip: item.zip || 'N/A',
+                  zip: item.zipcode || 'N/A',
                 };
 
                 return (
@@ -538,7 +556,7 @@ export const UserManagement = () => {
                       </>
                     ) : (
                       <>
-                        <Col flex='1' className='dark:text-gray-200'>{displayItem.department}</Col>
+                        <Col flex='1' className='dark:text-gray-200'>{displayItem.role}</Col>
                         <Col flex='2' className='dark:text-gray-200'>{displayItem.address}</Col>
                         <Col flex='1' className='dark:text-gray-200'>{displayItem.zip}</Col>
                         <Col flex='1'>

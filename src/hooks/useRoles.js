@@ -4,13 +4,36 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  createRole,
   getRoles,
-  getRoleById,
   getRolePermissions,
   updateRolePermissions,
   deleteRole,
 } from '@/api/roles.api';
 import { message } from 'antd';
+
+/**
+ * Hook for creating a new role
+ */
+export const useCreateRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (roleData) => createRole(roleData),
+    onSuccess: () => {
+      message.success('Role created successfully');
+      queryClient.invalidateQueries({ queryKey: ['roles'] });
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create role';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
 
 /**
  * Hook for getting all roles
@@ -21,17 +44,6 @@ export const useGetRoles = (enabled = true) => {
     queryFn: () => getRoles(),
     enabled,
     staleTime: 30 * 1000, // 30 seconds
-  });
-};
-
-/**
- * Hook for getting a single role
- */
-export const useGetRole = (roleId, enabled = true) => {
-  return useQuery({
-    queryKey: ['roles', roleId],
-    queryFn: () => getRoleById(roleId),
-    enabled: enabled && !!roleId,
   });
 };
 

@@ -5,21 +5,21 @@
 import apiClient from './client';
 
 /**
+ * Create a new role
+ * @param {Object} roleData - Role data (roleName, displayName, description, permissionIds)
+ * @returns {Promise} API response with created role and permissions
+ */
+export const createRole = async (roleData) => {
+  const response = await apiClient.post('/admin/roles', roleData);
+  return response.data;
+};
+
+/**
  * Get all roles
  * @returns {Promise} API response with roles array
  */
 export const getRoles = async () => {
   const response = await apiClient.get('/admin/roles');
-  return response.data;
-};
-
-/**
- * Get role by ID
- * @param {string} roleId - Role UUID
- * @returns {Promise} API response with role data
- */
-export const getRoleById = async (roleId) => {
-  const response = await apiClient.get(`/admin/roles/${roleId}`);
   return response.data;
 };
 

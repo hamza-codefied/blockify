@@ -9,44 +9,40 @@ import {
   ResponsiveContainer,
   Rectangle,
 } from 'recharts';
-import { Select, Spin } from 'antd';
+import { Select, Spin, Empty } from 'antd';
 import { useState, useEffect, useMemo } from 'react';
-import { useGetSessions } from '@/hooks/useSessions';
-import { useGetGrades } from '@/hooks/useGrades';
-import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { useGetCustomGroups, useGetCustomGroupSessions } from '@/hooks/useCustomGroups';
 import dayjs from 'dayjs';
 
-export const SessionChart = () => {
-  const [selectedGradeId, setSelectedGradeId] = useState(null);
+export const CustomGroupSessionChart = () => {
+  const [selectedCustomGroupId, setSelectedCustomGroupId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Fetch grades to populate dropdown
-  const { data: gradesData, isLoading: gradesLoading } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
-  const grades = gradesData?.data || [];
+  // Fetch custom groups to populate dropdown (Admin)
+  const { data: customGroupsData, isLoading: customGroupsLoading } = useGetCustomGroups();
+  const customGroups = customGroupsData?.data?.groups || [];
 
-  // Set default grade on mount
+  // Set default custom group on mount
   useEffect(() => {
-    if (grades.length > 0 && !selectedGradeId) {
-      // Default to grade 9 if available, otherwise first grade
-      const defaultGrade = grades.find(g => g.gradeName === '9') || grades[0];
-      if (defaultGrade) {
-        setSelectedGradeId(defaultGrade.id);
-      }
+    if (customGroups.length > 0 && !selectedCustomGroupId) {
+      setSelectedCustomGroupId(customGroups[0].id);
     }
-  }, [grades, selectedGradeId]);
-
+  }, [customGroups, selectedCustomGroupId]);
 
   // Fetch sessions for the last 7 days
   const endDate = dayjs().endOf('day').toISOString();
   const startDate = dayjs().subtract(6, 'days').startOf('day').toISOString();
   
-  const { data: sessionsData, isLoading: sessionsLoading } = useGetSessions({
-    page: 1,
-    limit: 100, // Max allowed by API
-    startDate,
-    endDate,
-    ...(selectedGradeId && { gradeId: selectedGradeId })
-  });
+  const { data: sessionsData, isLoading: sessionsLoading } = useGetCustomGroupSessions(
+    selectedCustomGroupId,
+    {
+      page: 1,
+      limit: 100, // Max allowed by API
+      startDate,
+      endDate,
+    },
+    !!selectedCustomGroupId
+  );
   const sessions = sessionsData?.data || [];
 
   useEffect(() => {
@@ -91,7 +87,7 @@ export const SessionChart = () => {
     });
   }, [sessions]);
 
-  const isLoading = gradesLoading || sessionsLoading;
+  const isLoading = customGroupsLoading || sessionsLoading;
 
   if (isLoading) {
     return (
@@ -103,23 +99,33 @@ export const SessionChart = () => {
     );
   }
 
+  if (customGroups.length === 0) {
+    return (
+      <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
+        <div className='flex justify-center items-center h-64'>
+          <Empty description="No custom groups found. Create a custom group to view sessions." />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
       {/* Header */}
       <div className='flex justify-between items-center mb-4'>
         <h2 className='text-lg font-semibold text-gray-800 dark:text-gray-200'>
-          Session - By Grade
+          Session - By Custom Group
         </h2>
 
         <Select
-          value={selectedGradeId}
-          onChange={setSelectedGradeId}
+          value={selectedCustomGroupId}
+          onChange={setSelectedCustomGroupId}
           size='small'
-          style={{ width: 140 }}
-          placeholder="Select Grade"
-          options={grades.map(grade => ({
-            value: grade.id,
-            label: formatGradeDisplayName(grade),
+          style={{ width: 200 }}
+          placeholder="Select Custom Group"
+          options={customGroups.map(group => ({
+            value: group.id,
+            label: group.name,
           }))}
         />
       </div>
@@ -135,8 +141,8 @@ export const SessionChart = () => {
           <XAxis
             dataKey='day'
             tick={{ fontSize: isMobile ? 10 : 12 }}
-            interval={isMobile ? 0 : 0} // Show all, but smaller font
-            angle={isMobile ? -25 : 0} // Tilt for small screens
+            interval={0}
+            angle={isMobile ? -25 : 0}
             textAnchor={isMobile ? 'end' : 'middle'}
             height={isMobile ? 50 : 30}
           />
@@ -174,3 +180,4 @@ export const SessionChart = () => {
     </div>
   );
 };
+

@@ -10,6 +10,7 @@ import { useGetSchedules } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useDeleteSchedule } from '@/hooks/useSchedules';
 import { formatTime } from '@/utils/time';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 //>>> Day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -31,7 +32,7 @@ export const UnstaggeredScheduleView = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   //>>> Fetch grades for dropdown
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   //>>> API returns { success: true, data: [...grades], pagination: {...} }
   const grades = gradesData?.data || [];
 
@@ -40,7 +41,7 @@ export const UnstaggeredScheduleView = () => {
     if (grades.length > 0 && !selectedGradeId) {
       const firstGrade = grades[0];
       setSelectedGradeId(firstGrade.id);
-      setSelectedGradeName(firstGrade.gradeName);
+      setSelectedGradeName(formatGradeDisplayName(firstGrade));
     }
   }, [grades, selectedGradeId]);
 
@@ -83,7 +84,7 @@ export const UnstaggeredScheduleView = () => {
   const handleGradeChange = (gradeId) => {
     const grade = grades.find(g => g.id === gradeId);
     setSelectedGradeId(gradeId);
-    setSelectedGradeName(grade?.gradeName || null);
+    setSelectedGradeName(grade ? formatGradeDisplayName(grade) : null);
   };
 
   const handleEdit = schedule => {
@@ -131,7 +132,7 @@ export const UnstaggeredScheduleView = () => {
           placeholder='Select Grade'
           options={grades.map(grade => ({
             value: grade.id,
-            label: grade.gradeName,
+            label: formatGradeDisplayName(grade),
           }))}
         />
       </div>
@@ -180,20 +181,33 @@ export const UnstaggeredScheduleView = () => {
                   </div>
 
                   {/* Time line */}
-                  <div className='flex items-center max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
+                  <div className='flex flex-col gap-1 max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
                     {hasSchedule ? (
-                      <div className='flex items-center justify-between w-full max-sm:w-full'>
-                        <span className='mr-2 text-sm max-sm:text-xs'>
-                          {formatTime(schedule.startTime)}
-                        </span>
-                        <div
-                          className='flex-1 mx-2 h-[1px] w-full lg:w-20'
-                          style={{ borderBottom: '3px dotted #00B894' }}
-                        ></div>
-                        <span className='ml-2 text-sm max-sm:text-xs'>
-                          {formatTime(schedule.endTime)}
-                        </span>
-                      </div>
+                      <>
+                        <div className='flex items-center justify-between w-full max-sm:w-full'>
+                          <span className='mr-2 text-sm max-sm:text-xs'>
+                            {formatTime(schedule.startTime)}
+                          </span>
+                          <div
+                            className='flex-1 mx-2 h-[1px] w-full lg:w-20'
+                            style={{ borderBottom: '3px dotted #00B894' }}
+                          ></div>
+                          <span className='ml-2 text-sm max-sm:text-xs'>
+                            {formatTime(schedule.endTime)}
+                          </span>
+                        </div>
+                        {schedule.subject && (
+                          <div className='text-xs text-gray-500 dark:text-gray-400'>
+                            {schedule.name && <span className='font-medium'>{schedule.name} - </span>}
+                            {schedule.subject.name}
+                          </div>
+                        )}
+                        {schedule.name && !schedule.subject && (
+                          <div className='text-xs text-gray-500 dark:text-gray-400'>
+                            {schedule.name}
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <span className='text-sm text-gray-400 italic'>No schedule</span>
                     )}

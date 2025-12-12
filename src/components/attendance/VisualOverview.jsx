@@ -21,6 +21,7 @@ import './visual-overview.css';
 import { useGetAttendanceSessionsList } from '@/hooks/useAttendance';
 import { useGetGrades } from '@/hooks/useGrades';
 import { formatTime } from '@/utils/time';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -50,7 +51,7 @@ export default function VisualOverview() {
   }, []);
 
   // Fetch grades for filter dropdown
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
+  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
   const grades = gradesData?.data || [];
 
   // Build query params for API
@@ -121,7 +122,7 @@ export default function VisualOverview() {
         name: student?.fullName || 'N/A',
         email: student?.email || 'N/A',
         contact: student?.contact || 'N/A',
-        grade: student?.grade?.gradeName || 'N/A',
+        grade: student?.grade ? formatGradeDisplayName(student.grade) : 'N/A',
         attendance: session.isSignedIn ? 'Signed In' : 'Not Signed In',
         time: timeDisplay,
         startTime,
@@ -266,7 +267,7 @@ export default function VisualOverview() {
             >
               {grades.map(grade => (
                 <Option key={grade.id} value={grade.id}>
-                  {grade.gradeName}
+                  {formatGradeDisplayName(grade)}
                 </Option>
               ))}
             </Select>

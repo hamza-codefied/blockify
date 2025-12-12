@@ -11,88 +11,72 @@ import {
   Tag,
   Avatar,
   Divider,
-  Input,
-  Select,
-  TimePicker,
-  Space,
+  Spin,
+  Empty,
+  Pagination,
 } from 'antd';
 import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import './grades.css';
 import { CustomGroupModal } from './CustomGroupModal';
-import dayjs from 'dayjs';
 import { TbEdit } from 'react-icons/tb';
 import { RiDeleteBinLine } from 'react-icons/ri';
+import {
+  useGetCustomGroups,
+  useDeleteCustomGroup,
+  useGetCustomGroup,
+} from '@/hooks/useCustomGroups';
 
 const { Title, Text } = Typography;
-const { Option } = Select;
 
 export const CustomGroups = () => {
-  const [groups, setGroups] = useState([
-    {
-      id: 1,
-      session_name: 'SAT Class',
-      students: ['Aiden Andrews', 'Sophia Johnson'],
-      selectedDays: ['Monday', 'Wednesday'],
-      times: {
-        Monday: { start: '09:00', end: '10:30' },
-        Wednesday: { start: '11:00', end: '12:30' },
-      },
-    },
-    {
-      id: 2,
-      session_name: 'MCAT Class',
-      students: ['Michael Brown', 'Emily Davis'],
-      selectedDays: ['Tuesday', 'Thursday'],
-      times: {
-        Tuesday: { start: '10:00', end: '11:30' },
-        Thursday: { start: '12:00', end: '13:30' },
-      },
-    },
-    {
-      id: 3,
-      session_name: 'MCAT Class',
-      students: ['Michael Brown', 'Emily Davis'],
-      selectedDays: ['Tuesday', 'Thursday'],
-      times: {
-        Tuesday: { start: '10:00', end: '11:30' },
-        Thursday: { start: '12:00', end: '13:30' },
-      },
-    },
-    {
-      id: 4,
-      session_name: 'MCAT Class',
-      students: ['Michael Brown', 'Emily Davis'],
-      selectedDays: ['Tuesday', 'Thursday'],
-      times: {
-        Tuesday: { start: '10:00', end: '11:30' },
-        Thursday: { start: '12:00', end: '13:30' },
-      },
-    },
-  ]);
-
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5);
   const [modalOpen, setModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [editData, setEditData] = useState(null);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
+
+  // Fetch custom groups with pagination (Admin)
+  const { data: customGroupsData, isLoading, refetch } = useGetCustomGroups({
+    page,
+    limit,
+    sort: 'created_at',
+    sortOrder: 'DESC',
+  });
+  // Backend returns { success: true, data: [...groups], pagination: {...} }
+  const groups = customGroupsData?.data || [];
+  const pagination = customGroupsData?.pagination || {};
+
+  // Fetch selected group details for view/edit
+  const { data: groupDetailsData, isLoading: groupDetailsLoading } = useGetCustomGroup(
+    selectedGroupId,
+    !!selectedGroupId && (viewModalOpen || editModalOpen)
+  );
+  const groupDetails = groupDetailsData?.data || null;
+
+  // Delete mutation
+  const deleteGroupMutation = useDeleteCustomGroup();
 
   // ===== Handlers =====
   const handleAddClick = () => {
     setModalMode('add');
     setSelectedGroup(null);
+    setSelectedGroupId(null);
     setModalOpen(true);
   };
 
   const handleViewClick = group => {
     setSelectedGroup(group);
+    setSelectedGroupId(group.id);
     setViewModalOpen(true);
   };
 
   const handleEditClick = group => {
     setSelectedGroup(group);
-    setEditData(JSON.parse(JSON.stringify(group))); // deep clone
+    setSelectedGroupId(group.id);
     setEditModalOpen(true);
   };
 
@@ -101,22 +85,33 @@ export const CustomGroups = () => {
     setDeleteModalOpen(true);
   };
 
-  // ===== Edit Modal field changes (UI only) =====
-  const handleEditChange = (field, value) => {
-    setEditData(prev => ({ ...prev, [field]: value }));
+  const handleDeleteConfirm = async () => {
+    if (selectedGroup?.id) {
+      try {
+        await deleteGroupMutation.mutateAsync(selectedGroup.id);
+        setDeleteModalOpen(false);
+        setSelectedGroup(null);
+        refetch();
+        // If we deleted the last item on the current page and it's not page 1, go back a page
+        if (groups.length === 1 && page > 1) {
+          setPage(page - 1);
+        }
+      } catch (error) {
+        // Error is handled by the mutation hook
+      }
+    }
   };
 
-  const handleTimeChange = (day, type, time) => {
-    setEditData(prev => ({
-      ...prev,
-      times: {
-        ...prev.times,
-        [day]: {
-          ...prev.times[day],
-          [type]: time ? time.format('HH:mm') : '',
-        },
-      },
-    }));
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleModalSuccess = () => {
+    setModalOpen(false);
+    setEditModalOpen(false);
+    setSelectedGroup(null);
+    setSelectedGroupId(null);
+    refetch();
   };
 
   return (
@@ -127,8 +122,12 @@ export const CustomGroups = () => {
           borderRadius: 12,
           marginTop: 22,
           boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
         }}
-        className='w-full lg:w-1/3 bg-white rounded-xl shadow-lg border-2 border-gray-200'
+        className='w-full bg-white rounded-xl shadow-lg border-2 border-gray-200'
+        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
       >
         {/* ===== Header ===== */}
         <Row justify='space-between' align='middle' gutter={[16, 16]}>
@@ -149,7 +148,7 @@ export const CustomGroups = () => {
         </Row>
 
         {/* ===== Scrollable Table Wrapper ===== */}
-        <div className='grades-wrapper'>
+        <div className='grades-wrapper' style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Row
             justify='space-between'
             className='grades-header'
@@ -164,77 +163,127 @@ export const CustomGroups = () => {
               padding: '20px 16px',
             }}
           >
-            <Col flex='2'>Session Name</Col>
-            <Col flex='1'>Students</Col>
+            <Col flex='2'>Group Name</Col>
+            <Col flex='1'>Members</Col>
             <Col flex='1' className='text-right'>
               Action
             </Col>
           </Row>
 
-          <List
-            itemLayout='horizontal'
-            dataSource={groups}
-            renderItem={group => (
-              <List.Item
-                style={{
-                  background: '#fff',
-                  borderRadius: 12,
-                  marginBottom: 8,
-                  marginTop: 10,
-                  padding: '12px 16px',
-                  boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-                  border: '2px solid rgba(0,0,0,0.05)',
-                }}
-              >
-                <Row align='middle' style={{ width: '100%' }}>
-                  <Col flex='2'>
-                    <Text>{group.session_name}</Text>
-                  </Col>
-                  <Col flex='1'>
-                    <Text>{group.students.length}</Text>
-                  </Col>
-                  <Col flex='1' className='flex justify-end gap-3'>
-                    <AiOutlineEye
-                      size={14}
-                      color='#186ee8'
-                      className='cursor-pointer'
-                      onClick={() => handleViewClick(group)}
-                    />
-                    <TbEdit
-                      size={14}
-                      color='#00B894'
-                      className='cursor-pointer'
-                      onClick={() => handleEditClick(group)}
-                    />
-                    <RiDeleteBinLine
-                      size={14}
-                      color='#801818'
-                      className='cursor-pointer'
-                      onClick={() => handleDeleteClick(group)}
-                    />
-                  </Col>
-                </Row>
-              </List.Item>
-            )}
-          />
+          {isLoading ? (
+            <div className='flex justify-center items-center py-8'>
+              <Spin size='large' />
+            </div>
+          ) : groups.length === 0 ? (
+            <div className='flex justify-center items-center py-8'>
+              <Empty description="No custom groups found. Create your first custom group!" />
+            </div>
+          ) : (
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              <List
+                itemLayout='horizontal'
+                dataSource={groups}
+                renderItem={group => (
+                <List.Item
+                  style={{
+                    background: '#fff',
+                    borderRadius: 12,
+                    marginBottom: 8,
+                    marginTop: 10,
+                    padding: '12px 16px',
+                    boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
+                    border: '2px solid rgba(0,0,0,0.05)',
+                  }}
+                >
+                  <Row align='middle' style={{ width: '100%' }}>
+                    <Col flex='2'>
+                      <Text strong>{group.name}</Text>
+                      {group.description && (
+                        <div>
+                          <Text type='secondary' style={{ fontSize: 12 }}>
+                            {group.description}
+                          </Text>
+                        </div>
+                      )}
+                    </Col>
+                    <Col flex='1'>
+                      <Text>{group.memberCount || 0}</Text>
+                    </Col>
+                    <Col flex='1' className='flex justify-end gap-3'>
+                      <AiOutlineEye
+                        size={14}
+                        color='#186ee8'
+                        className='cursor-pointer'
+                        onClick={() => handleViewClick(group)}
+                      />
+                      <TbEdit
+                        size={14}
+                        color='#00B894'
+                        className='cursor-pointer'
+                        onClick={() => handleEditClick(group)}
+                      />
+                      <RiDeleteBinLine
+                        size={14}
+                        color='#801818'
+                        className='cursor-pointer'
+                        onClick={() => handleDeleteClick(group)}
+                      />
+                    </Col>
+                  </Row>
+                </List.Item>
+              )}
+              />
+            </div>
+          )}
         </div>
 
         {/* ===== Footer ===== */}
         <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
           <Col>
             <Text type='secondary' style={{ fontSize: 12 }}>
-              Showing results {groups.length} of {groups.length}
+              {pagination.total
+                ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
+                : 'No custom groups'}
             </Text>
           </Col>
+          {pagination.totalPages > 1 && (
+            <Col>
+              <Pagination
+                current={page}
+                total={pagination.total}
+                pageSize={limit}
+                onChange={handlePageChange}
+                showSizeChanger={false}
+                size='small'
+              />
+            </Col>
+          )}
         </Row>
       </Card>
 
-      {/* ===== Add/Edit Modal (existing component) ===== */}
+      {/* ===== Add Modal ===== */}
       <CustomGroupModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        mode={modalMode}
-        groupData={selectedGroup}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedGroup(null);
+          setSelectedGroupId(null);
+        }}
+        mode='add'
+        onSuccess={handleModalSuccess}
+      />
+
+      {/* ===== Edit Modal ===== */}
+      <CustomGroupModal
+        open={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedGroup(null);
+          setSelectedGroupId(null);
+        }}
+        mode='edit'
+        groupData={groupDetails}
+        onSuccess={handleModalSuccess}
       />
 
       {/* ===== View Modal ===== */}
@@ -242,13 +291,17 @@ export const CustomGroups = () => {
         title={
           <div className='text-center'>
             <Title level={4} style={{ marginBottom: 0, color: '#00B894' }}>
-              {selectedGroup?.session_name || 'Group Details'}
+              {groupDetails?.name || selectedGroup?.name || 'Group Details'}
             </Title>
             <Text type='secondary'>Group Overview</Text>
           </div>
         }
         open={viewModalOpen}
-        onCancel={() => setViewModalOpen(false)}
+        onCancel={() => {
+          setViewModalOpen(false);
+          setSelectedGroup(null);
+          setSelectedGroupId(null);
+        }}
         footer={null}
         centered
         width={600}
@@ -259,161 +312,82 @@ export const CustomGroups = () => {
           borderRadius: 12,
         }}
       >
-        {selectedGroup && (
+        {groupDetailsLoading ? (
+          <div className='flex justify-center items-center py-8'>
+            <Spin size='large' />
+          </div>
+        ) : groupDetails ? (
           <div>
-            <Title level={5}>Students</Title>
-            <div className='flex flex-wrap gap-3 mb-4'>
-              {selectedGroup.students.map((name, index) => (
-                <Tag
-                  key={index}
-                  color='green'
-                  style={{
-                    borderRadius: 20,
-                    padding: '5px 12px',
-                    fontWeight: 500,
-                  }}
-                >
-                  <Avatar
-                    size={24}
-                    src={`https://i.pravatar.cc/150?img=${index + 1}`}
-                    className='mr-2'
-                  />
-                  {name}
-                </Tag>
-              ))}
-            </div>
+            {groupDetails.description && (
+              <>
+                <Title level={5}>Description</Title>
+                <Text>{groupDetails.description}</Text>
+                <Divider style={{ margin: '12px 0' }} />
+              </>
+            )}
 
-            <Divider style={{ margin: '12px 0' }} />
-
-            <Title level={5}>Schedule</Title>
-            <div className='space-y-2 mt-2'>
-              {selectedGroup.selectedDays?.map(day => (
-                <div
-                  key={day}
-                  className='p-3 border rounded-lg flex justify-between items-center text-white'
-                  style={{
-                    background: '#2f2f2f',
-                    borderRadius: 10,
-                  }}
-                >
-                  <Text className='text-white' strong>
-                    {day}
-                  </Text>
-                  <Tag color='green' style={{ borderRadius: 8 }}>
-                    {selectedGroup.times?.[day]?.start || '--:--'} -{' '}
-                    {selectedGroup.times?.[day]?.end || '--:--'}
-                  </Tag>
+            <Title level={5}>Group Information</Title>
+            <div className='space-y-2 mb-4'>
+              <div className='flex justify-between'>
+                <Text type='secondary'>Members:</Text>
+                <Text strong>{groupDetails.memberCount || 0}</Text>
+              </div>
+              {groupDetails.grades && groupDetails.grades.length > 0 && (
+                <div className='flex justify-between'>
+                  <Text type='secondary'>Grades:</Text>
+                  <div>
+                    {groupDetails.grades.map(grade => (
+                      <Tag key={grade.id} color='blue' style={{ marginRight: 4 }}>
+                        {grade.name}
+                      </Tag>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* ===== Edit Modal (Interactive UI) ===== */}
-      <Modal
-        title='Edit Group'
-        open={editModalOpen}
-        onCancel={() => setEditModalOpen(false)}
-        footer={null}
-        centered
-        width={650}
-      >
-        {editData && (
-          <div className='space-y-4'>
-            <Input
-              placeholder='Session Name'
-              value={editData.session_name}
-              onChange={e => handleEditChange('session_name', e.target.value)}
-            />
-
-            <Select
-              mode='tags'
-              style={{ width: '100%' }}
-              placeholder='Add Students'
-              value={editData.students}
-              onChange={value => handleEditChange('students', value)}
-            />
-
-            <Select
-              mode='multiple'
-              style={{ width: '100%' }}
-              placeholder='Select Days'
-              value={editData.selectedDays}
-              onChange={value => handleEditChange('selectedDays', value)}
-            >
-              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map(
-                day => (
-                  <Option key={day} value={day}>
-                    {day}
-                  </Option>
-                )
               )}
-            </Select>
-
-            <Divider />
-            <Title level={5}>Edit Timings</Title>
-
-            <div className='space-y-3'>
-              {editData.selectedDays.map(day => (
-                <div
-                  key={day}
-                  className='flex justify-between items-center border p-2 rounded-lg'
-                >
-                  <Text style={{ width: 100 }}>{day}</Text>
-                  <Space>
-                    <TimePicker
-                      format='HH:mm'
-                      value={
-                        editData.times[day]?.start
-                          ? dayjs(editData.times[day].start, 'HH:mm')
-                          : null
-                      }
-                      onChange={time => handleTimeChange(day, 'start', time)}
-                    />
-                    <Text>-</Text>
-                    <TimePicker
-                      format='HH:mm'
-                      value={
-                        editData.times[day]?.end
-                          ? dayjs(editData.times[day].end, 'HH:mm')
-                          : null
-                      }
-                      onChange={time => handleTimeChange(day, 'end', time)}
-                    />
-                  </Space>
-                </div>
-              ))}
-            </div>
-
-            <div className='flex justify-end mt-4'>
-              <Button
-                type='primary'
-                style={{
-                  backgroundColor: '#00B894',
-                  borderColor: '#00B894',
-                }}
-              >
-                Save Changes
-              </Button>
+              <div className='flex justify-between'>
+                <Text type='secondary'>Status:</Text>
+                <Tag color={groupDetails.status === 'active' ? 'green' : 'default'}>
+                  {groupDetails.status || 'active'}
+                </Tag>
+              </div>
+              {groupDetails.schedules && groupDetails.schedules.length > 0 && (
+                <>
+                  <Divider style={{ margin: '12px 0' }} />
+                  <Title level={5}>Schedules</Title>
+                  <div className='space-y-2'>
+                    {groupDetails.schedules.map(schedule => {
+                      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                      return (
+                        <div key={schedule.id} className='flex justify-between items-center'>
+                          <Text>{days[schedule.dayOfWeek]}</Text>
+                          <Text strong>{schedule.startTime} - {schedule.endTime}</Text>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        )}
+        ) : null}
       </Modal>
 
       {/* ===== Delete Confirmation Modal ===== */}
       <Modal
         title='Confirm Delete'
         open={deleteModalOpen}
-        onCancel={() => setDeleteModalOpen(false)}
-        onOk={() => setDeleteModalOpen(false)}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setSelectedGroup(null);
+        }}
+        onOk={handleDeleteConfirm}
         okText='Delete'
-        okButtonProps={{ danger: true }}
+        okButtonProps={{ danger: true, loading: deleteGroupMutation.isPending }}
         centered
       >
         <Text>
           Are you sure you want to delete{' '}
-          <strong>{selectedGroup?.session_name}</strong>?
+          <strong>{selectedGroup?.name}</strong>? This action cannot be undone.
         </Text>
       </Modal>
     </>

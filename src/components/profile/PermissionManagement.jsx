@@ -1,19 +1,23 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Typography, Spin, Empty, Tag } from 'antd';
-import { TbEdit, TbEye } from 'react-icons/tb';
+import { Card, List, Row, Col, Typography, Spin, Empty, Tag, Button, Modal, message } from 'antd';
+import { TbEdit, TbEye, TbPlus, TbTrash } from 'react-icons/tb';
 import { ManagerPermissionModal } from './ManagerPermissionModal';
-import { useGetRoles } from '@/hooks/useRoles';
+import { CreateRoleModal } from './CreateRoleModal';
+import { useGetRoles, useDeleteRole } from '@/hooks/useRoles';
 import './permission-management.css';
 
 const { Title, Text } = Typography;
+const { confirm } = Modal;
 
 export const PermissionManagement = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
 
-  const { data: rolesData, isLoading } = useGetRoles();
+  const { data: rolesData, isLoading, refetch } = useGetRoles();
+  const deleteRoleMutation = useDeleteRole();
 
   // Filter out student role (only needed for mobile, not for permission management)
   const roles = (rolesData?.data || []).filter(role => role.roleName !== 'student');
@@ -36,6 +40,29 @@ export const PermissionManagement = () => {
     setIsReadOnly(false);
   };
 
+  const handleCreateSuccess = () => {
+    refetch();
+  };
+
+  const handleDeleteRole = (role) => {
+    confirm({
+      title: 'Delete Role',
+      content: `Are you sure you want to delete the role "${role.displayName || role.roleName}"? This action cannot be undone.`,
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      centered: true,
+      onOk: async () => {
+        try {
+          await deleteRoleMutation.mutateAsync(role.id);
+          refetch();
+        } catch (error) {
+          // Error is handled by the mutation hook
+        }
+      },
+    });
+  };
+
   return (
     <>
       <Card className='permission-management-card border-2 border-gray-200 w-full shadow-lg lg:w-2/3 h-full flex flex-col'>
@@ -44,6 +71,16 @@ export const PermissionManagement = () => {
             <Title level={5} style={{ marginBottom: 0 }}>
               Permission Management
             </Title>
+          </Col>
+          <Col xs={24} md={12} style={{ textAlign: 'right' }}>
+            <Button
+              type='primary'
+              icon={<TbPlus className='w-4 h-4' />}
+              onClick={() => setOpenCreateModal(true)}
+              className='bg-[#00B894] hover:!bg-[#019a7d] text-white font-semibold'
+            >
+              Create Role
+            </Button>
           </Col>
         </Row>
 
@@ -70,7 +107,9 @@ export const PermissionManagement = () => {
                 split={false}
                 renderItem={role => {
                   // Cannot edit Admin role permissions (backend enforces this too)
+                  // Cannot delete default roles (admin, manager, student)
                   const canEdit = role.roleName !== 'admin';
+                  const canDelete = !role.isDefault && role.roleName !== 'admin';
                   return (
                     <List.Item className='permission-list-item flex items-center'>
                       <Row align='middle' style={{ width: '100%' }}>
@@ -88,19 +127,28 @@ export const PermissionManagement = () => {
                           </Text>
                         </Col>
                         <Col flex='1' style={{ textAlign: 'right' }}>
-                          {canEdit ? (
-                            <TbEdit
-                              className='text-[#00B894] cursor-pointer w-5 h-5 inline hover:text-[#019a7d] transition'
-                              onClick={() => handleEditRole(role)}
-                              title='Edit permissions'
-                            />
-                          ) : (
-                            <TbEye
-                              className='text-[#00B894] cursor-pointer w-5 h-5 inline hover:text-[#019a7d] transition'
-                              onClick={() => handlePreviewRole(role)}
-                              title='Preview permissions'
-                            />
-                          )}
+                          <div className='flex items-center justify-end gap-3'>
+                            {canEdit ? (
+                              <TbEdit
+                                className='text-[#00B894] cursor-pointer w-5 h-5 hover:text-[#019a7d] transition'
+                                onClick={() => handleEditRole(role)}
+                                title='Edit permissions'
+                              />
+                            ) : (
+                              <TbEye
+                                className='text-[#00B894] cursor-pointer w-5 h-5 hover:text-[#019a7d] transition'
+                                onClick={() => handlePreviewRole(role)}
+                                title='Preview permissions'
+                              />
+                            )}
+                            {canDelete && (
+                              <TbTrash
+                                className='text-red-500 cursor-pointer w-5 h-5 hover:text-red-700 transition'
+                                onClick={() => handleDeleteRole(role)}
+                                title='Delete role'
+                              />
+                            )}
+                          </div>
                         </Col>
                       </Row>
                     </List.Item>
@@ -112,7 +160,7 @@ export const PermissionManagement = () => {
         </div>
       </Card>
 
-      {/* Modal Render */}
+      {/* Permission Edit Modal */}
       {selectedRole && (
         <ManagerPermissionModal
           open={openModal}
@@ -121,6 +169,13 @@ export const PermissionManagement = () => {
           onClose={handleCloseModal}
         />
       )}
+
+      {/* Create Role Modal */}
+      <CreateRoleModal
+        open={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </>
   );
 };

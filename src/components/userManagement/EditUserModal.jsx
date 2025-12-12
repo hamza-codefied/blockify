@@ -1,9 +1,11 @@
 'use client';
-import React, { useEffect } from 'react';
-import { Modal, Input, Form, Button, Select } from 'antd';
+import React, { useEffect, useMemo } from 'react';
+import { Modal, Input, Form, Button, Select, Divider } from 'antd';
 import { useUpdateStudent } from '@/hooks/useStudents';
 import { useUpdateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
+import { useGetRoles } from '@/hooks/useRoles';
+import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Option } = Select;
 
@@ -15,23 +17,68 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   // Fetch grades for dropdown
   const { data: gradesData } = useGetGrades({ 
     limit: 100, 
-    sort: 'grade_name', 
-    sortOrder: 'ASC' 
+    ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
 
+  // Fetch roles for manager role selection
+  const { data: rolesData } = useGetRoles(activeTab === 'managers');
+  const roles = rolesData?.data || [];
+  
+  // Filter roles: only "manager" default role OR custom roles (isSystemRole = false)
+  const availableRoles = useMemo(() => {
+    if (activeTab !== 'managers') return [];
+    return roles.filter(role => 
+      role.roleName === 'manager' || !role.isSystemRole
+    );
+  }, [roles, activeTab]);
+
   useEffect(() => {
     if (open && user) {
+      // Find grade ID from gradeName for students
+      let gradeId = null;
+      if (user.gradeName && grades.length > 0) {
+        // Try to find exact match first (gradeName + section if exists)
+        const matchingGrade = grades.find(g => {
+          const displayName = formatGradeDisplayName(g);
+          return displayName === user.gradeName || g.gradeName === user.gradeName;
+        });
+        gradeId = matchingGrade?.id || null;
+      }
+      
+      // Find grade IDs from gradeNames for managers
+      let gradeIds = [];
+      if (user.grades && user.grades.length > 0) {
+        gradeIds = user.grades.map(grade => {
+          const matchingGrade = grades.find(g => g.gradeName === grade.gradeName);
+          return matchingGrade?.id;
+        }).filter(Boolean);
+      } else if (user.gradeNames && user.gradeNames.length > 0) {
+        gradeIds = user.gradeNames.map(gradeName => {
+          const matchingGrade = grades.find(g => g.gradeName === gradeName);
+          return matchingGrade?.id;
+        }).filter(Boolean);
+      }
+      
       form.setFieldsValue({
         fullName: user.fullName,
         email: user.email,
-        gradeName: user.gradeName, // Use gradeName instead of gradeLevel
-        gradeNames: user.grades?.map(g => g.gradeName) || user.gradeNames || [], // For managers
-        department: user.department,
+        gradeId: gradeId, // Use gradeId instead of gradeName
+        gradeIds: gradeIds.length > 0 ? gradeIds : [], // For managers
+        roleId: user.roleId || user.role?.id, // For managers
+        phone: user.phone || null,
+        address: user.address || null,
+        zipcode: user.zipcode || null,
+        // Student guardian fields
+        guardian_name: user.guardian_name || null,
+        guardian_phone: user.guardian_phone || null,
+        guardian_email: user.guardian_email || null,
+        guardian_address: user.guardian_address || null,
+        guardian_zipcode: user.guardian_zipcode || null,
         status: user.status,
       });
     }
-  }, [open, user, form]);
+  }, [open, user, form, grades]);
 
   if (!user) return null;
 
@@ -40,10 +87,20 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
       const values = await form.validateFields();
       
       if (activeTab === 'students') {
+        // Convert gradeId to gradeName
+        const selectedGrade = grades.find(g => g.id === values.gradeId);
         const updateData = {
           fullName: values.fullName,
           email: values.email,
-          gradeName: values.gradeName, // Use gradeName instead of gradeLevel
+          gradeName: selectedGrade?.gradeName || values.gradeName, // Use gradeName from selected grade
+          phone: values.phone || null,
+          address: values.address || null,
+          zipcode: values.zipcode || null,
+          guardian_name: values.guardian_name || null,
+          guardian_phone: values.guardian_phone || null,
+          guardian_email: values.guardian_email || null,
+          guardian_address: values.guardian_address || null,
+          guardian_zipcode: values.guardian_zipcode || null,
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -53,11 +110,15 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           data: updateData,
         });
       } else {
+        // Send gradeIds directly (UUIDs) - no need to convert to names
         const updateData = {
           fullName: values.fullName,
           email: values.email,
-          department: values.department || null,
-          gradeNames: values.gradeNames || [], // Array of grade names
+          roleId: values.roleId, // Required - UUID of role
+          phone: values.phone || null,
+          address: values.address || null,
+          zipcode: values.zipcode || null,
+          gradeIds: values.gradeIds || [], // Array of grade UUIDs (from dropdown selection)
           status: values.status,
           ...(values.password && { password: values.password }),
         };
@@ -124,7 +185,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           <>
             <Form.Item 
               label='Grade' 
-              name='gradeName'
+              name='gradeId'
               rules={[{ required: true, message: 'Grade is required' }]}
             >
               <Select 
@@ -134,10 +195,91 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 options={grades.map(grade => ({
-                  value: grade.gradeName,
-                  label: grade.gradeName
+                  value: grade.id,
+                  label: formatGradeDisplayName(grade)
                 }))}
               />
+            </Form.Item>
+
+            <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
+
+            <Form.Item 
+              label='Phone' 
+              name='phone'
+              rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter phone number (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Address' 
+              name='address'
+              rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
+            >
+              <Input.TextArea 
+                placeholder='Enter address (optional)' 
+                rows={2}
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Zipcode' 
+              name='zipcode'
+              rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter zipcode (optional)' />
+            </Form.Item>
+
+            <Divider orientation="left" style={{ margin: '16px 0' }}>Guardian Information</Divider>
+
+            <Form.Item 
+              label='Guardian Name' 
+              name='guardian_name'
+              rules={[{ max: 200, message: 'Guardian name must not exceed 200 characters' }]}
+            >
+              <Input placeholder='Enter guardian name (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Phone' 
+              name='guardian_phone'
+              rules={[{ max: 20, message: 'Guardian phone must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter guardian phone (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Email' 
+              name='guardian_email'
+              rules={[
+                { type: 'email', message: 'Please enter a valid email address' },
+                { max: 200, message: 'Guardian email must not exceed 200 characters' }
+              ]}
+            >
+              <Input placeholder='Enter guardian email (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Address' 
+              name='guardian_address'
+              rules={[{ max: 500, message: 'Guardian address must not exceed 500 characters' }]}
+            >
+              <Input.TextArea 
+                placeholder='Enter guardian address (optional)' 
+                rows={2}
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Guardian Zipcode' 
+              name='guardian_zipcode'
+              rules={[{ max: 20, message: 'Guardian zipcode must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter guardian zipcode (optional)' />
             </Form.Item>
 
             <Form.Item 
@@ -150,13 +292,28 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           </>
         ) : (
           <>
-            <Form.Item label='Department' name='department'>
-              <Input placeholder='Enter department (optional)' />
+            <Form.Item 
+              label='Role' 
+              name='roleId'
+              rules={[{ required: true, message: 'Role is required' }]}
+              tooltip='Select a role for this manager. Only manager default role and custom roles are available.'
+            >
+              <Select 
+                placeholder='Select role'
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={availableRoles.map(role => ({
+                  value: role.id,
+                  label: role.displayName || role.roleName
+                }))}
+              />
             </Form.Item>
 
             <Form.Item 
               label='Grades' 
-              name='gradeNames'
+              name='gradeIds'
               rules={[
                 { required: true, message: 'At least one grade is required' },
                 { type: 'array', min: 1, message: 'Manager must be assigned to at least one grade' }
@@ -171,10 +328,41 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }
                 options={grades.map(grade => ({
-                  value: grade.gradeName,
-                  label: grade.gradeName
+                  value: grade.id,
+                  label: formatGradeDisplayName(grade)
                 }))}
               />
+            </Form.Item>
+
+            <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
+
+            <Form.Item 
+              label='Phone' 
+              name='phone'
+              rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter phone number (optional)' />
+            </Form.Item>
+
+            <Form.Item 
+              label='Address' 
+              name='address'
+              rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
+            >
+              <Input.TextArea 
+                placeholder='Enter address (optional)' 
+                rows={2}
+                maxLength={500}
+                showCount
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Zipcode' 
+              name='zipcode'
+              rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
+            >
+              <Input placeholder='Enter zipcode (optional)' />
             </Form.Item>
 
             <Form.Item 

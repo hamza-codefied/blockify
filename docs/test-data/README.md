@@ -9,19 +9,20 @@ This directory contains CSV files for testing the bulk import functionality for 
 - **Records:** 20 students
 - **Format:** 
   - Required columns: `fullName`, `email`, `gradeLevel`
-  - Optional columns: `status`
+  - Optional columns: `phone`, `address`, `zipcode`, `guardian_name`, `guardian_phone`, `guardian_email`, `guardian_address`, `guardian_zipcode`, `status`
   - Grade levels: 9-12 (high school)
   - All students have `active` status
+  - Example includes all optional fields for comprehensive testing
 
 ### `managers-import-test.csv`
 - **Purpose:** Test data for importing managers via CSV
 - **Records:** 20 managers
 - **Format:**
-  - Required columns: `fullName`, `email`, `password`, `gradeLevels`
-  - Optional columns: `department`, `status`
+  - Required columns: `fullName`, `email`, `password`, `roleName` (or `displayName`), `gradeNames` (or `gradeLevels`)
+  - Optional columns: `phone`, `address`, `zipcode`, `status`
   - All passwords meet minimum 8 character requirement
-  - `gradeLevels`: Comma-separated grade levels (1-12). Each manager is assigned to 1-6 grades
-  - Various departments included
+  - `roleName`: Use role name (e.g., "manager", "lead-teacher") or `displayName` (e.g., "Manager", "Lead Teacher")
+  - `gradeNames`: Comma-separated grade names (e.g., "8,9,10") or use `gradeLevels` for numbers
   - All managers have `active` status
 
 ## Usage
@@ -55,10 +56,15 @@ The CSV import feature will validate:
 - Required fields presence
 - Grade level range (1-12 for students)
 - **Students:** Must have `gradeLevel` (single grade, 1-12)
-- **Managers:** Must have `gradeLevels` (comma-separated, 1-12) or `gradeNames` (comma-separated grade names). At least one grade required.
+  - Optional: `phone`, `address`, `zipcode`, and all guardian fields
+- **Managers:** Must have:
+  - `roleName` or `displayName` (e.g., "manager", "Manager", "lead-teacher", "Lead Teacher")
+  - `gradeLevels` (comma-separated, 1-12) or `gradeNames` (comma-separated grade names). At least one grade required.
+  - Optional: `phone`, `address`, `zipcode`
 - Password strength (minimum 8 characters for managers)
 - Status values (active, inactive, suspended)
 - Grades must exist in the system before importing
+- Roles must exist in the system before importing managers (use exact role name or display name)
 
 ## Error Testing
 
@@ -74,9 +80,14 @@ To test error handling, you can:
 ## Important Notes
 
 - **Grades must exist in the system** before importing students or managers
+- **Roles must exist in the system** before importing managers (default "manager" role exists, custom roles must be created first)
 - Default grades (1-12) are automatically seeded when a school is created
 - For managers, you can use either:
   - `gradeLevels`: Comma-separated numbers (e.g., "1,2,3")
-  - `gradeNames`: Comma-separated grade names (e.g., "1,Grade 2,3th Grade")
+  - `gradeNames`: Comma-separated grade names (e.g., "8,9,10" or "8 A,9 B")
+- For manager roles, you can use either:
+  - `roleName`: Exact role name (e.g., "manager", "lead-teacher")
+  - `displayName`: Display name (e.g., "Manager", "Lead Teacher")
 - Multiple grades for managers should be comma-separated and enclosed in quotes if they contain spaces
+- All optional fields can be left empty in CSV - they will be set to null in the database
 
