@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, TimePicker, Row, Col, Typography } from 'antd';
 import dayjs from 'dayjs';
 
@@ -17,6 +17,8 @@ export const DAY_NUMBERS = {
 };
 
 export const CustomGroupScheduleSection = ({ form, selectedDays, onToggleDay }) => {
+  const [pendingTimes, setPendingTimes] = useState({});
+  
   return (
     <>
       {/* ===== Schedules Section ===== */}
@@ -65,9 +67,26 @@ export const CustomGroupScheduleSection = ({ form, selectedDays, onToggleDay }) 
                   >
                     <TimePicker
                       style={{ width: '100%' }}
-                      format='HH:mm'
+                      use12Hours
+                      format='hh:mm A'
                       defaultOpenValue={dayjs('08:00', 'HH:mm')}
                       placeholder='Select start time'
+                      onSelect={(time) => {
+                        const key = `startTime_${day}`;
+                        setPendingTimes(prev => ({ ...prev, [key]: time }));
+                        form.setFieldValue(key, time);
+                      }}
+                      onOpenChange={(open) => {
+                        const key = `startTime_${day}`;
+                        if (!open && pendingTimes[key]) {
+                          form.setFieldValue(key, pendingTimes[key]);
+                          setPendingTimes(prev => {
+                            const newState = { ...prev };
+                            delete newState[key];
+                            return newState;
+                          });
+                        }
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -79,9 +98,26 @@ export const CustomGroupScheduleSection = ({ form, selectedDays, onToggleDay }) 
                   >
                     <TimePicker
                       style={{ width: '100%' }}
-                      format='HH:mm'
+                      use12Hours
+                      format='hh:mm A'
                       defaultOpenValue={dayjs('17:00', 'HH:mm')}
                       placeholder='Select end time'
+                      onSelect={(time) => {
+                        const key = `endTime_${day}`;
+                        setPendingTimes(prev => ({ ...prev, [key]: time }));
+                        form.setFieldValue(key, time);
+                      }}
+                      onOpenChange={(open) => {
+                        const key = `endTime_${day}`;
+                        if (!open && pendingTimes[key]) {
+                          form.setFieldValue(key, pendingTimes[key]);
+                          setPendingTimes(prev => {
+                            const newState = { ...prev };
+                            delete newState[key];
+                            return newState;
+                          });
+                        }
+                      }}
                     />
                   </Form.Item>
                 </Col>

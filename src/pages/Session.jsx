@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Typography, Tabs, Select } from 'antd';
+import { Select, Button, Card } from 'antd';
+import { TeamOutlined } from '@ant-design/icons';
+import { PiStudentFill } from 'react-icons/pi';
 import { SEOHead } from '@components/seo/SEOHead';
 import { StructuredData } from '@components/seo/StructuredData';
 import {
@@ -21,6 +23,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useGetCustomGroups } from '@/hooks/useCustomGroups';
 import { message } from 'antd';
+import { PageTitle } from '@/components/common/PageTitle';
 
 export const Session = () => {
   const structuredData = [
@@ -28,7 +31,6 @@ export const Session = () => {
     generateOrganizationStructuredData(),
   ];
 
-  const { Title } = Typography;
   const [activeTab, setActiveTab] = useState('grades');
   const [openScheduleModal, setOpenScheduleModal] = useState(false); // For schedules (AddSessionModal)
   const [openSessionModal, setOpenSessionModal] = useState(false); // For actual sessions (SessionModal)
@@ -75,7 +77,7 @@ export const Session = () => {
       <SessionChart />
 
       <div className='grid grid-cols-1 xl:grid-cols-2 items-start gap-4 mt-4'>
-        <EarlySessionRequests />
+        <EarlySessionRequests sessionType="grade" />
         {isStaggered ? (
           <StaggeredScheduleView />
         ) : (
@@ -122,7 +124,9 @@ export const Session = () => {
       </div>
 
       <CustomGroupSessionChart />
-      <div className='mt-4'>
+
+      <div className='grid grid-cols-1 xl:grid-cols-2 items-start gap-4 mt-4'>
+        <EarlySessionRequests sessionType="customGroup" />
         {isStaggered ? (
           <CustomGroupStaggeredScheduleView />
         ) : (
@@ -132,19 +136,6 @@ export const Session = () => {
     </>
   );
 
-  const tabItems = [
-    {
-      key: 'grades',
-      label: 'Grades',
-      children: <GradesTabContent />,
-    },
-    {
-      key: 'custom-groups',
-      label: 'Custom Groups',
-      children: <CustomGroupsTabContent />,
-    },
-  ];
-
   return (
     <>
       <SEOHead title='Blockify' description='Session page' url='/' />
@@ -152,15 +143,48 @@ export const Session = () => {
 
       <div>
         <div className='flex justify-between items-center mb-4'>
-          <Title level={3} className='dark:text-gray-200'>Sessions</Title>
+          <PageTitle variant="primary" style={{ marginBottom: 0 }}>Sessions</PageTitle>
         </div>
 
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          items={tabItems}
-          className='session-tabs'
-        />
+        <Card
+          variant='outlined'
+          className='dark:!bg-gray-800 dark:!border-gray-700 rounded-[10px] mt-6 shadow-sm'
+        >
+          {/* Tabs */}
+          <div className='flex justify-center mb-6'>
+            <div className='flex flex-col md:flex-row items-center justify-center gap-5 md:gap-20'>
+              <Button
+                type={activeTab === 'grades' ? 'primary' : 'text'}
+                icon={<PiStudentFill className='w-5 h-5' />}
+                onClick={() => setActiveTab('grades')}
+                className={`flex w-[256px] h-[52px] justify-center items-center gap-3 shrink-0 rounded-[10px] text-base ${
+                  activeTab === 'grades'
+                    ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                    : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                Grades
+              </Button>
+              <Button
+                type={activeTab === 'custom-groups' ? 'primary' : 'text'}
+                icon={<TeamOutlined />}
+                onClick={() => setActiveTab('custom-groups')}
+                className={`flex w-[256px] h-[52px] justify-center items-center gap-3 shrink-0 rounded-[10px] text-base ${
+                  activeTab === 'custom-groups'
+                    ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                    : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                Custom Groups
+              </Button>
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          <div>
+            {activeTab === 'grades' ? <GradesTabContent /> : <CustomGroupsTabContent />}
+          </div>
+        </Card>
       </div>
 
       {/* Session Modal - For creating actual Session instances */}

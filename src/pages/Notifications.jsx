@@ -96,7 +96,7 @@ const Notifications = () => {
     return (
         <>
             <div className="flex items-center justify-between py-8">
-                <Text style={{ fontSize: 20 }}>Notifications</Text>
+                <PageTitle variant="primary" style={{ marginBottom: 0 }}>Notifications</PageTitle>
                 <Button icon={<ReloadOutlined />} onClick={() => fetchNotifications()}>
                     Refresh
                 </Button>

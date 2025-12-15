@@ -6,7 +6,6 @@ import {
   Row,
   Col,
   Typography,
-  Button,
   Modal,
   Tag,
   Avatar,
@@ -18,13 +17,15 @@ import {
 import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import './grades.css';
 import { CustomGroupModal } from './CustomGroupModal';
-import { TbEdit } from 'react-icons/tb';
+import { TbEdit, TbPlus } from 'react-icons/tb';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import {
   useGetCustomGroups,
   useDeleteCustomGroup,
   useGetCustomGroup,
 } from '@/hooks/useCustomGroups';
+import { PageTitle } from '@/components/common/PageTitle';
+import { Button } from '@/components/common/Button';
 
 const { Title, Text } = Typography;
 
@@ -117,83 +118,49 @@ export const CustomGroups = () => {
   return (
     <>
       <Card
-        variant='outlined'
-        style={{
-          borderRadius: 12,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        className='w-full bg-white rounded-xl shadow-lg border-2 border-gray-200'
-        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+        className='custom-groups-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
+        style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
+        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
       >
         {/* ===== Header ===== */}
-        <Row justify='space-between' align='middle' gutter={[16, 16]}>
-          <Col xs={24} md={8}>
-            <Title className='w-[120px]' level={5} style={{ marginBottom: 0 }}>
-              Custom Groups
-            </Title>
-          </Col>
-          <Col xs={24} md={16} style={{ textAlign: 'right' }}>
-            <Button
-              type='text'
-              className='add-grade-btn'
-              onClick={handleAddClick}
-            >
-              Add Custom Group +
-            </Button>
-          </Col>
-        </Row>
-
-        {/* ===== Scrollable Table Wrapper ===== */}
-        <div className='grades-wrapper' style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <Row
-            justify='space-between'
-            className='grades-header'
-            style={{
-              marginTop: 18,
-              marginBottom: 2,
-              fontWeight: 500,
-              background: '#fff',
-              boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-              border: '2px solid rgba(0,0,0,0.05)',
-              borderRadius: 12,
-              padding: '20px 16px',
-            }}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <PageTitle variant="primary" style={{ marginBottom: 0 }}>
+            Custom Groups
+          </PageTitle>
+          <Button
+            variant="primary"
+            icon={<TbPlus className='w-5 h-5' />}
+            onClick={handleAddClick}
           >
+            Add Custom Group
+          </Button>
+        </div>
+
+        <div className='grades-wrapper flex-1 flex flex-col' style={{ marginTop: '10px' }}>
+          <Row justify='space-between' className='grades-header'>
             <Col flex='2'>Group Name</Col>
             <Col flex='1'>Members</Col>
-            <Col flex='1' className='text-right'>
+            <Col flex='1' style={{ textAlign: 'right' }}>
               Action
             </Col>
           </Row>
 
-          {isLoading ? (
-            <div className='flex justify-center items-center py-8'>
-              <Spin size='large' />
-            </div>
-          ) : groups.length === 0 ? (
-            <div className='flex justify-center items-center py-8'>
-              <Empty description="No custom groups found. Create your first custom group!" />
-            </div>
-          ) : (
-            <div style={{ flex: 1, overflowY: 'auto' }}>
-              <List
-                itemLayout='horizontal'
-                dataSource={groups}
-                renderItem={group => (
-                <List.Item
-                  style={{
-                    background: '#fff',
-                    borderRadius: 12,
-                    marginBottom: 8,
-                    marginTop: 10,
-                    padding: '12px 16px',
-                    boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-                    border: '2px solid rgba(0,0,0,0.05)',
-                  }}
-                >
+          <div className='mt-2' style={{ display: 'flex', flexDirection: 'column' }}>
+            {isLoading ? (
+              <div className='flex justify-center items-center py-8'>
+                <Spin size='large' />
+              </div>
+            ) : groups.length === 0 ? (
+              <Empty description='No custom groups found' className='py-8' />
+            ) : (
+              <>
+                <div>
+                  <List
+                    itemLayout='horizontal'
+                    dataSource={groups}
+                    split={false}
+                    renderItem={group => (
+                <List.Item className='custom-groups-list-item flex items-center'>
                   <Row align='middle' style={{ width: '100%' }}>
                     <Col flex='2'>
                       <Text strong>{group.name}</Text>
@@ -231,33 +198,43 @@ export const CustomGroups = () => {
                   </Row>
                 </List.Item>
               )}
-              />
-            </div>
-          )}
+                  />
+                </div>
+                {/* Pagination Footer */}
+                {pagination.totalPages > 1 && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                    <Row justify='space-between' align='middle'>
+                      <Col>
+                        <Text type='secondary' style={{ fontSize: 12 }}>
+                          {pagination.total
+                            ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
+                            : 'No custom groups'}
+                        </Text>
+                      </Col>
+                      <Col>
+                        <Pagination
+                          current={page}
+                          total={pagination.total}
+                          pageSize={limit}
+                          onChange={handlePageChange}
+                          showSizeChanger={false}
+                          size='small'
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+                {pagination.totalPages <= 1 && pagination.total > 0 && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                    <Text type='secondary' style={{ fontSize: 12 }}>
+                      Showing {pagination.total} of {pagination.total} custom groups
+                    </Text>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-
-        {/* ===== Footer ===== */}
-        <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
-          <Col>
-            <Text type='secondary' style={{ fontSize: 12 }}>
-              {pagination.total
-                ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
-                : 'No custom groups'}
-            </Text>
-          </Col>
-          {pagination.totalPages > 1 && (
-            <Col>
-              <Pagination
-                current={page}
-                total={pagination.total}
-                pageSize={limit}
-                onChange={handlePageChange}
-                showSizeChanger={false}
-                size='small'
-              />
-            </Col>
-          )}
-        </Row>
       </Card>
 
       {/* ===== Add Modal ===== */}

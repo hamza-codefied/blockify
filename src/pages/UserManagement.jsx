@@ -8,7 +8,6 @@ import {
   Select,
   Button,
   Space,
-  Typography,
   Row,
   Col,
   Table,
@@ -36,8 +35,10 @@ import { useGetManagers } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetRoles } from '@/hooks/useRoles';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { PageTitle } from '@/components/common/PageTitle';
+import { Typography } from 'antd';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 export const UserManagement = () => {
@@ -254,52 +255,44 @@ export const UserManagement = () => {
 
   return (
     <>
-      <Card
-        variant='outlined'
-        className='dark:!bg-gray-800 dark:!border-gray-700'
-        style={{
-          borderRadius: 12,
-          marginTop: 24,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-        }}
-      >
-        <Row justify='space-between' align='middle' className='mb-4'>
-          <Col>
-            <Title level={5} style={{ marginBottom: 0 }} className='dark:text-gray-200'>
-              User Management
-            </Title>
-          </Col>
-        </Row>
-
-        {/* Tabs */}
-        <div className='flex justify-center mb-6'>
-          <div className='flex flex-col md:flex-row items-center justify-center gap-5 md:gap-20'>
-            <Button
-              type={activeTab === 'students' ? 'primary' : 'text'}
-              icon={<PiStudentFill className='w-5 h-5' />}
-              onClick={() => setActiveTab('students')}
-              className={`rounded-lg ${
-                activeTab === 'students'
-                  ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                  : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
-              }`}
-            >
-              Students
-            </Button>
-            <Button
-              type={activeTab === 'managers' ? 'primary' : 'text'}
-              icon={<TeamOutlined />}
-              onClick={() => setActiveTab('managers')}
-              className={`rounded-lg  ${
-                activeTab === 'managers'
-                  ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                  : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
-              }`}
-            >
-              Managers
-            </Button>
-          </div>
+      <div>
+        <div className='flex justify-between items-center mb-4'>
+          <PageTitle variant="primary" style={{ marginBottom: 0 }}>User Management</PageTitle>
         </div>
+
+        <Card
+          variant='outlined'
+          className='dark:!bg-gray-800 dark:!border-gray-700 rounded-[10px] mt-6 shadow-sm'
+        >
+          {/* Tabs */}
+          <div className='flex justify-center mb-6'>
+            <div className='flex flex-col md:flex-row items-center justify-center gap-5 md:gap-20'>
+              <Button
+                type={activeTab === 'students' ? 'primary' : 'text'}
+                icon={<PiStudentFill className='w-5 h-5' />}
+                onClick={() => setActiveTab('students')}
+                className={`flex w-[256px] h-[52px] justify-center items-center gap-3 shrink-0 rounded-[10px] text-base ${
+                  activeTab === 'students'
+                    ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                    : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                Students
+              </Button>
+              <Button
+                type={activeTab === 'managers' ? 'primary' : 'text'}
+                icon={<TeamOutlined />}
+                onClick={() => setActiveTab('managers')}
+                className={`flex w-[256px] h-[52px] justify-center items-center gap-3 shrink-0 rounded-[10px] text-base ${
+                  activeTab === 'managers'
+                    ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                    : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+                }`}
+              >
+                Managers
+              </Button>
+            </div>
+          </div>
 
         {/* Filters & Actions */}
         <Row
@@ -597,6 +590,7 @@ export const UserManagement = () => {
           </>
         )}
       </Card>
+      </div>
 
       <AddUserModal
         open={isModalOpen}

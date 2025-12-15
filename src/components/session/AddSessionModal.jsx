@@ -37,11 +37,12 @@ const daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const [form] = Form.useForm();
   const [selectedDays, setSelectedDays] = useState([]);
+  const [pendingTimes, setPendingTimes] = useState({});
   const createScheduleMutation = useCreateSchedule();
   
   // Fetch grades, managers, and subjects
   const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
-  const { data: managersData } = useGetManagers({ page: 1, limit: 100 });
+  const { data: managersData } = useGetManagers({ page: 1, limit: 100, status: 'active' });
   const { data: subjectsData } = useGetSubjects({ page: 1, limit: 100, status: 'active' });
   const grades = gradesData?.data || [];
   const managers = managersData?.data || [];
@@ -219,9 +220,26 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
                     >
                       <TimePicker
                         style={{ width: '100%' }}
-                        format='HH:mm'
+                        use12Hours
+                        format='hh:mm A'
                         defaultOpenValue={dayjs('08:00', 'HH:mm')}
                         placeholder='Select start time'
+                        onSelect={(time) => {
+                          const key = `startTime_${day}`;
+                          setPendingTimes(prev => ({ ...prev, [key]: time }));
+                          form.setFieldValue(key, time);
+                        }}
+                        onOpenChange={(open) => {
+                          const key = `startTime_${day}`;
+                          if (!open && pendingTimes[key]) {
+                            form.setFieldValue(key, pendingTimes[key]);
+                            setPendingTimes(prev => {
+                              const newState = { ...prev };
+                              delete newState[key];
+                              return newState;
+                            });
+                          }
+                        }}
                       />
                     </Form.Item>
                   </Col>
@@ -233,9 +251,26 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
                     >
                       <TimePicker
                         style={{ width: '100%' }}
-                        format='HH:mm'
+                        use12Hours
+                        format='hh:mm A'
                         defaultOpenValue={dayjs('17:00', 'HH:mm')}
                         placeholder='Select end time'
+                        onSelect={(time) => {
+                          const key = `endTime_${day}`;
+                          setPendingTimes(prev => ({ ...prev, [key]: time }));
+                          form.setFieldValue(key, time);
+                        }}
+                        onOpenChange={(open) => {
+                          const key = `endTime_${day}`;
+                          if (!open && pendingTimes[key]) {
+                            form.setFieldValue(key, pendingTimes[key]);
+                            setPendingTimes(prev => {
+                              const newState = { ...prev };
+                              delete newState[key];
+                              return newState;
+                            });
+                          }
+                        }}
                       />
                     </Form.Item>
                   </Col>

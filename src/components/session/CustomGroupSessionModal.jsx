@@ -34,9 +34,8 @@ export const CustomGroupSessionModal = ({ open, onClose, customGroupId, onSucces
   useEffect(() => {
     if (open) {
       form.resetFields();
-      //>>> Set default status to active for new sessions
+      //>>> Set default session date to today
       form.setFieldsValue({ 
-        status: 'active',
         sessionDate: dayjs() // Default to today
       });
       setSelectedStudentId(null);
@@ -48,15 +47,6 @@ export const CustomGroupSessionModal = ({ open, onClose, customGroupId, onSucces
     try {
       const values = await form.validateFields();
       
-      //>>> Convert dayjs to ISO string (optional fields)
-      const startTimestamp = values.startTimestamp 
-        ? values.startTimestamp.toISOString() 
-        : null; // Allow null for manual creation by admin
-      
-      const endTimestamp = values.endTimestamp 
-        ? values.endTimestamp.toISOString() 
-        : null;
-
       //>>> Convert sessionDate to YYYY-MM-DD format
       const sessionDate = values.sessionDate 
         ? values.sessionDate.format('YYYY-MM-DD')
@@ -69,7 +59,7 @@ export const CustomGroupSessionModal = ({ open, onClose, customGroupId, onSucces
         sessionDate: sessionDate,
         startTimestamp: null, // Always null on creation
         endTimestamp: null, // Always null on creation
-        status: values.status || 'active',
+        status: 'active', // Always active for session creation
       };
 
       await createSessionMutation.mutateAsync({
@@ -188,55 +178,7 @@ export const CustomGroupSessionModal = ({ open, onClose, customGroupId, onSucces
           />
         </Form.Item>
 
-        {/* Start Timestamp (optional) */}
-        <Form.Item
-          label="Start Time"
-          name="startTimestamp"
-        >
-          <DatePicker
-            showTime
-            format="YYYY-MM-DD HH:mm:ss"
-            style={{ width: '100%' }}
-            placeholder="Select start time (optional)"
-          />
-        </Form.Item>
 
-        {/* End Timestamp (optional for active sessions) */}
-        <Form.Item
-          label="End Time"
-          name="endTimestamp"
-          rules={[
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                const status = getFieldValue('status');
-                if (status === 'ended' && !value) {
-                  return Promise.reject(new Error('End time is required for ended sessions'));
-                }
-                return Promise.resolve();
-              },
-            }),
-          ]}
-        >
-          <DatePicker
-            showTime
-            format="YYYY-MM-DD HH:mm:ss"
-            style={{ width: '100%' }}
-            placeholder="Select end time (optional)"
-          />
-        </Form.Item>
-
-        {/* Status */}
-        <Form.Item
-          label="Status"
-          name="status"
-          rules={[{ required: true, message: 'Please select status' }]}
-        >
-          <Select placeholder="Select status">
-            <Select.Option value="active">Active</Select.Option>
-            <Select.Option value="ended">Ended</Select.Option>
-            <Select.Option value="cancelled">Cancelled</Select.Option>
-          </Select>
-        </Form.Item>
       </Form>
     </Modal>
   );

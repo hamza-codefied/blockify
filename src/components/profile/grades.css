@@ -1,21 +1,50 @@
-/* ===== Scrollable Table Wrapper ===== */
+/* ===== Card Styling ===== */
+.grades-card,
+.subjects-card,
+.custom-groups-card {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ===== Scrollable Wrapper ===== */
 .grades-wrapper {
-  overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.grades-wrapper::-webkit-scrollbar {
-  height: 6px;
+/* ===== Table Header ===== */
+.grades-header {
+  font-weight: 500;
+  background: #fff;
+  box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
 }
 
-.grades-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
+/* ===== List Items ===== */
+.grades-list-item,
+.subjects-list-item,
+.custom-groups-list-item {
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  padding: 12px 16px !important;
+  box-shadow: 0 0 8px 0px rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
 }
 
-/* Keep layout stable */
-/*  */
+/* List items styling */
+.grades-wrapper .ant-list-items {
+  display: flex;
+  flex-direction: column;
+}
 
 /* ===== Add Button Styling ===== */
 .add-grade-btn {
@@ -36,10 +65,6 @@
     padding: 12px !important;
   }
 
-  .grades-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
 }
 
 /* ===== Table Column Width Control ===== */
@@ -90,12 +115,11 @@
 }
 
 /* ===== Dark Mode Support ===== */
-.dark .grades-wrapper {
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-.dark .grades-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+.dark .grades-card,
+.dark .subjects-card,
+.dark .custom-groups-card {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
 }
 
 .dark .grades-header {
@@ -104,11 +128,16 @@
   color: #e5e7eb !important;
 }
 
-.dark .grades-wrapper .ant-list-item {
+.dark .grades-list-item,
+.dark .subjects-list-item,
+.dark .custom-groups-list-item {
   background: #1f2937 !important;
   border-color: #374151 !important;
+  color: #e5e7eb !important;
 }
 
-.dark .grades-wrapper .ant-list-item .ant-typography {
+.dark .grades-list-item .ant-typography,
+.dark .subjects-list-item .ant-typography,
+.dark .custom-groups-list-item .ant-typography {
   color: #e5e7eb !important;
 }

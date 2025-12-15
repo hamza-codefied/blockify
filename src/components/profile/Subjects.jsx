@@ -1,15 +1,17 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Typography, Button, Spin, Pagination } from 'antd';
-import { TbEdit } from 'react-icons/tb';
+import { Card, List, Row, Col, Typography, Spin, Empty, Pagination } from 'antd';
+import { TbEdit, TbPlus } from 'react-icons/tb';
 import './grades.css';
 import { SubjectModal } from './SubjectModal';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { useGetSubjects } from '@/hooks/useSubjects';
 import { useDeleteSubject } from '@/hooks/useSubjects';
 import { DeleteConfirmModal } from '@/components/userManagement/DeleteConfirmModal';
+import { PageTitle } from '@/components/common/PageTitle';
+import { Button } from '@/components/common/Button';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 export const Subjects = () => {
   const [page, setPage] = useState(1);
@@ -76,84 +78,49 @@ export const Subjects = () => {
   return (
     <>
       <Card
-        variant='outlined'
-        style={{
-          borderRadius: 12,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        className='border-2 border-gray-200 w-full shadow-lg'
-        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+        className='subjects-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
+        style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
+        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
       >
         {/* ===== Header ===== */}
-        <Row justify='space-between' align='middle' gutter={[16, 16]}>
-          <Col xs={24} md={8}>
-            <Title level={5} style={{ marginBottom: 0 }}>
-              Subjects
-            </Title>
-          </Col>
-          <Col xs={24} md={16} style={{ textAlign: 'right' }}>
-            <Button
-              type='text'
-              className='add-grade-btn text-[#00B894] font-semibold'
-              onClick={handleAddClick}
-            >
-              Add Subject +
-            </Button>
-          </Col>
-        </Row>
-
-        {/* ===== Scrollable Table Wrapper ===== */}
-        <div className='grades-wrapper' style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* ===== List Header Row ===== */}
-          <Row
-            justify='space-between'
-            className='grades-header'
-            style={{
-              marginTop: 24,
-              marginBottom: 8,
-              fontWeight: 500,
-              background: '#fff',
-              boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-              border: '2px solid rgba(0,0,0,0.05)',
-              borderRadius: 12,
-              padding: '20px 16px',
-            }}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <PageTitle variant="primary" style={{ marginBottom: 0 }}>
+            Subjects
+          </PageTitle>
+          <Button
+            variant="primary"
+            icon={<TbPlus className='w-5 h-5' />}
+            onClick={handleAddClick}
           >
+            Add Subject
+          </Button>
+        </div>
+
+        <div className='grades-wrapper flex-1 flex flex-col' style={{ marginTop: '10px' }}>
+          <Row justify='space-between' className='grades-header'>
             <Col flex='2'>Subject</Col>
             <Col flex='1'>Schedules</Col>
-            <Col flex='1' className='text-right'>
+            <Col flex='1' style={{ textAlign: 'right' }}>
               Action
             </Col>
           </Row>
 
-          {/* ===== Subjects List ===== */}
-          {isLoading ? (
-            <div className='flex justify-center items-center py-8'>
-              <Spin size='large' />
-            </div>
-          ) : subjects.length === 0 ? (
-            <div className='text-center py-8 text-gray-500'>
-              No subjects found. Click "Add Subject +" to create one.
-            </div>
-          ) : (
-            <div style={{ flex: 1, overflowY: 'auto' }}>
-              <List
-                itemLayout='horizontal'
-                dataSource={subjects}
-                renderItem={subject => (
-                <List.Item
-                  style={{
-                    background: '#fff',
-                    borderRadius: 12,
-                    marginBottom: 8,
-                    padding: '12px 16px',
-                    boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-                    border: '2px solid rgba(0,0,0,0.05)',
-                  }}
-                >
+          <div className='mt-2' style={{ display: 'flex', flexDirection: 'column' }}>
+            {isLoading ? (
+              <div className='flex justify-center items-center py-8'>
+                <Spin size='large' />
+              </div>
+            ) : subjects.length === 0 ? (
+              <Empty description='No subjects found' className='py-8' />
+            ) : (
+              <>
+                <div>
+                  <List
+                    itemLayout='horizontal'
+                    dataSource={subjects}
+                    split={false}
+                    renderItem={subject => (
+                <List.Item className='subjects-list-item flex items-center'>
                   <Row align='middle' style={{ width: '100%' }}>
                     <Col flex='2'>
                       <Text>{subject.name}</Text>
@@ -176,33 +143,43 @@ export const Subjects = () => {
                   </Row>
                 </List.Item>
               )}
-              />
-            </div>
-          )}
+                  />
+                </div>
+                {/* Pagination Footer */}
+                {pagination.totalPages > 1 && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                    <Row justify='space-between' align='middle'>
+                      <Col>
+                        <Text type='secondary' style={{ fontSize: 12 }}>
+                          {pagination.total
+                            ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
+                            : 'No subjects'}
+                        </Text>
+                      </Col>
+                      <Col>
+                        <Pagination
+                          current={page}
+                          total={pagination.total}
+                          pageSize={limit}
+                          onChange={handlePageChange}
+                          showSizeChanger={false}
+                          size='small'
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+                {pagination.totalPages <= 1 && pagination.total > 0 && (
+                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                    <Text type='secondary' style={{ fontSize: 12 }}>
+                      Showing {pagination.total} of {pagination.total} subjects
+                    </Text>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
-
-        {/* ===== Footer ===== */}
-        <Row justify='space-between' align='middle' style={{ marginTop: 8 }}>
-          <Col>
-            <Text type='secondary' style={{ fontSize: 12 }}>
-              {pagination.total
-                ? `Showing ${(page - 1) * limit + 1}-${Math.min(page * limit, pagination.total)} of ${pagination.total}`
-                : 'No subjects'}
-            </Text>
-          </Col>
-          {pagination.totalPages > 1 && (
-            <Col>
-              <Pagination
-                current={page}
-                total={pagination.total}
-                pageSize={limit}
-                onChange={handlePageChange}
-                showSizeChanger={false}
-                size='small'
-              />
-            </Col>
-          )}
-        </Row>
       </Card>
 
       {/* ===== Add/Edit Modal ===== */}

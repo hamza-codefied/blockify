@@ -8,15 +8,13 @@ import {
 
 import StatsCard from '@/components/attendance/StatsCard';
 import VisualOverview from '@/components/attendance/VisualOverview';
-import { Typography } from 'antd';
+import { PageTitle } from '@/components/common/PageTitle';
 
 export const Attendance = () => {
   const structuredData = [
     generateWebsiteStructuredData(),
     generateOrganizationStructuredData(),
   ];
-
-  const { Title } = Typography;
 
   return (
     <>
@@ -28,9 +26,7 @@ export const Attendance = () => {
       <StructuredData structuredData={structuredData} />
 
       <div className=''>
-        <Title level={3} style={{ marginBottom: 16 }} className='dark:text-gray-200'>
-          Attendance
-        </Title>
+        <PageTitle variant="primary" style={{ marginBottom: 16 }}>Attendance</PageTitle>
 
         <StatsCard />
 

@@ -9,6 +9,7 @@ import { PermissionManagement } from '@/components/profile/PermissionManagement'
 import { Grades } from '@/components/profile/Grades';
 import { Subjects } from '@/components/profile/Subjects';
 import { CustomGroups } from '@/components/profile/CustomGroups';
+import { PageTitle } from '@/components/common/PageTitle';
 
 export const Profile = () => {
   const structuredData = [
@@ -26,7 +27,7 @@ export const Profile = () => {
       <StructuredData structuredData={structuredData} />
 
       <div>
-        <h1 className='text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200'>Profile</h1>
+        <PageTitle variant="primary" style={{ marginBottom: 16 }}>Profile</PageTitle>
 
         <div 
           className='grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch'

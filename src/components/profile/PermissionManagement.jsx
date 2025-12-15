@@ -1,13 +1,15 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Typography, Spin, Empty, Tag, Button, Modal, message, Pagination } from 'antd';
+import { Card, List, Row, Col, Typography, Spin, Empty, Tag, Modal, message, Pagination } from 'antd';
 import { TbEdit, TbEye, TbPlus, TbTrash } from 'react-icons/tb';
 import { ManagerPermissionModal } from './ManagerPermissionModal';
 import { CreateRoleModal } from './CreateRoleModal';
 import { useGetRoles, useDeleteRole } from '@/hooks/useRoles';
+import { PageTitle } from '@/components/common/PageTitle';
+import { Button } from '@/components/common/Button';
 import './permission-management.css';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { confirm } = Modal;
 
 export const PermissionManagement = () => {
@@ -88,25 +90,20 @@ export const PermissionManagement = () => {
         style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
         bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
       >
-        <Row justify='space-between' align='middle' gutter={[16, 16]}>
-          <Col xs={24} md={12}>
-            <Title level={5} style={{ marginBottom: 0 }}>
-              Permission Management
-            </Title>
-          </Col>
-          <Col xs={24} md={12} style={{ textAlign: 'right' }}>
-            <Button
-              type='primary'
-              icon={<TbPlus className='w-4 h-4' />}
-              onClick={() => setOpenCreateModal(true)}
-              className='bg-[#00B894] hover:!bg-[#019a7d] text-white font-semibold'
-            >
-              Create Role
-            </Button>
-          </Col>
-        </Row>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <PageTitle variant="primary" style={{ marginBottom: 0 }}>
+            Permission Management
+          </PageTitle>
+          <Button
+            variant="primary"
+            icon={<TbPlus className='w-5 h-5' />}
+            onClick={() => setOpenCreateModal(true)}
+          >
+            Create Role
+          </Button>
+        </div>
 
-        <div className='permission-management-wrapper flex-1 flex flex-col mt-4'>
+        <div className='permission-management-wrapper flex-1 flex flex-col' style={{ marginTop: '10px' }}>
           <Row justify='space-between' className='permission-management-header'>
             <Col flex='2'>Role</Col>
             <Col flex='2'>Permissions</Col>

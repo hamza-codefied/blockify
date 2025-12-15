@@ -16,16 +16,20 @@ const getAvatarUrl = (name) => {
   return `https://i.pravatar.cc/40?img=${(hash % 70) + 1}`;
 };
 
-export const EarlySessionRequests = () => {
+export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [gradeId, setGradeId] = useState(null);
 
-  // Fetch grades for filter dropdown
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
-  const grades = gradesData?.data || [];
+  // Fetch grades for filter dropdown (only for grade sessions)
+  const { data: gradesData } = useGetGrades(
+    sessionType === 'grade' 
+      ? { page: 1, limit: 100, ...getDefaultGradeQueryParams() }
+      : {}
+  );
+  const grades = sessionType === 'grade' ? (gradesData?.data || []) : [];
 
   // Fetch requests with filters
   // Hardcoded: requestType='early-end', status='pending', date=current (handled by backend)
@@ -33,6 +37,7 @@ export const EarlySessionRequests = () => {
     requestType: 'early-end',
     status: 'pending',
     gradeId: gradeId || undefined,
+    sessionType: sessionType, // 'grade' or 'customGroup'
     page,
     limit,
     sort: 'created_at',
@@ -74,20 +79,22 @@ export const EarlySessionRequests = () => {
         <h1 className='text-lg sm:text-xl font-semibold'>
           Early Session End Requests
         </h1>
-        <Select
-          placeholder='Filter by Grade'
-          allowClear
-          value={gradeId}
-          onChange={handleGradeFilterChange}
-          style={{ width: 200 }}
-          options={[
-            { label: 'All Grades', value: null },
-            ...grades.map(grade => ({
-              label: formatGradeDisplayName(grade),
-              value: grade.id,
-            })),
-          ]}
-        />
+        {sessionType === 'grade' && (
+          <Select
+            placeholder='Filter by Grade'
+            allowClear
+            value={gradeId}
+            onChange={handleGradeFilterChange}
+            style={{ width: 200 }}
+            options={[
+              { label: 'All Grades', value: null },
+              ...grades.map(grade => ({
+                label: formatGradeDisplayName(grade),
+                value: grade.id,
+              })),
+            ]}
+          />
+        )}
       </div>
 
       <div className='early-session-wrapper'>

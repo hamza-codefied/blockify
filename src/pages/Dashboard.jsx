@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Typography } from 'antd';
+import { Row, Col } from 'antd';
 import { SEOHead } from '@components/seo/SEOHead';
 import { StructuredData } from '@components/seo/StructuredData';
 import {
@@ -9,8 +9,7 @@ import {
 import StatsCard from '@/components/dashboard/StatsCard';
 import RecentActivities from '@/components/dashboard/RecentActivities';
 import StudentTable from '@/components/dashboard/StudentTable';
-
-const { Title } = Typography;
+import { PageTitle } from '@/components/common/PageTitle';
 
 export const Dashboard = () => {
   const structuredData = [
@@ -28,9 +27,7 @@ export const Dashboard = () => {
       />
       <StructuredData structuredData={structuredData} />
 
-      <Title level={3} style={{ marginBottom: 16 }} className='dark:text-gray-200'>
-        Dashboard
-      </Title>
+      <PageTitle variant="primary" style={{ marginBottom: 16 }}>Dashboard</PageTitle>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>

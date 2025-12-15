@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Form, Select, TimePicker, Button, Input } from 'antd';
 import dayjs from 'dayjs';
 import { useUpdateSchedule } from '@/hooks/useSchedules';
@@ -9,6 +9,8 @@ const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 
 export const EditSessionModal = ({ open, onClose, session, onSuccess }) => {
   const [form] = Form.useForm();
+  const [pendingStartTime, setPendingStartTime] = useState(null);
+  const [pendingEndTime, setPendingEndTime] = useState(null);
   const updateScheduleMutation = useUpdateSchedule();
   const { data: gradesData } = useGetGrades({ page: 1, limit: 100 });
   const { data: subjectsData } = useGetSubjects({ page: 1, limit: 100, status: 'active' });
@@ -128,7 +130,21 @@ export const EditSessionModal = ({ open, onClose, session, onSuccess }) => {
             className='flex-1'
             rules={[{ required: true, message: 'Please select start time' }]}
           >
-            <TimePicker use12Hours format='hh:mm a' className='w-full' />
+            <TimePicker 
+              use12Hours 
+              format='hh:mm a' 
+              className='w-full'
+              onSelect={(time) => {
+                setPendingStartTime(time);
+                form.setFieldValue('startTime', time);
+              }}
+              onOpenChange={(open) => {
+                if (!open && pendingStartTime) {
+                  form.setFieldValue('startTime', pendingStartTime);
+                  setPendingStartTime(null);
+                }
+              }}
+            />
           </Form.Item>
           <Form.Item
             label='End Time'
@@ -136,7 +152,21 @@ export const EditSessionModal = ({ open, onClose, session, onSuccess }) => {
             className='flex-1'
             rules={[{ required: true, message: 'Please select end time' }]}
           >
-            <TimePicker use12Hours format='hh:mm a' className='w-full' />
+            <TimePicker 
+              use12Hours 
+              format='hh:mm a' 
+              className='w-full'
+              onSelect={(time) => {
+                setPendingEndTime(time);
+                form.setFieldValue('endTime', time);
+              }}
+              onOpenChange={(open) => {
+                if (!open && pendingEndTime) {
+                  form.setFieldValue('endTime', pendingEndTime);
+                  setPendingEndTime(null);
+                }
+              }}
+            />
           </Form.Item>
         </div>
 
