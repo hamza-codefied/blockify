@@ -1,12 +1,24 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Typography, Spin, Empty, Tag, Modal, message, Pagination } from 'antd';
+import {
+  Card,
+  List,
+  Row,
+  Col,
+  Typography,
+  Spin,
+  Empty,
+  Tag,
+  Modal,
+  message,
+  Pagination,
+  Button,
+} from 'antd';
 import { TbEdit, TbEye, TbPlus, TbTrash } from 'react-icons/tb';
 import { ManagerPermissionModal } from './ManagerPermissionModal';
 import { CreateRoleModal } from './CreateRoleModal';
 import { useGetRoles, useDeleteRole } from '@/hooks/useRoles';
 import { PageTitle } from '@/components/common/PageTitle';
-import { Button } from '@/components/common/Button';
 import './permission-management.css';
 
 const { Text } = Typography;
@@ -21,7 +33,11 @@ export const PermissionManagement = () => {
   const [isReadOnly, setIsReadOnly] = useState(false);
 
   // Fetch roles with pagination
-  const { data: rolesData, isLoading, refetch } = useGetRoles({
+  const {
+    data: rolesData,
+    isLoading,
+    refetch,
+  } = useGetRoles({
     page,
     limit,
     sort: 'created_at',
@@ -34,13 +50,13 @@ export const PermissionManagement = () => {
   const roles = rolesData?.data || [];
   const pagination = rolesData?.pagination || {};
 
-  const handleEditRole = (role) => {
+  const handleEditRole = role => {
     setSelectedRole(role);
     setIsReadOnly(false);
     setOpenModal(true);
   };
 
-  const handlePreviewRole = (role) => {
+  const handlePreviewRole = role => {
     setSelectedRole(role);
     setIsReadOnly(true);
     setOpenModal(true);
@@ -56,7 +72,7 @@ export const PermissionManagement = () => {
     refetch();
   };
 
-  const handleDeleteRole = (role) => {
+  const handleDeleteRole = role => {
     confirm({
       title: 'Delete Role',
       content: `Are you sure you want to delete the role "${role.displayName || role.roleName}"? This action cannot be undone.`,
@@ -79,23 +95,41 @@ export const PermissionManagement = () => {
     });
   };
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = newPage => {
     setPage(newPage);
   };
 
   return (
     <>
-      <Card 
+      <Card
         className='permission-management-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
-        style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
-        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100%',
+        }}
+        bodyStyle={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <PageTitle variant="primary" style={{ marginBottom: 0 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
             Permission Management
           </PageTitle>
           <Button
-            variant="primary"
+            variant='primary'
             icon={<TbPlus className='w-5 h-5' />}
             onClick={() => setOpenCreateModal(true)}
           >
@@ -103,8 +137,14 @@ export const PermissionManagement = () => {
           </Button>
         </div>
 
-        <div className='permission-management-wrapper flex-1 flex flex-col' style={{ marginTop: '10px' }}>
-          <Row justify='space-between' className='permission-management-header'>
+        <div
+          className='permission-management-wrapper flex-1 flex flex-col'
+          style={{ marginTop: '10px' }}
+        >
+          <Row
+            justify='space-between'
+            className='permission-management-header text-[16px] font-bold'
+          >
             <Col flex='2'>Role</Col>
             <Col flex='2'>Permissions</Col>
             <Col flex='1' style={{ textAlign: 'right' }}>
@@ -112,7 +152,10 @@ export const PermissionManagement = () => {
             </Col>
           </Row>
 
-          <div className='mt-2' style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            className='mt-2 text-base'
+            style={{ display: 'flex', flexDirection: 'column' }}
+          >
             {isLoading ? (
               <div className='flex justify-center items-center py-8'>
                 <Spin size='large' />
@@ -127,59 +170,74 @@ export const PermissionManagement = () => {
                     dataSource={roles}
                     split={false}
                     renderItem={role => {
-                  // Cannot edit Admin role permissions (backend enforces this too)
-                  // Cannot delete default roles (admin, manager, student)
-                  const canEdit = role.roleName !== 'admin';
-                  const canDelete = !role.isDefault && role.roleName !== 'admin';
-                  return (
-                    <List.Item className='permission-list-item flex items-center'>
-                      <Row align='middle' style={{ width: '100%' }}>
-                        <Col flex='2'>
-                          <div className='flex items-center gap-2'>
-                            <Text strong>{role.displayName || role.roleName}</Text>
-                            {role.isDefault && (
-                              <Tag color='blue' size='small'>Default</Tag>
-                            )}
-                          </div>
-                        </Col>
-                        <Col flex='2'>
-                          <Text type='secondary'>
-                            {role.description || 'No description'}
-                          </Text>
-                        </Col>
-                        <Col flex='1' style={{ textAlign: 'right' }}>
-                          <div className='flex items-center justify-end gap-3'>
-                            {canEdit ? (
-                              <TbEdit
-                                className='text-[#00B894] cursor-pointer w-5 h-5 hover:text-[#019a7d] transition'
-                                onClick={() => handleEditRole(role)}
-                                title='Edit permissions'
-                              />
-                            ) : (
-                              <TbEye
-                                className='text-[#00B894] cursor-pointer w-5 h-5 hover:text-[#019a7d] transition'
-                                onClick={() => handlePreviewRole(role)}
-                                title='Preview permissions'
-                              />
-                            )}
-                            {canDelete && (
-                              <TbTrash
-                                className='text-red-500 cursor-pointer w-5 h-5 hover:text-red-700 transition'
-                                onClick={() => handleDeleteRole(role)}
-                                title='Delete role'
-                              />
-                            )}
-                          </div>
-                        </Col>
-                      </Row>
-                    </List.Item>
-                  );
-                }}
+                      // Cannot edit Admin role permissions (backend enforces this too)
+                      // Cannot delete default roles (admin, manager, student)
+                      const canEdit = role.roleName !== 'admin';
+                      const canDelete =
+                        !role.isDefault && role.roleName !== 'admin';
+                      return (
+                        <List.Item className='permission-list-item flex items-center text-base'>
+                          <Row
+                            align='middle'
+                            style={{ width: '100%' }}
+                            className='text-base'
+                          >
+                            <Col flex='2'>
+                              <div className='flex items-center gap-2 text-base'>
+                                <Text strong className='text-base'>
+                                  {role.displayName || role.roleName}
+                                </Text>
+                                {role.isDefault && (
+                                  <Tag color='blue' size='small'>
+                                    Default
+                                  </Tag>
+                                )}
+                              </div>
+                            </Col>
+                            <Col flex='2'>
+                              <Text type='secondary' className='text-base'>
+                                {role.description || 'No description'}
+                              </Text>
+                            </Col>
+                            <Col flex='1' style={{ textAlign: 'right' }}>
+                              <div className='flex items-center justify-end gap-3'>
+                                {canEdit ? (
+                                  <TbEdit
+                                    className='text-[#00B894] cursor-pointer w-5 h-5 hover:text-[#019a7d] transition'
+                                    onClick={() => handleEditRole(role)}
+                                    title='Edit permissions'
+                                  />
+                                ) : (
+                                  <TbEye
+                                    className='text-[#00B894] cursor-pointer w-5 h-5 hover:text-[#019a7d] transition'
+                                    onClick={() => handlePreviewRole(role)}
+                                    title='Preview permissions'
+                                  />
+                                )}
+                                {canDelete && (
+                                  <TbTrash
+                                    className='text-red-500 cursor-pointer w-5 h-5 hover:text-red-700 transition'
+                                    onClick={() => handleDeleteRole(role)}
+                                    title='Delete role'
+                                  />
+                                )}
+                              </div>
+                            </Col>
+                          </Row>
+                        </List.Item>
+                      );
+                    }}
                   />
                 </div>
                 {/* Pagination Footer */}
                 {pagination.totalPages > 1 && (
-                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: '1px solid #f0f0f0',
+                    }}
+                  >
                     <Row justify='space-between' align='middle'>
                       <Col>
                         <Text type='secondary' style={{ fontSize: 12 }}>
@@ -202,7 +260,13 @@ export const PermissionManagement = () => {
                   </div>
                 )}
                 {pagination.totalPages <= 1 && pagination.total > 0 && (
-                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: '1px solid #f0f0f0',
+                    }}
+                  >
                     <Text type='secondary' style={{ fontSize: 12 }}>
                       Showing {pagination.total} of {pagination.total} roles
                     </Text>

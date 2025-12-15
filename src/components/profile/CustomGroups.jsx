@@ -13,6 +13,7 @@ import {
   Spin,
   Empty,
   Pagination,
+  Button,
 } from 'antd';
 import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import './grades.css';
@@ -25,7 +26,6 @@ import {
   useGetCustomGroup,
 } from '@/hooks/useCustomGroups';
 import { PageTitle } from '@/components/common/PageTitle';
-import { Button } from '@/components/common/Button';
 
 const { Title, Text } = Typography;
 
@@ -41,7 +41,11 @@ export const CustomGroups = () => {
   const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   // Fetch custom groups with pagination (Admin)
-  const { data: customGroupsData, isLoading, refetch } = useGetCustomGroups({
+  const {
+    data: customGroupsData,
+    isLoading,
+    refetch,
+  } = useGetCustomGroups({
     page,
     limit,
     sort: 'created_at',
@@ -52,10 +56,11 @@ export const CustomGroups = () => {
   const pagination = customGroupsData?.pagination || {};
 
   // Fetch selected group details for view/edit
-  const { data: groupDetailsData, isLoading: groupDetailsLoading } = useGetCustomGroup(
-    selectedGroupId,
-    !!selectedGroupId && (viewModalOpen || editModalOpen)
-  );
+  const { data: groupDetailsData, isLoading: groupDetailsLoading } =
+    useGetCustomGroup(
+      selectedGroupId,
+      !!selectedGroupId && (viewModalOpen || editModalOpen)
+    );
   const groupDetails = groupDetailsData?.data || null;
 
   // Delete mutation
@@ -103,7 +108,7 @@ export const CustomGroups = () => {
     }
   };
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = newPage => {
     setPage(newPage);
   };
 
@@ -119,16 +124,34 @@ export const CustomGroups = () => {
     <>
       <Card
         className='custom-groups-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
-        style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
-        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100%',
+        }}
+        bodyStyle={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
       >
         {/* ===== Header ===== */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <PageTitle variant="primary" style={{ marginBottom: 0 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
             Custom Groups
           </PageTitle>
           <Button
-            variant="primary"
+            variant='primary'
             icon={<TbPlus className='w-5 h-5' />}
             onClick={handleAddClick}
           >
@@ -136,16 +159,26 @@ export const CustomGroups = () => {
           </Button>
         </div>
 
-        <div className='grades-wrapper flex-1 flex flex-col' style={{ marginTop: '10px' }}>
-          <Row justify='space-between' className='grades-header'>
-            <Col flex='2'>Group Name</Col>
-            <Col flex='1'>Members</Col>
-            <Col flex='1' style={{ textAlign: 'right' }}>
+        <div
+          className='grades-wrapper flex-1 flex flex-col text-base'
+          style={{ marginTop: '10px' }}
+        >
+          <Row justify='space-between' className='grades-header text-base'>
+            <Col className='text-base' flex='2'>
+              Group Name
+            </Col>
+            <Col className='text-base' flex='1'>
+              Members
+            </Col>
+            <Col className='text-base' flex='1' style={{ textAlign: 'right' }}>
               Action
             </Col>
           </Row>
 
-          <div className='mt-2' style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            className='mt-2'
+            style={{ display: 'flex', flexDirection: 'column' }}
+          >
             {isLoading ? (
               <div className='flex justify-center items-center py-8'>
                 <Spin size='large' />
@@ -160,49 +193,67 @@ export const CustomGroups = () => {
                     dataSource={groups}
                     split={false}
                     renderItem={group => (
-                <List.Item className='custom-groups-list-item flex items-center'>
-                  <Row align='middle' style={{ width: '100%' }}>
-                    <Col flex='2'>
-                      <Text strong>{group.name}</Text>
-                      {group.description && (
-                        <div>
-                          <Text type='secondary' style={{ fontSize: 12 }}>
-                            {group.description}
-                          </Text>
-                        </div>
-                      )}
-                    </Col>
-                    <Col flex='1'>
-                      <Text>{group.memberCount || 0}</Text>
-                    </Col>
-                    <Col flex='1' className='flex justify-end gap-3'>
-                      <AiOutlineEye
-                        size={14}
-                        color='#186ee8'
-                        className='cursor-pointer'
-                        onClick={() => handleViewClick(group)}
-                      />
-                      <TbEdit
-                        size={14}
-                        color='#00B894'
-                        className='cursor-pointer'
-                        onClick={() => handleEditClick(group)}
-                      />
-                      <RiDeleteBinLine
-                        size={14}
-                        color='#801818'
-                        className='cursor-pointer'
-                        onClick={() => handleDeleteClick(group)}
-                      />
-                    </Col>
-                  </Row>
-                </List.Item>
-              )}
+                      <List.Item className='custom-groups-list-item flex items-center text-base'>
+                        <Row
+                          className='text-base'
+                          align='middle'
+                          style={{ width: '100%' }}
+                        >
+                          <Col flex='2'>
+                            <Text className='text-base' strong>
+                              {group.name}
+                            </Text>
+                            {group.description && (
+                              <div>
+                                <Text
+                                  className='text-base'
+                                  type='secondary'
+                                  style={{ fontSize: 12 }}
+                                >
+                                  {group.description}
+                                </Text>
+                              </div>
+                            )}
+                          </Col>
+                          <Col flex='1'>
+                            <Text className='text-base'>
+                              {group.memberCount || 0}
+                            </Text>
+                          </Col>
+                          <Col flex='1' className='flex justify-end gap-3'>
+                            <AiOutlineEye
+                              size={14}
+                              color='#186ee8'
+                              className='cursor-pointer'
+                              onClick={() => handleViewClick(group)}
+                            />
+                            <TbEdit
+                              size={14}
+                              color='#00B894'
+                              className='cursor-pointer'
+                              onClick={() => handleEditClick(group)}
+                            />
+                            <RiDeleteBinLine
+                              size={14}
+                              color='#801818'
+                              className='cursor-pointer'
+                              onClick={() => handleDeleteClick(group)}
+                            />
+                          </Col>
+                        </Row>
+                      </List.Item>
+                    )}
                   />
                 </div>
                 {/* Pagination Footer */}
                 {pagination.totalPages > 1 && (
-                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: '1px solid #f0f0f0',
+                    }}
+                  >
                     <Row justify='space-between' align='middle'>
                       <Col>
                         <Text type='secondary' style={{ fontSize: 12 }}>
@@ -225,9 +276,16 @@ export const CustomGroups = () => {
                   </div>
                 )}
                 {pagination.totalPages <= 1 && pagination.total > 0 && (
-                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: '1px solid #f0f0f0',
+                    }}
+                  >
                     <Text type='secondary' style={{ fontSize: 12 }}>
-                      Showing {pagination.total} of {pagination.total} custom groups
+                      Showing {pagination.total} of {pagination.total} custom
+                      groups
                     </Text>
                   </div>
                 )}
@@ -313,7 +371,11 @@ export const CustomGroups = () => {
                   <Text type='secondary'>Grades:</Text>
                   <div>
                     {groupDetails.grades.map(grade => (
-                      <Tag key={grade.id} color='blue' style={{ marginRight: 4 }}>
+                      <Tag
+                        key={grade.id}
+                        color='blue'
+                        style={{ marginRight: 4 }}
+                      >
                         {grade.name}
                       </Tag>
                     ))}
@@ -322,7 +384,9 @@ export const CustomGroups = () => {
               )}
               <div className='flex justify-between'>
                 <Text type='secondary'>Status:</Text>
-                <Tag color={groupDetails.status === 'active' ? 'green' : 'default'}>
+                <Tag
+                  color={groupDetails.status === 'active' ? 'green' : 'default'}
+                >
                   {groupDetails.status || 'active'}
                 </Tag>
               </div>
@@ -332,11 +396,24 @@ export const CustomGroups = () => {
                   <Title level={5}>Schedules</Title>
                   <div className='space-y-2'>
                     {groupDetails.schedules.map(schedule => {
-                      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                      const days = [
+                        'Sunday',
+                        'Monday',
+                        'Tuesday',
+                        'Wednesday',
+                        'Thursday',
+                        'Friday',
+                        'Saturday',
+                      ];
                       return (
-                        <div key={schedule.id} className='flex justify-between items-center'>
+                        <div
+                          key={schedule.id}
+                          className='flex justify-between items-center'
+                        >
                           <Text>{days[schedule.dayOfWeek]}</Text>
-                          <Text strong>{schedule.startTime} - {schedule.endTime}</Text>
+                          <Text strong>
+                            {schedule.startTime} - {schedule.endTime}
+                          </Text>
                         </div>
                       );
                     })}
@@ -362,8 +439,8 @@ export const CustomGroups = () => {
         centered
       >
         <Text>
-          Are you sure you want to delete{' '}
-          <strong>{selectedGroup?.name}</strong>? This action cannot be undone.
+          Are you sure you want to delete <strong>{selectedGroup?.name}</strong>
+          ? This action cannot be undone.
         </Text>
       </Modal>
     </>

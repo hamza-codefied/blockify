@@ -3,21 +3,47 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { HiMiniSignal } from 'react-icons/hi2';
 import { Select, Spin, Empty } from 'antd';
 import { useGetCustomGroups } from '@/hooks/useCustomGroups';
+import { useGetSchoolSettings } from '@/hooks/useSchool';
+import { useAuthStore } from '@/store/authStore';
 import { formatTime } from '@/utils/time';
 
-//>>> Day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const DAY_NUMBERS = {
-  Sunday: 0,
+//>>> Full day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
+const ALL_DAY_NAMES = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const ALL_DAY_NUMBERS = {
   Monday: 1,
   Tuesday: 2,
   Wednesday: 3,
   Thursday: 4,
   Friday: 5,
   Saturday: 6,
+  Sunday: 0,
 };
 
 export const CustomGroupUnstaggeredScheduleView = () => {
+  const { user } = useAuthStore();
+  const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+
+  // Fetch school settings to check enableWeekendSessions
+  const { data: settingsData } = useGetSchoolSettings(schoolId);
+  const enableWeekendSessions =
+    settingsData?.data?.enableWeekendSessions ?? false;
+
+  // Dynamic day names based on school settings
+  const DAY_NAMES = useMemo(() => {
+    return enableWeekendSessions ? ALL_DAY_NAMES : WEEKDAY_NAMES;
+  }, [enableWeekendSessions]);
+
+  const DAY_NUMBERS = ALL_DAY_NUMBERS;
+
   const [selectedCustomGroupId, setSelectedCustomGroupId] = useState(null);
   const [selectedCustomGroupName, setSelectedCustomGroupName] = useState(null);
 
@@ -67,12 +93,11 @@ export const CustomGroupUnstaggeredScheduleView = () => {
     active: dayName === currentDayName,
   }));
 
-  const handleCustomGroupChange = (customGroupId) => {
+  const handleCustomGroupChange = customGroupId => {
     const group = customGroups.find(g => g.id === customGroupId);
     setSelectedCustomGroupId(customGroupId);
     setSelectedCustomGroupName(group?.name || null);
   };
-
 
   return (
     <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
@@ -97,27 +122,28 @@ export const CustomGroupUnstaggeredScheduleView = () => {
 
       {/* Schedules */}
       {isLoading ? (
-        <div className='flex justify-center items-center py-8'>
+        <div className='flex justify-center items-center py-4'>
           <Spin size='large' />
         </div>
       ) : !selectedCustomGroupId ? (
-        <div className='text-center py-8 text-gray-500'>
+        <div className='text-center py-4 text-gray-500'>
           Please select a custom group to view schedules
         </div>
       ) : customGroups.length === 0 ? (
         <div className='text-center py-8'>
-          <Empty description="No custom groups found. Create a custom group first." />
+          <Empty description='No custom groups found. Create a custom group first.' />
         </div>
       ) : schedules.length === 0 ? (
-        <div className='text-center py-8 text-gray-500'>
-          No schedules found for {selectedCustomGroupName || 'this custom group'}
+        <div className='text-center py-4 text-gray-500'>
+          No schedules found for{' '}
+          {selectedCustomGroupName || 'this custom group'}
         </div>
       ) : (
-        <div className='h-full flex flex-col justify-between gap-[38px]'>
-          {allDaysWithSchedules.map((dayData) => {
+        <div className='flex flex-col justify-between gap-[28px]'>
+          {allDaysWithSchedules.map(dayData => {
             const schedule = dayData.schedule;
             const hasSchedule = !!schedule;
-            
+
             return (
               <div
                 key={`${dayData.day}-${schedule?.id || 'no-schedule'}`}
@@ -158,18 +184,17 @@ export const CustomGroupUnstaggeredScheduleView = () => {
                         </span>
                       </div>
                     ) : (
-                      <span className='text-sm text-gray-400 italic'>No schedule</span>
+                      <span className='text-sm text-gray-400 italic'>
+                        No schedule
+                      </span>
                     )}
                   </div>
                 </div>
-
               </div>
             );
           })}
         </div>
       )}
-
     </div>
   );
 };
-

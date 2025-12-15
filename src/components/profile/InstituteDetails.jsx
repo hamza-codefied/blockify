@@ -3,14 +3,17 @@ import { useState, useRef, useEffect } from 'react';
 import { TbEdit } from 'react-icons/tb';
 import client from '@/images/user_client.png';
 import { useAuthStore } from '@/store/authStore';
-import { useGetSchoolInformation, useUpdateSchoolInformation } from '@/hooks/useSchool';
+import {
+  useGetSchoolInformation,
+  useUpdateSchoolInformation,
+} from '@/hooks/useSchool';
 import { Spin } from 'antd';
 
 export const InstituteDetails = () => {
   const { user } = useAuthStore();
   // Get schoolId from user object (could be schoolId, school_id, or from user.school?.id)
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
-  
+
   const [image, setImage] = useState(client);
   const [editingField, setEditingField] = useState(null);
   const [formData, setFormData] = useState({
@@ -24,7 +27,10 @@ export const InstituteDetails = () => {
   const fileInputRef = useRef(null);
 
   // Fetch school information
-  const { data: schoolInfoData, isLoading } = useGetSchoolInformation(schoolId, !!schoolId);
+  const { data: schoolInfoData, isLoading } = useGetSchoolInformation(
+    schoolId,
+    !!schoolId
+  );
   const updateSchoolInfoMutation = useUpdateSchoolInformation();
 
   // Update form data when school info is fetched
@@ -53,7 +59,7 @@ export const InstituteDetails = () => {
       const imageUrl = URL.createObjectURL(file);
       setImage(imageUrl);
       setImageFile(file);
-      
+
       // Save image immediately
       setIsUpdating(true);
       try {
@@ -83,7 +89,7 @@ export const InstituteDetails = () => {
   };
 
   // Save field changes
-  const handleSave = async (field) => {
+  const handleSave = async field => {
     if (!schoolId) {
       console.error('School ID not available');
       return;
@@ -142,18 +148,20 @@ export const InstituteDetails = () => {
 
   if (!schoolId) {
     return (
-      <div 
+      <div
         className='w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center justify-center border-2 border-gray-200 dark:border-gray-700 min-h-[300px]'
         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
-        <p className='text-gray-500 dark:text-gray-400'>School ID not available</p>
+        <p className='text-gray-500 dark:text-gray-400'>
+          School ID not available
+        </p>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div 
+      <div
         className='w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center justify-center border-2 border-gray-200 dark:border-gray-700 min-h-[300px]'
         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
@@ -163,9 +171,14 @@ export const InstituteDetails = () => {
   }
 
   return (
-    <div 
+    <div
       className='w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center lg:items-start border-2 border-gray-200 dark:border-gray-700'
-      style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100%',
+      }}
     >
       {/* Image Section */}
       <div className='flex flex-col items-center w-full'>
@@ -189,13 +202,13 @@ export const InstituteDetails = () => {
             disabled={isUpdating}
           />
         </div>
-        <h2 className='mt-3 text-center text-base font-semibold text-gray-800 dark:text-gray-200'>
+        <h2 className='mt-3 text-center text-base font-semibold text-[24px] text-[#000] dark:text-gray-200'>
           {formData.name || 'Loading...'}
         </h2>
       </div>
 
       {/* Details Section */}
-      <div className='mt-6 w-full space-y-4 text-sm border-t border-gray-200 dark:border-gray-700'>
+      <div className='mt-6 w-full space-y-4 text-base border-t border-gray-200 dark:border-gray-700'>
         {/* Name */}
         <div className='flex justify-between items-center border-b border-gray-200 dark:border-gray-700 py-2'>
           <div className='w-full'>
@@ -222,7 +235,9 @@ export const InstituteDetails = () => {
                 className='font-medium w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md px-2 py-1 focus:outline-none'
               />
             ) : (
-              <p className='font-medium text-gray-800 dark:text-gray-200'>{formData.name || 'N/A'}</p>
+              <p className='font-medium text-gray-800 dark:text-gray-200'>
+                {formData.name || 'N/A'}
+              </p>
             )}
           </div>
           <TbEdit
@@ -257,7 +272,9 @@ export const InstituteDetails = () => {
                 className='font-medium w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md px-2 py-1 focus:outline-none'
               />
             ) : (
-              <p className='font-medium text-gray-800 dark:text-gray-200'>{formData.phone || 'N/A'}</p>
+              <p className='font-medium text-gray-800 dark:text-gray-200'>
+                {formData.phone || 'N/A'}
+              </p>
             )}
           </div>
           <TbEdit
@@ -292,7 +309,9 @@ export const InstituteDetails = () => {
                 className='font-medium w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 rounded-md px-2 py-1 focus:outline-none break-all'
               />
             ) : (
-              <p className='font-medium text-gray-800 dark:text-gray-200 break-all'>{formData.email || 'N/A'}</p>
+              <p className='font-medium text-gray-800 dark:text-gray-200 break-all'>
+                {formData.email || 'N/A'}
+              </p>
             )}
           </div>
           <TbEdit
