@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Modal,
   Form,
@@ -14,14 +14,28 @@ import {
 import dayjs from 'dayjs';
 import { useCreateSchedule } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
-import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { useGetSchoolSettings } from '@/hooks/useSchool';
+import { useAuthStore } from '@/store/authStore';
+import {
+  formatGradeDisplayName,
+  getDefaultGradeQueryParams,
+} from '@/utils/grade.utils';
 import { useGetManagers } from '@/hooks/useManagers';
 import { useGetSubjects } from '@/hooks/useSubjects';
 
 const { Text } = Typography;
 
-// Day mapping: Monday=1, Tuesday=2, ..., Sunday=0
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+// Full day mapping including weekends: Monday=1, Tuesday=2, ..., Saturday=6, Sunday=0
+const ALL_DAY_NAMES = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const DAY_NUMBERS = {
   Sunday: 0,
   Monday: 1,
@@ -32,18 +46,41 @@ const DAY_NUMBERS = {
   Saturday: 6,
 };
 
-const daysList = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-
 export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const [form] = Form.useForm();
   const [selectedDays, setSelectedDays] = useState([]);
   const [pendingTimes, setPendingTimes] = useState({});
   const createScheduleMutation = useCreateSchedule();
-  
+
+  const { user } = useAuthStore();
+  const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+
+  // Fetch school settings to check enableWeekendSessions
+  const { data: settingsData } = useGetSchoolSettings(schoolId);
+  const enableWeekendSessions =
+    settingsData?.data?.enableWeekendSessions ?? false;
+
+  // Dynamic days list based on school settings
+  const daysList = useMemo(() => {
+    return enableWeekendSessions ? ALL_DAY_NAMES : WEEKDAY_NAMES;
+  }, [enableWeekendSessions]);
+
   // Fetch grades, managers, and subjects
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
-  const { data: managersData } = useGetManagers({ page: 1, limit: 100, status: 'active' });
-  const { data: subjectsData } = useGetSubjects({ page: 1, limit: 100, status: 'active' });
+  const { data: gradesData } = useGetGrades({
+    page: 1,
+    limit: 100,
+    ...getDefaultGradeQueryParams(),
+  });
+  const { data: managersData } = useGetManagers({
+    page: 1,
+    limit: 100,
+    status: 'active',
+  });
+  const { data: subjectsData } = useGetSubjects({
+    page: 1,
+    limit: 100,
+    status: 'active',
+  });
   const grades = gradesData?.data || [];
   const managers = managersData?.data || [];
   const subjects = subjectsData?.data || [];
@@ -67,7 +104,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     try {
       const values = await form.validateFields();
       const { gradeId, managerId, subjectId, name } = values;
-      
+
       // Create a schedule for each selected day with its specific times
       const schedulePromises = selectedDays.map(day => {
         const dayOfWeek = DAY_NUMBERS[day];
@@ -75,11 +112,11 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
         const endTimeKey = `endTime_${day}`;
         const startTime = values[startTimeKey];
         const endTime = values[endTimeKey];
-        
+
         // Convert dayjs to HH:mm format
         const startTimeStr = startTime ? startTime.format('HH:mm') : null;
         const endTimeStr = endTime ? endTime.format('HH:mm') : null;
-        
+
         return createScheduleMutation.mutateAsync({
           gradeId,
           managerId,
@@ -90,9 +127,9 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           endTime: endTimeStr,
         });
       });
-      
+
       await Promise.all(schedulePromises);
-      
+
       form.resetFields();
       setSelectedDays([]);
       if (onSuccess) onSuccess();
@@ -136,10 +173,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           name='managerId'
           rules={[{ required: true, message: 'Please select manager' }]}
         >
-          <Select 
-            placeholder='Select manager' 
-            loading={!managersData}
-          >
+          <Select placeholder='Select manager' loading={!managersData}>
             {managers.map(manager => (
               <Select.Option key={manager.id} value={manager.id}>
                 {manager.fullName}
@@ -154,10 +188,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           name='subjectId'
           rules={[{ required: true, message: 'Please select subject' }]}
         >
-          <Select 
-            placeholder='Select subject' 
-            loading={!subjectsData}
-          >
+          <Select placeholder='Select subject' loading={!subjectsData}>
             {subjects.map(subject => (
               <Select.Option key={subject.id} value={subject.id}>
                 {subject.name}
@@ -172,10 +203,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           name='name'
           tooltip='Optional name for this schedule (e.g., "Morning Session", "Afternoon Session")'
         >
-          <Input
-            placeholder='e.g., Morning Session'
-            maxLength={200}
-          />
+          <Input placeholder='e.g., Morning Session' maxLength={200} />
         </Form.Item>
 
         {/* ===== Select Days (Mon–Fri) ===== */}
@@ -183,7 +211,9 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           label='Select Days'
           required
           validateStatus={selectedDays.length === 0 ? 'error' : ''}
-          help={selectedDays.length === 0 ? 'Please select at least one day' : ''}
+          help={
+            selectedDays.length === 0 ? 'Please select at least one day' : ''
+          }
         >
           <div className='flex flex-wrap mt-2 mb-4 w-full justify-between'>
             {daysList.map(day => {
@@ -209,14 +239,21 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
         {selectedDays.length > 0 && (
           <div className='space-y-4'>
             {selectedDays.map(day => (
-              <div key={day} className='border border-gray-200 dark:border-gray-700 rounded-lg p-4'>
-                <Text strong className='text-base mb-3 block'>{day}</Text>
+              <div
+                key={day}
+                className='border border-gray-200 dark:border-gray-700 rounded-lg p-4'
+              >
+                <Text strong className='text-base mb-3 block'>
+                  {day}
+                </Text>
                 <Row gutter={16}>
                   <Col xs={12}>
                     <Form.Item
                       label='Start Time'
                       name={`startTime_${day}`}
-                      rules={[{ required: true, message: 'Please select start time' }]}
+                      rules={[
+                        { required: true, message: 'Please select start time' },
+                      ]}
                     >
                       <TimePicker
                         style={{ width: '100%' }}
@@ -224,12 +261,12 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
                         format='hh:mm A'
                         defaultOpenValue={dayjs('08:00', 'HH:mm')}
                         placeholder='Select start time'
-                        onSelect={(time) => {
+                        onSelect={time => {
                           const key = `startTime_${day}`;
                           setPendingTimes(prev => ({ ...prev, [key]: time }));
                           form.setFieldValue(key, time);
                         }}
-                        onOpenChange={(open) => {
+                        onOpenChange={open => {
                           const key = `startTime_${day}`;
                           if (!open && pendingTimes[key]) {
                             form.setFieldValue(key, pendingTimes[key]);
@@ -247,7 +284,9 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
                     <Form.Item
                       label='End Time'
                       name={`endTime_${day}`}
-                      rules={[{ required: true, message: 'Please select end time' }]}
+                      rules={[
+                        { required: true, message: 'Please select end time' },
+                      ]}
                     >
                       <TimePicker
                         style={{ width: '100%' }}
@@ -255,12 +294,12 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
                         format='hh:mm A'
                         defaultOpenValue={dayjs('17:00', 'HH:mm')}
                         placeholder='Select end time'
-                        onSelect={(time) => {
+                        onSelect={time => {
                           const key = `endTime_${day}`;
                           setPendingTimes(prev => ({ ...prev, [key]: time }));
                           form.setFieldValue(key, time);
                         }}
-                        onOpenChange={(open) => {
+                        onOpenChange={open => {
                           const key = `endTime_${day}`;
                           if (!open && pendingTimes[key]) {
                             form.setFieldValue(key, pendingTimes[key]);

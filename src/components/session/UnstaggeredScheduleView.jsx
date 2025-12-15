@@ -8,23 +8,52 @@ import { DeleteSessionModal } from './DeleteSessionModal';
 import { Select, Spin } from 'antd';
 import { useGetSchedules } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
+import { useGetSchoolSettings } from '@/hooks/useSchool';
+import { useAuthStore } from '@/store/authStore';
 import { useDeleteSchedule } from '@/hooks/useSchedules';
 import { formatTime } from '@/utils/time';
-import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import {
+  formatGradeDisplayName,
+  getDefaultGradeQueryParams,
+} from '@/utils/grade.utils';
 
-//>>> Day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const DAY_NUMBERS = {
-  Sunday: 0,
+//>>> Full day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
+const ALL_DAY_NAMES = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const ALL_DAY_NUMBERS = {
   Monday: 1,
   Tuesday: 2,
   Wednesday: 3,
   Thursday: 4,
   Friday: 5,
   Saturday: 6,
+  Sunday: 0,
 };
 
 export const UnstaggeredScheduleView = () => {
+  const { user } = useAuthStore();
+  const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+
+  // Fetch school settings to check enableWeekendSessions
+  const { data: settingsData } = useGetSchoolSettings(schoolId);
+  const enableWeekendSessions =
+    settingsData?.data?.enableWeekendSessions ?? false;
+
+  // Dynamic day names based on school settings
+  const DAY_NAMES = useMemo(() => {
+    return enableWeekendSessions ? ALL_DAY_NAMES : WEEKDAY_NAMES;
+  }, [enableWeekendSessions]);
+
+  const DAY_NUMBERS = ALL_DAY_NUMBERS;
+
   const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [selectedGradeName, setSelectedGradeName] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
@@ -32,7 +61,11 @@ export const UnstaggeredScheduleView = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   //>>> Fetch grades for dropdown
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
+  const { data: gradesData } = useGetGrades({
+    page: 1,
+    limit: 100,
+    ...getDefaultGradeQueryParams(),
+  });
   //>>> API returns { success: true, data: [...grades], pagination: {...} }
   const grades = gradesData?.data || [];
 
@@ -46,7 +79,11 @@ export const UnstaggeredScheduleView = () => {
   }, [grades, selectedGradeId]);
 
   //>>> Fetch schedules filtered by grade
-  const { data: schedulesData, isLoading, refetch } = useGetSchedules({
+  const {
+    data: schedulesData,
+    isLoading,
+    refetch,
+  } = useGetSchedules({
     gradeId: selectedGradeId,
     page: 1,
     limit: 100, // Get all schedules for the grade
@@ -81,7 +118,7 @@ export const UnstaggeredScheduleView = () => {
     active: dayName === currentDayName,
   }));
 
-  const handleGradeChange = (gradeId) => {
+  const handleGradeChange = gradeId => {
     const grade = grades.find(g => g.id === gradeId);
     setSelectedGradeId(gradeId);
     setSelectedGradeName(grade ? formatGradeDisplayName(grade) : null);
@@ -139,11 +176,11 @@ export const UnstaggeredScheduleView = () => {
 
       {/* Schedules */}
       {isLoading ? (
-        <div className='flex justify-center items-center py-8'>
+        <div className='flex justify-center items-center py-4'>
           <Spin size='large' />
         </div>
       ) : !selectedGradeId ? (
-        <div className='text-center py-8 text-gray-500'>
+        <div className='text-center py-4 text-gray-500'>
           Please select a grade to view schedules
         </div>
       ) : allDaysWithSchedules.length === 0 ? (
@@ -151,11 +188,11 @@ export const UnstaggeredScheduleView = () => {
           No schedules found for {selectedGradeName || 'this grade'}
         </div>
       ) : (
-        <div className='h-full flex flex-col justify-between gap-[38px]'>
+        <div className='flex flex-col justify-between gap-[25px]'>
           {allDaysWithSchedules.map((dayData, index) => {
             const schedule = dayData.schedule;
             const hasSchedule = !!schedule;
-            
+
             return (
               <div
                 key={index}
@@ -198,7 +235,11 @@ export const UnstaggeredScheduleView = () => {
                         </div>
                         {schedule.subject && (
                           <div className='text-xs text-gray-500 dark:text-gray-400'>
-                            {schedule.name && <span className='font-medium'>{schedule.name} - </span>}
+                            {schedule.name && (
+                              <span className='font-medium'>
+                                {schedule.name} -{' '}
+                              </span>
+                            )}
                             {schedule.subject.name}
                           </div>
                         )}
@@ -209,7 +250,9 @@ export const UnstaggeredScheduleView = () => {
                         )}
                       </>
                     ) : (
-                      <span className='text-sm text-gray-400 italic'>No schedule</span>
+                      <span className='text-sm text-gray-400 italic'>
+                        No schedule
+                      </span>
                     )}
                   </div>
                 </div>

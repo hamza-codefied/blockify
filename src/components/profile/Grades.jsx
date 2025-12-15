@@ -1,6 +1,16 @@
 'use client';
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Typography, Spin, Empty, Pagination } from 'antd';
+import {
+  Card,
+  List,
+  Row,
+  Col,
+  Typography,
+  Spin,
+  Empty,
+  Pagination,
+  Button,
+} from 'antd';
 import { TbEdit, TbPlus } from 'react-icons/tb';
 import './grades.css';
 import { GradeModal } from './GradeModal';
@@ -9,7 +19,6 @@ import { useGetGrades } from '@/hooks/useGrades';
 import { useDeleteGrade } from '@/hooks/useGrades';
 import { DeleteConfirmModal } from '@/components/userManagement/DeleteConfirmModal';
 import { PageTitle } from '@/components/common/PageTitle';
-import { Button } from '@/components/common/Button';
 
 const { Text } = Typography;
 
@@ -23,7 +32,11 @@ export const Grades = () => {
   const [gradeToDelete, setGradeToDelete] = useState(null);
 
   //>>> Fetch grades with pagination
-  const { data: gradesData, isLoading, refetch } = useGetGrades({
+  const {
+    data: gradesData,
+    isLoading,
+    refetch,
+  } = useGetGrades({
     page,
     limit,
     sort: 'grade_name',
@@ -71,7 +84,7 @@ export const Grades = () => {
     }
   };
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = newPage => {
     setPage(newPage);
   };
 
@@ -79,16 +92,34 @@ export const Grades = () => {
     <>
       <Card
         className='grades-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
-        style={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: '100%' }}
-        bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100%',
+        }}
+        bodyStyle={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
       >
         {/* ===== Header ===== */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <PageTitle variant="primary" style={{ marginBottom: 0 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
             Grades
           </PageTitle>
           <Button
-            variant="primary"
+            variant='primary'
             icon={<TbPlus className='w-5 h-5' />}
             onClick={handleAddClick}
           >
@@ -96,7 +127,10 @@ export const Grades = () => {
           </Button>
         </div>
 
-        <div className='grades-wrapper flex-1 flex flex-col' style={{ marginTop: '10px' }}>
+        <div
+          className='grades-wrapper flex-1 flex flex-col'
+          style={{ marginTop: '10px' }}
+        >
           <Row justify='space-between' className='grades-header'>
             <Col flex='2'>Grade</Col>
             <Col flex='1'>Students</Col>
@@ -106,7 +140,10 @@ export const Grades = () => {
             </Col>
           </Row>
 
-          <div className='mt-2' style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            className='mt-2'
+            style={{ display: 'flex', flexDirection: 'column' }}
+          >
             {isLoading ? (
               <div className='flex justify-center items-center py-8'>
                 <Spin size='large' />
@@ -121,37 +158,50 @@ export const Grades = () => {
                     dataSource={grades}
                     split={false}
                     renderItem={grade => (
-                <List.Item className='grades-list-item flex items-center'>
-                  <Row align='middle' style={{ width: '100%' }}>
-                    <Col flex='2'>
-                      <Text>{grade.section ? `${grade.gradeName} ${grade.section}` : grade.gradeName}</Text>
-                    </Col>
-                    <Col flex='1'>
-                      <Text>{grade.studentCount || 0}</Text>
-                    </Col>
-                    <Col flex='1'>
-                      <Text>-</Text>
-                    </Col>
-                    <Col flex='1' className='w-[100%] flex justify-end gap-2'>
-                      <TbEdit
-                        size={20}
-                        color='#00B894'
-                        className='cursor-pointer'
-                        onClick={() => handleEditClick(grade)}
-                      />
-                      <RiDeleteBinLine
-                        className='w-5 h-5 cursor-pointer text-[#801818]'
-                        onClick={() => handleDeleteClick(grade)}
-                      />
-                    </Col>
-                  </Row>
-                </List.Item>
-              )}
+                      <List.Item className='grades-list-item flex items-center'>
+                        <Row align='middle' style={{ width: '100%' }}>
+                          <Col flex='2'>
+                            <Text>
+                              {grade.section
+                                ? `${grade.gradeName} ${grade.section}`
+                                : grade.gradeName}
+                            </Text>
+                          </Col>
+                          <Col flex='1'>
+                            <Text>{grade.studentCount || 0}</Text>
+                          </Col>
+                          <Col flex='1'>
+                            <Text>-</Text>
+                          </Col>
+                          <Col
+                            flex='1'
+                            className='w-[100%] flex justify-end gap-2'
+                          >
+                            <TbEdit
+                              size={20}
+                              color='#00B894'
+                              className='cursor-pointer'
+                              onClick={() => handleEditClick(grade)}
+                            />
+                            <RiDeleteBinLine
+                              className='w-5 h-5 cursor-pointer text-[#801818]'
+                              onClick={() => handleDeleteClick(grade)}
+                            />
+                          </Col>
+                        </Row>
+                      </List.Item>
+                    )}
                   />
                 </div>
                 {/* Pagination Footer */}
                 {pagination.totalPages > 1 && (
-                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: '1px solid #f0f0f0',
+                    }}
+                  >
                     <Row justify='space-between' align='middle'>
                       <Col>
                         <Text type='secondary' style={{ fontSize: 12 }}>
@@ -174,7 +224,13 @@ export const Grades = () => {
                   </div>
                 )}
                 {pagination.totalPages <= 1 && pagination.total > 0 && (
-                  <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+                  <div
+                    style={{
+                      marginTop: 16,
+                      paddingTop: 16,
+                      borderTop: '1px solid #f0f0f0',
+                    }}
+                  >
                     <Text type='secondary' style={{ fontSize: 12 }}>
                       Showing {pagination.total} of {pagination.total} grades
                     </Text>

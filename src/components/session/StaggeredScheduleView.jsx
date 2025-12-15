@@ -4,29 +4,60 @@ import { RiDeleteBinLine } from 'react-icons/ri';
 import { TbEdit } from 'react-icons/tb';
 import '@/components/session/early-session-requests.css';
 import { Select, Modal, Form, Button, Spin, Empty } from 'antd';
-import { useGetSchedules, useDeleteSchedule, useUpdateSchedule } from '@/hooks/useSchedules';
+import {
+  useGetSchedules,
+  useDeleteSchedule,
+  useUpdateSchedule,
+} from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
+import { useGetSchoolSettings } from '@/hooks/useSchool';
+import { useAuthStore } from '@/store/authStore';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
 import { formatTime } from '@/utils/time';
-import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import {
+  formatGradeDisplayName,
+  getDefaultGradeQueryParams,
+} from '@/utils/grade.utils';
 import dayjs from 'dayjs';
 
-// Day mapping: Monday=1, Tuesday=2, ..., Sunday=0
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const DAY_NUMBERS = {
-  Sunday: 0,
+// Full day mapping including weekends: Monday=1, Tuesday=2, ..., Saturday=6, Sunday=0
+const ALL_DAY_NAMES = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const ALL_DAY_NUMBERS = {
   Monday: 1,
   Tuesday: 2,
   Wednesday: 3,
   Thursday: 4,
   Friday: 5,
   Saturday: 6,
+  Sunday: 0,
 };
 
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-
 export const StaggeredScheduleView = () => {
+  const { user } = useAuthStore();
+  const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+
+  // Fetch school settings to check enableWeekendSessions
+  const { data: settingsData } = useGetSchoolSettings(schoolId);
+  const enableWeekendSessions =
+    settingsData?.data?.enableWeekendSessions ?? false;
+
+  // Dynamic days based on school settings
+  const days = useMemo(() => {
+    return enableWeekendSessions ? ALL_DAY_NAMES : WEEKDAY_NAMES;
+  }, [enableWeekendSessions]);
+
+  const DAY_NUMBERS = ALL_DAY_NUMBERS;
+
   const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [selectedGradeName, setSelectedGradeName] = useState(null);
   const [activeDay, setActiveDay] = useState('Monday');
@@ -35,7 +66,11 @@ export const StaggeredScheduleView = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Fetch grades
-  const { data: gradesData } = useGetGrades({ page: 1, limit: 100, ...getDefaultGradeQueryParams() });
+  const { data: gradesData } = useGetGrades({
+    page: 1,
+    limit: 100,
+    ...getDefaultGradeQueryParams(),
+  });
   const grades = gradesData?.data || [];
 
   // Set default grade when grades load
@@ -48,7 +83,11 @@ export const StaggeredScheduleView = () => {
   }, [grades, selectedGradeId]);
 
   // Fetch schedules filtered by grade
-  const { data: schedulesData, isLoading, refetch } = useGetSchedules({
+  const {
+    data: schedulesData,
+    isLoading,
+    refetch,
+  } = useGetSchedules({
     gradeId: selectedGradeId,
     page: 1,
     limit: 100,
@@ -63,18 +102,18 @@ export const StaggeredScheduleView = () => {
     return schedules.filter(schedule => schedule.dayOfWeek === activeDayNumber);
   }, [schedules, activeDayNumber]);
 
-  const handleGradeChange = (gradeId) => {
+  const handleGradeChange = gradeId => {
     const grade = grades.find(g => g.id === gradeId);
     setSelectedGradeId(gradeId);
     setSelectedGradeName(grade ? formatGradeDisplayName(grade) : null);
   };
 
-  const handleEdit = (schedule) => {
+  const handleEdit = schedule => {
     setSelectedSchedule(schedule);
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (schedule) => {
+  const handleDelete = schedule => {
     setSelectedSchedule(schedule);
     setIsDeleteModalOpen(true);
   };
@@ -114,7 +153,7 @@ export const StaggeredScheduleView = () => {
       </div>
 
       {/* Day Selector */}
-      <div className='flex flex-wrap justify-between mb-10 relative'>
+      <div className='flex flex-wrap gap-2 mb-10 relative'>
         {days.map(day => (
           <div key={day} className='flex flex-col items-center relative'>
             {activeDay === day && (
@@ -122,7 +161,7 @@ export const StaggeredScheduleView = () => {
             )}
             <button
               onClick={() => setActiveDay(day)}
-              className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 ${
+              className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 gap-2 ${
                 activeDay === day
                   ? 'bg-black text-white border-b-4 border-[#00B894]'
                   : 'bg-white dark:bg-gray-800 text-black dark:text-white border-2 border-gray-200 dark:border-gray-700'
@@ -145,12 +184,16 @@ export const StaggeredScheduleView = () => {
         </div>
       ) : daySchedules.length === 0 ? (
         <div className='text-center py-8 text-gray-500'>
-          No schedules found for {selectedGradeName || 'this grade'} on {activeDay}
+          No schedules found for {selectedGradeName || 'this grade'} on{' '}
+          {activeDay}
         </div>
       ) : (
         <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4'>
           {daySchedules.map((schedule, index) => (
-            <div key={schedule.id} className='flex flex-col items-center relative'>
+            <div
+              key={schedule.id}
+              className='flex flex-col items-center relative'
+            >
               {/* Action Icons */}
               <div className='absolute top-0 right-0 flex gap-2 z-10'>
                 <RiDeleteBinLine
@@ -212,4 +255,3 @@ export const StaggeredScheduleView = () => {
     </div>
   );
 };
-

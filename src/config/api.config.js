@@ -6,9 +6,11 @@
 // In production (Netlify), use relative path to go through proxy
 // In development, use full URL or localhost
 // Check if we're on Netlify (production) - use relative path for proxy
-const isProduction = import.meta.env.MODE === 'production' || 
-                     import.meta.env.PROD || 
-                     (typeof window !== 'undefined' && window.location.hostname.includes('netlify.app'));
+const isProduction =
+  import.meta.env.MODE === 'production' ||
+  import.meta.env.PROD ||
+  (typeof window !== 'undefined' &&
+    window.location.hostname.includes('netlify.app'));
 
 // Get base URL from env or use defaults
 let envBaseUrl = import.meta.env.VITE_API_BASE_URL;
@@ -17,8 +19,13 @@ let envBaseUrl = import.meta.env.VITE_API_BASE_URL;
 // If it's a full HTTP URL in production, force relative path for proxy
 if (envBaseUrl) {
   // If it's a full URL (starts with http), and we're in production, use relative path instead
-  if (isProduction && (envBaseUrl.startsWith('http://') || envBaseUrl.startsWith('https://'))) {
-    console.warn('VITE_API_BASE_URL is set to a full URL in production. Using relative path /api/v1 for Netlify proxy.');
+  if (
+    isProduction &&
+    (envBaseUrl.startsWith('http://') || envBaseUrl.startsWith('https://'))
+  ) {
+    console.warn(
+      'VITE_API_BASE_URL is set to a full URL in production. Using relative path /api/v1 for Netlify proxy.'
+    );
     envBaseUrl = '/api/v1';
   } else if (!envBaseUrl.endsWith('/api/v1')) {
     // Ensure it ends with /api/v1
@@ -26,8 +33,13 @@ if (envBaseUrl) {
   }
 }
 
-const API_BASE_URL = envBaseUrl || 
-  (isProduction ? '/api/v1' : 'http://localhost:5004/api/v1');
+const API_BASE_URL =
+  envBaseUrl ||
+  // (isProduction ? '/api/v1' : 'http://localhost:5004/api/v1');
+
+  (isProduction
+    ? '/api/v1'
+    : 'http://development.test-school.148.230.94.171.sslip.io/api/v1');
 
 // Debug logging (remove in production if needed)
 if (typeof window !== 'undefined' && import.meta.env.DEV) {
@@ -37,7 +49,7 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
     VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
     isProduction,
     API_BASE_URL,
-    hostname: window.location.hostname
+    hostname: window.location.hostname,
   });
 }
 
@@ -49,4 +61,3 @@ export const API_CONFIG = {
 };
 
 export default API_CONFIG;
-

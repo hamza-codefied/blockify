@@ -34,12 +34,13 @@ export const Session = () => {
   const [activeTab, setActiveTab] = useState('grades');
   const [openScheduleModal, setOpenScheduleModal] = useState(false); // For schedules (AddSessionModal)
   const [openSessionModal, setOpenSessionModal] = useState(false); // For actual sessions (SessionModal)
-  const [openCustomGroupSessionModal, setOpenCustomGroupSessionModal] = useState(false); // For custom group sessions
+  const [openCustomGroupSessionModal, setOpenCustomGroupSessionModal] =
+    useState(false); // For custom group sessions
   const [selectedCustomGroupId, setSelectedCustomGroupId] = useState(null); // Selected custom group for session creation
-  
+
   const { user } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
-  
+
   // Fetch school settings to determine staggered/unstaggered
   const { data: settingsData } = useGetSchoolSettings(schoolId, !!schoolId);
   const isStaggered = settingsData?.data?.enableStaggeredSessions || false;
@@ -76,13 +77,9 @@ export const Session = () => {
 
       <SessionChart />
 
-      <div className='grid grid-cols-1 xl:grid-cols-2 items-start gap-4 mt-4'>
-        <EarlySessionRequests sessionType="grade" />
-        {isStaggered ? (
-          <StaggeredScheduleView />
-        ) : (
-          <UnstaggeredScheduleView />
-        )}
+      <div className='grid grid-cols-1 xl:grid-cols-2 items-stretch gap-4 mt-4'>
+        <EarlySessionRequests sessionType='grade' />
+        {isStaggered ? <StaggeredScheduleView /> : <UnstaggeredScheduleView />}
       </div>
     </>
   );
@@ -94,10 +91,10 @@ export const Session = () => {
         <div></div>
         <div className='flex gap-2'>
           <Select
-            placeholder="Select custom group"
+            placeholder='Select custom group'
             style={{ width: 250 }}
             value={selectedCustomGroupId}
-            onChange={(value) => setSelectedCustomGroupId(value)}
+            onChange={value => setSelectedCustomGroupId(value)}
             options={customGroups.map(group => ({
               value: group.id,
               label: group.name,
@@ -125,8 +122,8 @@ export const Session = () => {
 
       <CustomGroupSessionChart />
 
-      <div className='grid grid-cols-1 xl:grid-cols-2 items-start gap-4 mt-4'>
-        <EarlySessionRequests sessionType="customGroup" />
+      <div className='grid grid-cols-1 xl:grid-cols-2 items-stretch gap-4 mt-4'>
+        <EarlySessionRequests sessionType='customGroup' />
         {isStaggered ? (
           <CustomGroupStaggeredScheduleView />
         ) : (
@@ -143,7 +140,9 @@ export const Session = () => {
 
       <div>
         <div className='flex justify-between items-center mb-4'>
-          <PageTitle variant="primary" style={{ marginBottom: 0 }}>Sessions</PageTitle>
+          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
+            Sessions
+          </PageTitle>
         </div>
 
         <Card
@@ -182,7 +181,11 @@ export const Session = () => {
 
           {/* Tab Content */}
           <div>
-            {activeTab === 'grades' ? <GradesTabContent /> : <CustomGroupsTabContent />}
+            {activeTab === 'grades' ? (
+              <GradesTabContent />
+            ) : (
+              <CustomGroupsTabContent />
+            )}
           </div>
         </Card>
       </div>
@@ -191,15 +194,15 @@ export const Session = () => {
       <SessionModal
         open={openSessionModal}
         onClose={() => setOpenSessionModal(false)}
-        mode="add"
+        mode='add'
         onSuccess={() => {
           setOpenSessionModal(false);
         }}
       />
-      
+
       {/* Schedule Modal - For creating Schedule templates */}
-      <AddSessionModal 
-        open={openScheduleModal} 
+      <AddSessionModal
+        open={openScheduleModal}
         onClose={() => setOpenScheduleModal(false)}
         onSuccess={() => {
           setOpenScheduleModal(false);
