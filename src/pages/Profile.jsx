@@ -10,6 +10,8 @@ import { Grades } from '@/components/profile/Grades';
 import { Subjects } from '@/components/profile/Subjects';
 import { CustomGroups } from '@/components/profile/CustomGroups';
 import { PageTitle } from '@/components/common/PageTitle';
+import { LockedSection } from '@/components/common/LockedSection';
+import { PERMISSIONS } from '@/utils/permissions';
 
 export const Profile = () => {
   const structuredData = [
@@ -38,18 +40,38 @@ export const Profile = () => {
             <InstituteDetails />
           </div>
           <div className='lg:row-start-1 lg:col-start-2 lg:col-span-2' style={{ display: 'flex', alignItems: 'stretch' }}>
-            <PermissionManagement />
+            <LockedSection 
+              permission={PERMISSIONS.ROLES_READ}
+              lockMessage="You do not have permission to view roles and permissions"
+            >
+              <PermissionManagement />
+            </LockedSection>
           </div>
 
           {/* Bottom Row */}
           <div className='lg:row-start-2 lg:col-start-1' style={{ display: 'flex' }}>
-            <CustomGroups />
+            <LockedSection 
+              permission={PERMISSIONS.CUSTOM_GROUPS_READ}
+              lockMessage="You do not have permission to view custom groups"
+            >
+              <CustomGroups />
+            </LockedSection>
           </div>
           <div className='lg:row-start-2 lg:col-start-2' style={{ display: 'flex' }}>
-            <Subjects />
+            <LockedSection 
+              permission={PERMISSIONS.SUBJECTS_READ}
+              lockMessage="You do not have permission to view subjects"
+            >
+              <Subjects />
+            </LockedSection>
           </div>
           <div className='lg:row-start-2 lg:col-start-3' style={{ display: 'flex' }}>
-            <Grades />
+            <LockedSection 
+              permission={PERMISSIONS.GRADES_READ}
+              lockMessage="You do not have permission to view grades"
+            >
+              <Grades />
+            </LockedSection>
           </div>
         </div>
       </div>

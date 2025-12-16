@@ -35,11 +35,7 @@ if (envBaseUrl) {
 
 const API_BASE_URL =
   envBaseUrl ||
-  // (isProduction ? '/api/v1' : 'http://localhost:5004/api/v1');
-
-  (isProduction
-    ? '/api/v1'
-    : 'http://development.test-school.148.230.94.171.sslip.io/api/v1');
+  (isProduction ? '/api/v1' : 'http://localhost:5004/api/v1');
 
 // Debug logging (remove in production if needed)
 if (typeof window !== 'undefined' && import.meta.env.DEV) {

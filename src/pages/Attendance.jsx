@@ -9,6 +9,8 @@ import {
 import StatsCard from '@/components/attendance/StatsCard';
 import VisualOverview from '@/components/attendance/VisualOverview';
 import { PageTitle } from '@/components/common/PageTitle';
+import { LockedSection } from '@/components/common/LockedSection';
+import { PERMISSIONS } from '@/utils/permissions';
 
 export const Attendance = () => {
   const structuredData = [
@@ -28,9 +30,14 @@ export const Attendance = () => {
       <div className=''>
         <PageTitle variant="primary" style={{ marginBottom: 16 }}>Attendance</PageTitle>
 
-        <StatsCard />
+        <LockedSection 
+          permission={PERMISSIONS.SESSIONS_READ}
+          lockMessage="You do not have permission to view attendance"
+        >
+          <StatsCard />
 
-        <VisualOverview />
+          <VisualOverview />
+        </LockedSection>
       </div>
     </>
   );

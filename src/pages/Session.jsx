@@ -24,6 +24,8 @@ import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useGetCustomGroups } from '@/hooks/useCustomGroups';
 import { message } from 'antd';
 import { PageTitle } from '@/components/common/PageTitle';
+import { LockedSection } from '@/components/common/LockedSection';
+import { PERMISSIONS } from '@/utils/permissions';
 
 export const Session = () => {
   const structuredData = [
@@ -182,9 +184,19 @@ export const Session = () => {
           {/* Tab Content */}
           <div>
             {activeTab === 'grades' ? (
-              <GradesTabContent />
+              <LockedSection 
+                permission={PERMISSIONS.SESSIONS_READ}
+                lockMessage="You do not have permission to view grade sessions"
+              >
+                <GradesTabContent />
+              </LockedSection>
             ) : (
-              <CustomGroupsTabContent />
+              <LockedSection 
+                permission={PERMISSIONS.CUSTOM_GROUPS_READ}
+                lockMessage="You do not have permission to view custom group sessions"
+              >
+                <CustomGroupsTabContent />
+              </LockedSection>
             )}
           </div>
         </Card>

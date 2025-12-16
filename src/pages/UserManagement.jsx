@@ -40,6 +40,8 @@ import {
 } from '@/utils/grade.utils';
 import { PageTitle } from '@/components/common/PageTitle';
 import { Typography } from 'antd';
+import { LockedSection } from '@/components/common/LockedSection';
+import { PERMISSIONS } from '@/utils/permissions';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -321,6 +323,10 @@ export const UserManagement = () => {
             </div>
           </div>
 
+          <LockedSection 
+            permission={activeTab === 'students' ? PERMISSIONS.STUDENTS_READ : PERMISSIONS.MANAGERS_READ}
+            lockMessage={`You do not have permission to view ${activeTab === 'students' ? 'students' : 'managers'}`}
+          >
           {/* Filters & Actions */}
           <Row
             gutter={[16, 16]}
@@ -654,6 +660,7 @@ export const UserManagement = () => {
               )}
             </>
           )}
+          </LockedSection>
         </Card>
       </div>
 

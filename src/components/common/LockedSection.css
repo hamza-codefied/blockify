@@ -1,0 +1,44 @@
+.locked-section-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.locked-section-overlay {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.locked-section-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+}
+
+.locked-section-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.6;
+}
+
+.locked-section-message {
+  color: #757575;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  max-width: 300px;
+}
+

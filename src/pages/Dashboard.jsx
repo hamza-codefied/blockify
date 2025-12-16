@@ -10,6 +10,8 @@ import StatsCard from '@/components/dashboard/StatsCard';
 import RecentActivities from '@/components/dashboard/RecentActivities';
 import StudentTable from '@/components/dashboard/StudentTable';
 import { PageTitle } from '@/components/common/PageTitle';
+import { LockedSection } from '@/components/common/LockedSection';
+import { PERMISSIONS } from '@/utils/permissions';
 
 export const Dashboard = () => {
   const structuredData = [
@@ -29,16 +31,21 @@ export const Dashboard = () => {
 
       <PageTitle variant="primary" style={{ marginBottom: 16 }}>Dashboard</PageTitle>
 
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={14}>
-          <StatsCard />
-        </Col>
-        <Col xs={24} lg={10}>
-          <RecentActivities />
-        </Col>
-      </Row>
+      <LockedSection 
+        permission={PERMISSIONS.DASHBOARD_READ}
+        lockMessage="You do not have permission to view dashboard"
+      >
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={14}>
+            <StatsCard />
+          </Col>
+          <Col xs={24} lg={10}>
+            <RecentActivities />
+          </Col>
+        </Row>
 
-      <StudentTable />
+        <StudentTable />
+      </LockedSection>
     </>
   );
 };
