@@ -40,7 +40,7 @@ export const Session = () => {
     useState(false); // For custom group sessions
   const [selectedCustomGroupId, setSelectedCustomGroupId] = useState(null); // Selected custom group for session creation
 
-  const { user } = useAuthStore();
+  const { user, hasPermission } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
 
   // Fetch school settings to determine staggered/unstaggered
@@ -62,26 +62,45 @@ export const Session = () => {
       <div className='flex justify-between items-center mb-4'>
         <div></div>
         <div className='flex gap-2'>
-          <button
-            onClick={() => setOpenScheduleModal(true)}
-            className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
-          >
-            Add Schedule +
-          </button>
-          <button
-            onClick={() => setOpenSessionModal(true)}
-            className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
-          >
-            Add Session +
-          </button>
+          {hasPermission(PERMISSIONS.SCHEDULES_CREATE) && (
+            <button
+              onClick={() => setOpenScheduleModal(true)}
+              className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
+            >
+              Add Schedule +
+            </button>
+          )}
+          {hasPermission(PERMISSIONS.SESSIONS_CREATE) && (
+            <button
+              onClick={() => setOpenSessionModal(true)}
+              className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
+            >
+              Add Session +
+            </button>
+          )}
         </div>
       </div>
 
-      <SessionChart />
+      <LockedSection 
+        permission={PERMISSIONS.SESSIONS_READ}
+        lockMessage="You do not have permission to view sessions"
+      >
+        <SessionChart />
+      </LockedSection>
 
       <div className='grid grid-cols-1 xl:grid-cols-2 items-stretch gap-4 mt-4'>
-        <EarlySessionRequests sessionType='grade' />
-        {isStaggered ? <StaggeredScheduleView /> : <UnstaggeredScheduleView />}
+        <LockedSection 
+          permission={PERMISSIONS.REQUESTS_READ}
+          lockMessage="You do not have permission to view early end requests"
+        >
+          <EarlySessionRequests sessionType='grade' />
+        </LockedSection>
+        <LockedSection 
+          permission={PERMISSIONS.SCHEDULES_READ}
+          lockMessage="You do not have permission to view schedules"
+        >
+          {isStaggered ? <StaggeredScheduleView /> : <UnstaggeredScheduleView />}
+        </LockedSection>
       </div>
     </>
   );
@@ -92,45 +111,64 @@ export const Session = () => {
       <div className='flex justify-between items-center mb-4'>
         <div></div>
         <div className='flex gap-2'>
-          <Select
-            placeholder='Select custom group'
-            style={{ width: 250 }}
-            value={selectedCustomGroupId}
-            onChange={value => setSelectedCustomGroupId(value)}
-            options={customGroups.map(group => ({
-              value: group.id,
-              label: group.name,
-            }))}
-          />
-          <button
-            onClick={() => {
-              if (!selectedCustomGroupId) {
-                message.warning('Please select a custom group first');
-                return;
-              }
-              setOpenCustomGroupSessionModal(true);
-            }}
-            disabled={!selectedCustomGroupId}
-            className={`font-semibold text-sm px-4 py-2 rounded-[4px] ${
-              selectedCustomGroupId
-                ? 'bg-[#00B894] text-white hover:bg-[#019a7d]'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Add Session +
-          </button>
+          {hasPermission(PERMISSIONS.CUSTOM_GROUPS_READ) && (
+            <Select
+              placeholder='Select custom group'
+              style={{ width: 250 }}
+              value={selectedCustomGroupId}
+              onChange={value => setSelectedCustomGroupId(value)}
+              options={customGroups.map(group => ({
+                value: group.id,
+                label: group.name,
+              }))}
+            />
+          )}
+          {hasPermission(PERMISSIONS.SESSIONS_CREATE) && (
+            <button
+              onClick={() => {
+                if (!selectedCustomGroupId) {
+                  message.warning('Please select a custom group first');
+                  return;
+                }
+                setOpenCustomGroupSessionModal(true);
+              }}
+              disabled={!selectedCustomGroupId}
+              className={`font-semibold text-sm px-4 py-2 rounded-[4px] ${
+                selectedCustomGroupId
+                  ? 'bg-[#00B894] text-white hover:bg-[#019a7d]'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Add Session +
+            </button>
+          )}
         </div>
       </div>
 
-      <CustomGroupSessionChart />
+      <LockedSection 
+        permission={PERMISSIONS.CUSTOM_GROUPS_READ}
+        lockMessage="You do not have permission to view custom group sessions"
+      >
+        <CustomGroupSessionChart />
+      </LockedSection>
 
       <div className='grid grid-cols-1 xl:grid-cols-2 items-stretch gap-4 mt-4'>
-        <EarlySessionRequests sessionType='customGroup' />
-        {isStaggered ? (
-          <CustomGroupStaggeredScheduleView />
-        ) : (
-          <CustomGroupUnstaggeredScheduleView />
-        )}
+        <LockedSection 
+          permission={PERMISSIONS.REQUESTS_READ}
+          lockMessage="You do not have permission to view early end requests"
+        >
+          <EarlySessionRequests sessionType='customGroup' />
+        </LockedSection>
+        <LockedSection 
+          permission={PERMISSIONS.SCHEDULES_READ}
+          lockMessage="You do not have permission to view custom group schedules"
+        >
+          {isStaggered ? (
+            <CustomGroupStaggeredScheduleView />
+          ) : (
+            <CustomGroupUnstaggeredScheduleView />
+          )}
+        </LockedSection>
       </div>
     </>
   );
@@ -184,19 +222,9 @@ export const Session = () => {
           {/* Tab Content */}
           <div>
             {activeTab === 'grades' ? (
-              <LockedSection 
-                permission={PERMISSIONS.SESSIONS_READ}
-                lockMessage="You do not have permission to view grade sessions"
-              >
-                <GradesTabContent />
-              </LockedSection>
+              <GradesTabContent />
             ) : (
-              <LockedSection 
-                permission={PERMISSIONS.CUSTOM_GROUPS_READ}
-                lockMessage="You do not have permission to view custom group sessions"
-              >
-                <CustomGroupsTabContent />
-              </LockedSection>
+              <CustomGroupsTabContent />
             )}
           </div>
         </Card>

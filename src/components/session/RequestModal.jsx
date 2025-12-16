@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { Modal, Typography, Button, Spin } from 'antd';
 import { useApproveRequest, useDenyRequest } from '@/hooks/useRequests';
 import { formatTime } from '@/utils/time';
+import { useAuthStore } from '@/store/authStore';
+import { PERMISSIONS } from '@/utils/permissions';
 
 const { Text, Paragraph } = Typography;
 
 export const RequestModal = ({ open, onClose, request }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const { hasPermission } = useAuthStore();
   const approveRequestMutation = useApproveRequest();
   const denyRequestMutation = useDenyRequest();
+  
+  const canApprove = hasPermission(PERMISSIONS.REQUESTS_APPROVE);
+  const canDeny = hasPermission(PERMISSIONS.REQUESTS_DENY);
 
   if (!request) return null;
 
@@ -70,34 +76,40 @@ export const RequestModal = ({ open, onClose, request }) => {
           {reasonText}
         </Paragraph>
 
-        <div className='flex justify-center gap-10 mt-10'>
-          <Button
-            type='primary'
-            onClick={handleApprove}
-            disabled={isProcessing}
-            loading={approveRequestMutation.isPending}
-            style={{
-              backgroundColor: '#00B894',
-              color: '#fff',
-            }}
-            className='border-none px-10 py-2 rounded-[4px] hover:!bg-[#019a7d]'
-          >
-            Accept
-          </Button>
-          <Button
-            type='primary'
-            onClick={handleDeny}
-            disabled={isProcessing}
-            loading={denyRequestMutation.isPending}
-            style={{
-              backgroundColor: '#801818',
-              color: '#fff',
-            }}
-            className='hover:!bg-[#490404] border-none px-10 py-2 rounded-[4px]'
-          >
-            Reject
-          </Button>
-        </div>
+        {(canApprove || canDeny) && (
+          <div className='flex justify-center gap-10 mt-10'>
+            {canApprove && (
+              <Button
+                type='primary'
+                onClick={handleApprove}
+                disabled={isProcessing}
+                loading={approveRequestMutation.isPending}
+                style={{
+                  backgroundColor: '#00B894',
+                  color: '#fff',
+                }}
+                className='border-none px-10 py-2 rounded-[4px] hover:!bg-[#019a7d]'
+              >
+                Accept
+              </Button>
+            )}
+            {canDeny && (
+              <Button
+                type='primary'
+                onClick={handleDeny}
+                disabled={isProcessing}
+                loading={denyRequestMutation.isPending}
+                style={{
+                  backgroundColor: '#801818',
+                  color: '#fff',
+                }}
+                className='hover:!bg-[#490404] border-none px-10 py-2 rounded-[4px]'
+              >
+                Reject
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </Modal>
   );

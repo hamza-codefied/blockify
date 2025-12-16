@@ -1,9 +1,10 @@
 /**
  * LockedSection Component
  * Wraps a section and shows a lock icon overlay when user doesn't have required permission
+ * Always renders children structure but overlays lock when permission denied (to show titles)
  */
 import { useAuthStore } from '@/store/authStore';
-import lockIcon from '@/images/lock.svg';
+import lockIcon from '@/images/access-rights-lock.png';
 import './LockedSection.css';
 
 /**
@@ -41,24 +42,31 @@ export const LockedSection = ({
     hasAccess = true;
   }
 
-  // If user has access, render children normally
-  if (hasAccess) {
-    return (
-      <div className={`locked-section-wrapper ${className}`} style={{ position: 'relative', width: '100%', height: '100%' }}>
+  // Always render wrapper with children structure, but overlay lock when permission denied
+  return (
+    <div className={`locked-section-wrapper ${className}`} style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Render children but disable interaction when locked */}
+      <div style={{ 
+        pointerEvents: hasAccess ? 'auto' : 'none',
+        opacity: hasAccess ? 1 : 0.5,
+        width: '100%',
+        height: '100%',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         {children}
       </div>
-    );
-  }
-
-  // If user doesn't have access, show lock overlay without rendering children (prevents API calls)
-  return (
-    <div className={`locked-section-wrapper ${className}`} style={{ position: 'relative', width: '100%', height: '100%', minHeight: '200px' }}>
-      <div className="locked-section-overlay" style={{ position: 'relative' }}>
-        <div className="locked-section-content">
-          <img src={lockIcon} alt="Locked" className="locked-section-icon" />
-          <p className="locked-section-message">{lockMessage}</p>
+      
+      {/* Show lock overlay when permission denied */}
+      {!hasAccess && (
+        <div className="locked-section-overlay">
+          <div className="locked-section-content">
+            <img src={lockIcon} alt="Locked" className="locked-section-icon" />
+            <p className="locked-section-message">{lockMessage}</p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

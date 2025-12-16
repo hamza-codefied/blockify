@@ -31,19 +31,29 @@ export const Dashboard = () => {
 
       <PageTitle variant="primary" style={{ marginBottom: 16 }}>Dashboard</PageTitle>
 
-      <LockedSection 
-        permission={PERMISSIONS.DASHBOARD_READ}
-        lockMessage="You do not have permission to view dashboard"
-      >
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={14}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={14}>
+          <LockedSection 
+            permission={PERMISSIONS.DASHBOARD_READ}
+            lockMessage="You do not have permission to view dashboard statistics"
+          >
             <StatsCard />
-          </Col>
-          <Col xs={24} lg={10}>
+          </LockedSection>
+        </Col>
+        <Col xs={24} lg={10}>
+          <LockedSection 
+            permission={PERMISSIONS.ACTIVITIES_READ}
+            lockMessage="You do not have permission to view recent activities"
+          >
             <RecentActivities />
-          </Col>
-        </Row>
+          </LockedSection>
+        </Col>
+      </Row>
 
+      <LockedSection 
+        permission={PERMISSIONS.ATTENDANCE_READ}
+        lockMessage="You do not have permission to view student attendance"
+      >
         <StudentTable />
       </LockedSection>
     </>

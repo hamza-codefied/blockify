@@ -37,7 +37,12 @@ export const Profile = () => {
         >
           {/* Top Row */}
           <div className='lg:row-start-1 lg:col-start-1' style={{ display: 'flex', alignItems: 'stretch' }}>
-            <InstituteDetails />
+            <LockedSection 
+              permission={PERMISSIONS.SCHOOLS_READ}
+              lockMessage="You do not have permission to view school information"
+            >
+              <InstituteDetails />
+            </LockedSection>
           </div>
           <div className='lg:row-start-1 lg:col-start-2 lg:col-span-2' style={{ display: 'flex', alignItems: 'stretch' }}>
             <LockedSection 

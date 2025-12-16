@@ -31,7 +31,7 @@ export const Attendance = () => {
         <PageTitle variant="primary" style={{ marginBottom: 16 }}>Attendance</PageTitle>
 
         <LockedSection 
-          permission={PERMISSIONS.SESSIONS_READ}
+          permission={PERMISSIONS.ATTENDANCE_READ}
           lockMessage="You do not have permission to view attendance"
         >
           <StatsCard />
