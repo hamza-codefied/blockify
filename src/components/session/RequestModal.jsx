@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { Modal, Typography, Button, Spin } from 'antd';
 import { useApproveRequest, useDenyRequest } from '@/hooks/useRequests';
+import { useApproveScheduleChangeRequest, useDenyScheduleChangeRequest } from '@/hooks/useScheduleChangeRequests';
 import { formatTime } from '@/utils/time';
 import { useAuthStore } from '@/store/authStore';
 import { PERMISSIONS } from '@/utils/permissions';
 
 const { Text, Paragraph } = Typography;
 
-export const RequestModal = ({ open, onClose, request }) => {
+export const RequestModal = ({ open, onClose, request, requestType = 'early-end' }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { hasPermission } = useAuthStore();
   const approveRequestMutation = useApproveRequest();
   const denyRequestMutation = useDenyRequest();
+  const approveScheduleChangeMutation = useApproveScheduleChangeRequest();
+  const denyScheduleChangeMutation = useDenyScheduleChangeRequest();
   
   const canApprove = hasPermission(PERMISSIONS.REQUESTS_APPROVE);
   const canDeny = hasPermission(PERMISSIONS.REQUESTS_DENY);
@@ -19,19 +22,44 @@ export const RequestModal = ({ open, onClose, request }) => {
   if (!request) return null;
 
   const studentName = request.student?.fullName || 'Unknown';
-  const scheduleEndTime = request.session?.schedule?.endTime;
-  const formattedTime = scheduleEndTime ? formatTime(scheduleEndTime) : 'N/A';
   const reasonText = request.reasonText || 'No reason provided.';
+  
+  // Format display based on request type
+  let titleText = '';
+  let detailsText = '';
+  
+  if (requestType === 'schedule-change') {
+    const getDayName = (dayOfWeek) => {
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return dayNames[dayOfWeek] || `Day ${dayOfWeek}`;
+    };
+    const fromSchedule = request.fromSchedule;
+    const toSchedule = request.toSchedule;
+    titleText = `Schedule Change Request - ${studentName}`;
+    detailsText = `From: ${fromSchedule?.subject?.name || 'Unknown'} - ${getDayName(fromSchedule?.dayOfWeek)} ${fromSchedule?.startTime} - ${fromSchedule?.endTime}\nTo: ${toSchedule?.subject?.name || 'Unknown'} - ${getDayName(toSchedule?.dayOfWeek)} ${toSchedule?.startTime} - ${toSchedule?.endTime}`;
+  } else {
+    const scheduleEndTime = request.session?.schedule?.endTime;
+    const formattedTime = scheduleEndTime ? formatTime(scheduleEndTime) : 'N/A';
+    titleText = `Request - ${studentName} @ ${formattedTime}`;
+    detailsText = '';
+  }
 
   const handleApprove = async () => {
     if (!request.id) return;
     
     setIsProcessing(true);
     try {
-      await approveRequestMutation.mutateAsync({
-        requestId: request.id,
-        data: {},
-      });
+      if (requestType === 'schedule-change') {
+        await approveScheduleChangeMutation.mutateAsync({
+          requestId: request.id,
+          data: {},
+        });
+      } else {
+        await approveRequestMutation.mutateAsync({
+          requestId: request.id,
+          data: {},
+        });
+      }
       onClose();
     } catch (error) {
       // Error is handled by the mutation hook
@@ -45,10 +73,17 @@ export const RequestModal = ({ open, onClose, request }) => {
     
     setIsProcessing(true);
     try {
-      await denyRequestMutation.mutateAsync({
-        requestId: request.id,
-        data: {},
-      });
+      if (requestType === 'schedule-change') {
+        await denyScheduleChangeMutation.mutateAsync({
+          requestId: request.id,
+          data: {},
+        });
+      } else {
+        await denyRequestMutation.mutateAsync({
+          requestId: request.id,
+          data: {},
+        });
+      }
       onClose();
     } catch (error) {
       // Error is handled by the mutation hook
@@ -69,10 +104,17 @@ export const RequestModal = ({ open, onClose, request }) => {
     >
       <div className='text-start'>
         <Text className='block text-sm font-semibold'>
-          Request - {studentName} @ {formattedTime}
+          {titleText}
         </Text>
 
-        <Paragraph className='mt-8 text-black0'>
+        {detailsText && (
+          <Paragraph className='mt-4 text-sm text-gray-600 whitespace-pre-line'>
+            {detailsText}
+          </Paragraph>
+        )}
+
+        <Paragraph className='mt-4 text-black'>
+          <Text strong>Reason: </Text>
           {reasonText}
         </Paragraph>
 
@@ -83,7 +125,7 @@ export const RequestModal = ({ open, onClose, request }) => {
                 type='primary'
                 onClick={handleApprove}
                 disabled={isProcessing}
-                loading={approveRequestMutation.isPending}
+                loading={requestType === 'schedule-change' ? approveScheduleChangeMutation.isPending : approveRequestMutation.isPending}
                 style={{
                   backgroundColor: '#00B894',
                   color: '#fff',
@@ -98,7 +140,7 @@ export const RequestModal = ({ open, onClose, request }) => {
                 type='primary'
                 onClick={handleDeny}
                 disabled={isProcessing}
-                loading={denyRequestMutation.isPending}
+                loading={requestType === 'schedule-change' ? denyScheduleChangeMutation.isPending : denyRequestMutation.isPending}
                 style={{
                   backgroundColor: '#801818',
                   color: '#fff',

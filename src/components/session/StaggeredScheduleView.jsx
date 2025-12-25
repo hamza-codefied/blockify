@@ -10,6 +10,7 @@ import {
   useUpdateSchedule,
 } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
+import { useGetSubjects } from '@/hooks/useSubjects';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useAuthStore } from '@/store/authStore';
 import { EditSessionModal } from './EditSessionModal';
@@ -60,6 +61,7 @@ export const StaggeredScheduleView = () => {
 
   const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [selectedGradeName, setSelectedGradeName] = useState(null);
+  const [selectedSubjectId, setSelectedSubjectId] = useState(null);
   const [activeDay, setActiveDay] = useState('Monday');
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -73,6 +75,14 @@ export const StaggeredScheduleView = () => {
   });
   const grades = gradesData?.data || [];
 
+  // Fetch subjects
+  const { data: subjectsData } = useGetSubjects({
+    page: 1,
+    limit: 100,
+    status: 'active',
+  });
+  const subjects = subjectsData?.data || [];
+
   // Set default grade when grades load
   useEffect(() => {
     if (grades.length > 0 && !selectedGradeId) {
@@ -82,13 +92,14 @@ export const StaggeredScheduleView = () => {
     }
   }, [grades, selectedGradeId]);
 
-  // Fetch schedules filtered by grade
+  // Fetch schedules filtered by grade and subject
   const {
     data: schedulesData,
     isLoading,
     refetch,
   } = useGetSchedules({
     gradeId: selectedGradeId,
+    subjectId: selectedSubjectId || undefined,
     page: 1,
     limit: 100,
   });
@@ -106,6 +117,11 @@ export const StaggeredScheduleView = () => {
     const grade = grades.find(g => g.id === gradeId);
     setSelectedGradeId(gradeId);
     setSelectedGradeName(grade ? formatGradeDisplayName(grade) : null);
+    setSelectedSubjectId(null); // Reset subject when grade changes
+  };
+
+  const handleSubjectChange = subjectId => {
+    setSelectedSubjectId(subjectId);
   };
 
   const handleEdit = schedule => {
@@ -138,18 +154,34 @@ export const StaggeredScheduleView = () => {
         <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
           Manage Session Schedules
         </h2>
-        <Select
-          value={selectedGradeId}
-          onChange={handleGradeChange}
-          size='small'
-          style={{ width: 140 }}
-          loading={!gradesData}
-          placeholder='Select Grade'
-          options={grades.map(grade => ({
-            value: grade.id,
-            label: formatGradeDisplayName(grade),
-          }))}
-        />
+        <div className='flex gap-2'>
+          <Select
+            value={selectedGradeId}
+            onChange={handleGradeChange}
+            size='small'
+            style={{ width: 140 }}
+            loading={!gradesData}
+            placeholder='Select Grade'
+            options={grades.map(grade => ({
+              value: grade.id,
+              label: formatGradeDisplayName(grade),
+            }))}
+          />
+          <Select
+            value={selectedSubjectId}
+            onChange={handleSubjectChange}
+            size='small'
+            style={{ width: 140 }}
+            loading={!subjectsData}
+            placeholder='Select Subject'
+            allowClear
+            disabled={!selectedGradeId}
+            options={subjects.map(subject => ({
+              value: subject.id,
+              label: subject.name,
+            }))}
+          />
+        </div>
       </div>
 
       {/* Day Selector */}

@@ -17,11 +17,14 @@ import { message } from 'antd';
 
 /**
  * Hook for getting all schedules
+ * @param {Object} params - Query parameters (page, limit, gradeId, etc.)
+ * @param {boolean} enabled - Whether to enable the query (default: true)
  */
-export const useGetSchedules = (params = {}) => {
+export const useGetSchedules = (params = {}, enabled = true) => {
   return useQuery({
     queryKey: ['schedules', params],
     queryFn: () => getSchedules(params),
+    enabled: enabled,
     staleTime: 30 * 1000, // 30 seconds
   });
 };

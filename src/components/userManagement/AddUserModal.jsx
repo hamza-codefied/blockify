@@ -5,6 +5,7 @@ import { useCreateStudent } from '@/hooks/useStudents';
 import { useCreateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetRoles } from '@/hooks/useRoles';
+import { useGetSchedules } from '@/hooks/useSchedules';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Option } = Select;
@@ -32,6 +33,28 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
       role.roleName === 'manager' || !role.isSystemRole
     );
   }, [roles, activeTab]);
+
+  // Get selected grade ID for schedule fetching
+  const selectedGradeId = Form.useWatch('gradeId', form);
+  
+  // Fetch schedules for selected grade (students only)
+  const { data: schedulesData, isLoading: schedulesLoading } = useGetSchedules(
+    activeTab === 'students' && selectedGradeId
+      ? { gradeId: selectedGradeId, limit: 1000 }
+      : {},
+    activeTab === 'students' && !!selectedGradeId
+  );
+  // API returns: { success: true, message: "...", data: [...schedules...], pagination: {...} }
+  // So data is already the schedules array, not nested
+  const availableSchedules = Array.isArray(schedulesData?.data) ? schedulesData.data : (schedulesData?.data?.schedules || []);
+  
+  // Debug: Log schedules data
+  useEffect(() => {
+    if (activeTab === 'students' && selectedGradeId) {
+      console.log('Schedules Data:', schedulesData);
+      console.log('Available Schedules:', availableSchedules);
+    }
+  }, [schedulesData, availableSchedules, activeTab, selectedGradeId]);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -61,6 +84,7 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
           guardian_address: values.guardian_address || null,
           guardian_zipcode: values.guardian_zipcode || null,
           status: values.status || 'active',
+          scheduleIds: values.scheduleIds || [], // Optional array of schedule IDs
         };
         
         await createStudentMutation.mutateAsync(studentData);
@@ -167,6 +191,47 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
                   value: grade.id,
                   label: formatGradeDisplayName(grade)
                 }))}
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Schedules (Optional)' 
+              name='scheduleIds'
+              tooltip='Select schedules for this student. Schedules must not conflict (same day, overlapping times).'
+            >
+              <Select
+                mode="multiple"
+                placeholder={
+                  schedulesLoading 
+                    ? 'Loading schedules...' 
+                    : !selectedGradeId 
+                    ? 'Please select a grade first' 
+                    : availableSchedules.length === 0 
+                    ? 'No schedules available for this grade' 
+                    : 'Select schedules (optional)'
+                }
+                showSearch
+                loading={schedulesLoading}
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={availableSchedules.map(schedule => {
+                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  const dayName = dayNames[schedule.dayOfWeek] || `Day ${schedule.dayOfWeek}`;
+                  const subjectName = schedule.subject?.name || 'No Subject';
+                  return {
+                    value: schedule.id,
+                    label: `${subjectName} - ${dayName} ${schedule.startTime} - ${schedule.endTime}`
+                  };
+                })}
+                disabled={!selectedGradeId || schedulesLoading}
+                notFoundContent={
+                  schedulesLoading 
+                    ? 'Loading...' 
+                    : availableSchedules.length === 0 
+                    ? 'No schedules found' 
+                    : 'No results found'
+                }
               />
             </Form.Item>
 

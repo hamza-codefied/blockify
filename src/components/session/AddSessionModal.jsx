@@ -103,7 +103,12 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const { gradeId, managerId, subjectId, name } = values;
+      const { gradeId, managerId, subjectId, name, additionalGradeIds } = values;
+
+      // Filter out primary grade from additional grades if it's included
+      const filteredAdditionalGradeIds = (additionalGradeIds || []).filter(
+        id => id !== gradeId
+      );
 
       // Create a schedule for each selected day with its specific times
       const schedulePromises = selectedDays.map(day => {
@@ -125,6 +130,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           dayOfWeek,
           startTime: startTimeStr,
           endTime: endTimeStr,
+          additionalGradeIds: filteredAdditionalGradeIds.length > 0 ? filteredAdditionalGradeIds : undefined,
         });
       });
 
@@ -154,11 +160,34 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
       <Form form={form} layout='vertical'>
         {/* ===== Grade Select ===== */}
         <Form.Item
-          label='Grade'
+          label='Primary Grade'
           name='gradeId'
-          rules={[{ required: true, message: 'Please select grade' }]}
+          rules={[{ required: true, message: 'Please select primary grade' }]}
+          tooltip='The primary grade for this schedule. You can add additional grades below.'
         >
-          <Select placeholder='Select grade' loading={!gradesData}>
+          <Select placeholder='Select primary grade' loading={!gradesData}>
+            {grades.map(grade => (
+              <Select.Option key={grade.id} value={grade.id}>
+                {formatGradeDisplayName(grade)}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        {/* ===== Additional Grades Select ===== */}
+        <Form.Item
+          label='Additional Grades (Optional)'
+          name='additionalGradeIds'
+          tooltip='Select additional grades that can also use this schedule (e.g., for cross-grade classes)'
+        >
+          <Select
+            mode='multiple'
+            placeholder='Select additional grades (optional)'
+            loading={!gradesData}
+            filterOption={(input, option) =>
+              (option?.children?.toLowerCase() ?? '').includes(input.toLowerCase())
+            }
+          >
             {grades.map(grade => (
               <Select.Option key={grade.id} value={grade.id}>
                 {formatGradeDisplayName(grade)}
@@ -343,3 +372,5 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     </Modal>
   );
 };
+
+export default AddSessionModal;

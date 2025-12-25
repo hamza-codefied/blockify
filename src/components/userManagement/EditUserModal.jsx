@@ -5,6 +5,7 @@ import { useUpdateStudent } from '@/hooks/useStudents';
 import { useUpdateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetRoles } from '@/hooks/useRoles';
+import { useGetSchedules } from '@/hooks/useSchedules';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 
 const { Option } = Select;
@@ -32,6 +33,20 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
       role.roleName === 'manager' || !role.isSystemRole
     );
   }, [roles, activeTab]);
+
+  // Get selected grade ID for schedule fetching
+  const selectedGradeId = Form.useWatch('gradeId', form);
+  
+  // Fetch schedules for selected grade (students only)
+  const { data: schedulesData } = useGetSchedules(
+    activeTab === 'students' && selectedGradeId
+      ? { gradeId: selectedGradeId, limit: 1000 }
+      : {},
+    activeTab === 'students' && !!selectedGradeId
+  );
+  // API returns: { success: true, message: "...", data: [...schedules...], pagination: {...} }
+  // So data is already the schedules array, not nested
+  const availableSchedules = Array.isArray(schedulesData?.data) ? schedulesData.data : (schedulesData?.data?.schedules || []);
 
   useEffect(() => {
     if (open && user) {
@@ -75,6 +90,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         guardian_email: user.guardian_email || null,
         guardian_address: user.guardian_address || null,
         guardian_zipcode: user.guardian_zipcode || null,
+        scheduleIds: user.scheduleIds || [], // Student's selected schedules
         status: user.status,
       });
     }
@@ -102,6 +118,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           guardian_address: values.guardian_address || null,
           guardian_zipcode: values.guardian_zipcode || null,
           status: values.status,
+          scheduleIds: values.scheduleIds || [], // Optional array of schedule IDs (replaces all existing)
           ...(values.password && { password: values.password }),
         };
         
@@ -198,6 +215,31 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
                   value: grade.id,
                   label: formatGradeDisplayName(grade)
                 }))}
+              />
+            </Form.Item>
+
+            <Form.Item 
+              label='Schedules (Optional)' 
+              name='scheduleIds'
+              tooltip='Select schedules for this student. Schedules must not conflict (same day, overlapping times).'
+            >
+              <Select
+                mode="multiple"
+                placeholder='Select schedules (optional)'
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                }
+                options={availableSchedules.map(schedule => {
+                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  const dayName = dayNames[schedule.dayOfWeek] || `Day ${schedule.dayOfWeek}`;
+                  const subjectName = schedule.subject?.name || 'No Subject';
+                  return {
+                    value: schedule.id,
+                    label: `${subjectName} - ${dayName} ${schedule.startTime} - ${schedule.endTime}`
+                  };
+                })}
+                disabled={!selectedGradeId}
               />
             </Form.Item>
 

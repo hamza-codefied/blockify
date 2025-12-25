@@ -10,6 +10,7 @@ import {
   generateOrganizationStructuredData,
 } from '@utils/seo';
 import { EarlySessionRequests } from '@/components/session/EarlySessionRequests';
+import { ScheduleChangeRequests } from '@/components/session/ScheduleChangeRequests';
 import { UnstaggeredScheduleView } from '@/components/session/UnstaggeredScheduleView';
 import { SessionChart } from '@/components/session/SessionChart';
 import { AddSessionModal } from '@/components/session/AddSessionModal';
@@ -100,6 +101,15 @@ export const Session = () => {
           lockMessage="You do not have permission to view schedules"
         >
           {isStaggered ? <StaggeredScheduleView /> : <UnstaggeredScheduleView />}
+        </LockedSection>
+      </div>
+
+      <div className='mt-4'>
+        <LockedSection 
+          permission={PERMISSIONS.REQUESTS_READ}
+          lockMessage="You do not have permission to view schedule change requests"
+        >
+          <ScheduleChangeRequests />
         </LockedSection>
       </div>
     </>
