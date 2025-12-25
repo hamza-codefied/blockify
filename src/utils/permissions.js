@@ -10,7 +10,6 @@ export const RESOURCES = {
   STUDENTS: 'students',
   MANAGERS: 'managers',
   GRADES: 'grades',
-  SUBJECTS: 'subjects',
   SCHEDULES: 'schedules',
   SESSIONS: 'sessions',
   REQUESTS: 'requests',
@@ -79,11 +78,6 @@ export const PERMISSIONS = {
   GRADES_UPDATE: formatPermission(RESOURCES.GRADES, ACTIONS.UPDATE),
   GRADES_DELETE: formatPermission(RESOURCES.GRADES, ACTIONS.DELETE),
 
-  // Subjects
-  SUBJECTS_CREATE: formatPermission(RESOURCES.SUBJECTS, ACTIONS.CREATE),
-  SUBJECTS_READ: formatPermission(RESOURCES.SUBJECTS, ACTIONS.READ),
-  SUBJECTS_UPDATE: formatPermission(RESOURCES.SUBJECTS, ACTIONS.UPDATE),
-  SUBJECTS_DELETE: formatPermission(RESOURCES.SUBJECTS, ACTIONS.DELETE),
 
   // Schedules
   SCHEDULES_CREATE: formatPermission(RESOURCES.SCHEDULES, ACTIONS.CREATE),

@@ -225,11 +225,11 @@ export const ScheduleChangeRequests = () => {
                       <div>
                         <div className='text-sm text-gray-600 mb-1'>
                           <Text type='secondary'>From: </Text>
-                          {request.fromSchedule?.subject?.name || 'Unknown'} - {getDayName(request.fromSchedule?.dayOfWeek)} {request.fromSchedule?.startTime} - {request.fromSchedule?.endTime}
+                          {request.fromSchedule?.name || 'Unknown'} - {getDayName(request.fromSchedule?.dayOfWeek)} {request.fromSchedule?.startTime} - {request.fromSchedule?.endTime}
                         </div>
                         <div className='text-sm text-gray-600 mb-1'>
                           <Text type='secondary'>To: </Text>
-                          {request.toSchedule?.subject?.name || 'Unknown'} - {getDayName(request.toSchedule?.dayOfWeek)} {request.toSchedule?.startTime} - {request.toSchedule?.endTime}
+                          {request.toSchedule?.name || 'Unknown'} - {getDayName(request.toSchedule?.dayOfWeek)} {request.toSchedule?.startTime} - {request.toSchedule?.endTime}
                         </div>
                         <div className='text-sm text-gray-500'>
                           {request.student?.grade && (

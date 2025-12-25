@@ -10,7 +10,6 @@ import {
   useUpdateSchedule,
 } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
-import { useGetSubjects } from '@/hooks/useSubjects';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useAuthStore } from '@/store/authStore';
 import { EditSessionModal } from './EditSessionModal';
@@ -61,7 +60,7 @@ export const StaggeredScheduleView = () => {
 
   const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [selectedGradeName, setSelectedGradeName] = useState(null);
-  const [selectedSubjectId, setSelectedSubjectId] = useState(null);
+  const [selectedCourseName, setSelectedCourseName] = useState(null);
   const [activeDay, setActiveDay] = useState('Monday');
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -75,14 +74,6 @@ export const StaggeredScheduleView = () => {
   });
   const grades = gradesData?.data || [];
 
-  // Fetch subjects
-  const { data: subjectsData } = useGetSubjects({
-    page: 1,
-    limit: 100,
-    status: 'active',
-  });
-  const subjects = subjectsData?.data || [];
-
   // Set default grade when grades load
   useEffect(() => {
     if (grades.length > 0 && !selectedGradeId) {
@@ -92,20 +83,33 @@ export const StaggeredScheduleView = () => {
     }
   }, [grades, selectedGradeId]);
 
-  // Fetch schedules filtered by grade and subject
+  // Fetch all schedules for the selected grade
   const {
     data: schedulesData,
     isLoading,
     refetch,
   } = useGetSchedules({
     gradeId: selectedGradeId,
-    subjectId: selectedSubjectId || undefined,
     page: 1,
-    limit: 100,
-  });
+    limit: 1000, // Get all schedules to extract unique course names
+  }, !!selectedGradeId);
 
   const deleteScheduleMutation = useDeleteSchedule();
-  const schedules = schedulesData?.data || [];
+  const allSchedules = schedulesData?.data || [];
+
+  // Extract unique course names from schedules for the selected grade
+  const courseNames = useMemo(() => {
+    const uniqueNames = [...new Set(allSchedules.map(s => s.name).filter(Boolean))];
+    return uniqueNames.sort();
+  }, [allSchedules]);
+
+  // Filter schedules by selected course name
+  const schedules = useMemo(() => {
+    if (!selectedCourseName) {
+      return allSchedules; // Show all if no course selected
+    }
+    return allSchedules.filter(s => s.name === selectedCourseName);
+  }, [allSchedules, selectedCourseName]);
 
   // Get schedules for the active day
   const activeDayNumber = DAY_NUMBERS[activeDay];
@@ -117,11 +121,11 @@ export const StaggeredScheduleView = () => {
     const grade = grades.find(g => g.id === gradeId);
     setSelectedGradeId(gradeId);
     setSelectedGradeName(grade ? formatGradeDisplayName(grade) : null);
-    setSelectedSubjectId(null); // Reset subject when grade changes
+    setSelectedCourseName(null); // Reset course when grade changes
   };
 
-  const handleSubjectChange = subjectId => {
-    setSelectedSubjectId(subjectId);
+  const handleCourseChange = courseName => {
+    setSelectedCourseName(courseName);
   };
 
   const handleEdit = schedule => {
@@ -168,17 +172,17 @@ export const StaggeredScheduleView = () => {
             }))}
           />
           <Select
-            value={selectedSubjectId}
-            onChange={handleSubjectChange}
+            value={selectedCourseName}
+            onChange={handleCourseChange}
             size='small'
-            style={{ width: 140 }}
-            loading={!subjectsData}
-            placeholder='Select Subject'
+            style={{ width: 180 }}
+            loading={isLoading}
+            placeholder='Select Course'
             allowClear
-            disabled={!selectedGradeId}
-            options={subjects.map(subject => ({
-              value: subject.id,
-              label: subject.name,
+            disabled={!selectedGradeId || courseNames.length === 0}
+            options={courseNames.map(courseName => ({
+              value: courseName,
+              label: courseName,
             }))}
           />
         </div>
@@ -241,11 +245,6 @@ export const StaggeredScheduleView = () => {
               <div className='text-gray-700 dark:text-white font-medium mb-2 text-sm'>
                 {schedule.name || `Schedule ${index + 1}`}
               </div>
-              {schedule.subject && (
-                <div className='text-xs text-gray-500 dark:text-gray-400 mb-1'>
-                  {schedule.subject.name}
-                </div>
-              )}
               <div className='w-full bg-white dark:bg-gray-800 p-2 flex flex-col items-center gap-2 text-center border-2 border-gray-200 dark:border-gray-700 rounded-lg'>
                 <div className='text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-semibold text-center py-1 w-[80px]'>
                   {formatTime(schedule.startTime)}

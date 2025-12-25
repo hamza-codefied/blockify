@@ -26,7 +26,7 @@ export const getScheduleById = async (scheduleId) => {
 
 /**
  * Create a new schedule
- * @param {Object} data - Schedule data (gradeId, managerId, subjectId, name?, dayOfWeek, startTime, endTime, exceptions?)
+ * @param {Object} data - Schedule data (gradeId, managerId, name, dayOfWeek, startTime, endTime, exceptions?, additionalGradeIds?)
  * @returns {Promise} API response with created schedule
  */
 export const createSchedule = async (data) => {

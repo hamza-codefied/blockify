@@ -7,7 +7,6 @@ import {
 import { InstituteDetails } from '@/components/profile/InstituteDetails';
 import { PermissionManagement } from '@/components/profile/PermissionManagement';
 import { Grades } from '@/components/profile/Grades';
-import { Subjects } from '@/components/profile/Subjects';
 import { CustomGroups } from '@/components/profile/CustomGroups';
 import { PageTitle } from '@/components/common/PageTitle';
 import { LockedSection } from '@/components/common/LockedSection';
@@ -62,15 +61,7 @@ export const Profile = () => {
               <CustomGroups />
             </LockedSection>
           </div>
-          <div className='lg:row-start-2 lg:col-start-2' style={{ display: 'flex' }}>
-            <LockedSection 
-              permission={PERMISSIONS.SUBJECTS_READ}
-              lockMessage="You do not have permission to view subjects"
-            >
-              <Subjects />
-            </LockedSection>
-          </div>
-          <div className='lg:row-start-2 lg:col-start-3' style={{ display: 'flex' }}>
+          <div className='lg:row-start-2 lg:col-start-2 lg:col-span-2' style={{ display: 'flex' }}>
             <LockedSection 
               permission={PERMISSIONS.GRADES_READ}
               lockMessage="You do not have permission to view grades"

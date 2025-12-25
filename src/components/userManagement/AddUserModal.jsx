@@ -218,10 +218,10 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
                 options={availableSchedules.map(schedule => {
                   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                   const dayName = dayNames[schedule.dayOfWeek] || `Day ${schedule.dayOfWeek}`;
-                  const subjectName = schedule.subject?.name || 'No Subject';
+                  const courseName = schedule.name || 'No Course Name';
                   return {
                     value: schedule.id,
-                    label: `${subjectName} - ${dayName} ${schedule.startTime} - ${schedule.endTime}`
+                    label: `${courseName} - ${dayName} ${schedule.startTime} - ${schedule.endTime}`
                   };
                 })}
                 disabled={!selectedGradeId || schedulesLoading}

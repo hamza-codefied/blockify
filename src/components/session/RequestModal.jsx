@@ -36,7 +36,7 @@ export const RequestModal = ({ open, onClose, request, requestType = 'early-end'
     const fromSchedule = request.fromSchedule;
     const toSchedule = request.toSchedule;
     titleText = `Schedule Change Request - ${studentName}`;
-    detailsText = `From: ${fromSchedule?.subject?.name || 'Unknown'} - ${getDayName(fromSchedule?.dayOfWeek)} ${fromSchedule?.startTime} - ${fromSchedule?.endTime}\nTo: ${toSchedule?.subject?.name || 'Unknown'} - ${getDayName(toSchedule?.dayOfWeek)} ${toSchedule?.startTime} - ${toSchedule?.endTime}`;
+    detailsText = `From: ${fromSchedule?.name || 'Unknown'} - ${getDayName(fromSchedule?.dayOfWeek)} ${fromSchedule?.startTime} - ${fromSchedule?.endTime}\nTo: ${toSchedule?.name || 'Unknown'} - ${getDayName(toSchedule?.dayOfWeek)} ${toSchedule?.startTime} - ${toSchedule?.endTime}`;
   } else {
     const scheduleEndTime = request.session?.schedule?.endTime;
     const formattedTime = scheduleEndTime ? formatTime(scheduleEndTime) : 'N/A';

@@ -21,7 +21,6 @@ import {
   getDefaultGradeQueryParams,
 } from '@/utils/grade.utils';
 import { useGetManagers } from '@/hooks/useManagers';
-import { useGetSubjects } from '@/hooks/useSubjects';
 
 const { Text } = Typography;
 
@@ -65,7 +64,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     return enableWeekendSessions ? ALL_DAY_NAMES : WEEKDAY_NAMES;
   }, [enableWeekendSessions]);
 
-  // Fetch grades, managers, and subjects
+  // Fetch grades and managers
   const { data: gradesData } = useGetGrades({
     page: 1,
     limit: 100,
@@ -76,14 +75,8 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     limit: 100,
     status: 'active',
   });
-  const { data: subjectsData } = useGetSubjects({
-    page: 1,
-    limit: 100,
-    status: 'active',
-  });
   const grades = gradesData?.data || [];
   const managers = managersData?.data || [];
-  const subjects = subjectsData?.data || [];
 
   useEffect(() => {
     if (!open) {
@@ -103,7 +96,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const { gradeId, managerId, subjectId, name, additionalGradeIds } = values;
+      const { gradeId, managerId, name, additionalGradeIds } = values;
 
       // Filter out primary grade from additional grades if it's included
       const filteredAdditionalGradeIds = (additionalGradeIds || []).filter(
@@ -125,8 +118,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
         return createScheduleMutation.mutateAsync({
           gradeId,
           managerId,
-          subjectId,
-          name: name || null,
+          name: name.trim(),
           dayOfWeek,
           startTime: startTimeStr,
           endTime: endTimeStr,
@@ -211,28 +203,17 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           </Select>
         </Form.Item>
 
-        {/* ===== Subject Select ===== */}
+        {/* ===== Course Name (Required) ===== */}
         <Form.Item
-          label='Subject'
-          name='subjectId'
-          rules={[{ required: true, message: 'Please select subject' }]}
-        >
-          <Select placeholder='Select subject' loading={!subjectsData}>
-            {subjects.map(subject => (
-              <Select.Option key={subject.id} value={subject.id}>
-                {subject.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {/* ===== Name (Optional) ===== */}
-        <Form.Item
-          label='Schedule Name (Optional)'
+          label='Course Name'
           name='name'
-          tooltip='Optional name for this schedule (e.g., "Morning Session", "Afternoon Session")'
+          rules={[
+            { required: true, message: 'Please enter course name' },
+            { whitespace: true, message: 'Course name cannot be empty' }
+          ]}
+          tooltip='Enter the course name for this schedule (e.g., "Math", "English", "Science")'
         >
-          <Input placeholder='e.g., Morning Session' maxLength={200} />
+          <Input placeholder='e.g., Math, English, Science' maxLength={200} />
         </Form.Item>
 
         {/* ===== Select Days (Mon–Fri) ===== */}
