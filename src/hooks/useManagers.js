@@ -116,8 +116,14 @@ export const useImportManagersCSV = () => {
   return useMutation({
     mutationFn: importManagersCSV,
     onSuccess: (data) => {
-      const { successful, failed } = data.data || {};
-      if (failed > 0) {
+      const { successful, failed, errorCSV } = data.data || {};
+      if (successful === 0 && failed > 0) {
+        //>>> All records failed - show concise message and let modal handle error CSV
+        message.warning(
+          `No managers imported. All ${failed} row(s) failed. Download the error CSV file to see details.`,
+          5 // Show for 5 seconds
+        );
+      } else if (failed > 0) {
         message.warning(
           `Import completed: ${successful || 0} succeeded, ${failed || 0} failed`
         );

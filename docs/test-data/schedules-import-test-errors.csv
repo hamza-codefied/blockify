@@ -1,0 +1,33 @@
+gradeLevel,courseName,managerEmail,dayOfWeek,startTime,endTime
+5,Mathematics,tom.new@school.com,1,08:00,09:00
+6,English,amy.test@school.com,1,09:00,10:00
+1,Mathematics,sarah.collins@school.com,1,08:00,09:00
+7,Science,ben.valid@school.com,1,10:00,11:00
+1,English,michael.wilson@school.com,1,09:00,10:00
+8,Social Studies,carol.new@school.com,2,11:00,12:00
+Missing Course,,dan.test@school.com,2,14:00,15:00
+9,Physical Education,eve.valid@school.com,2,14:00,15:00
+1,Science,jennifer.davis@school.com,1,10:00,11:00
+10,Art,frank.new@school.com,3,15:00,16:00
+Invalid Manager Email,Music,invalid.manager@school.com,3,16:00,17:00
+11,Music,grace.test@school.com,3,16:00,17:00
+1,Social Studies,david.martinez@school.com,1,11:00,12:00
+12,Computer Science,tom.new@school.com,4,17:00,18:00
+Invalid Day,Mathematics,tom.new@school.com,7,08:00,09:00
+5,English,amy.test@school.com,4,09:00,10:00
+Missing Manager Email,Science,,4,10:00,11:00
+6,Social Studies,ben.valid@school.com,5,11:00,12:00
+1,Physical Education,lisa.anderson@school.com,1,14:00,15:00
+Invalid Time Format,Art,carol.new@school.com,5,25:00,26:00
+7,Music,dan.test@school.com,1,16:00,17:00
+Invalid End Time,Computer Science,eve.valid@school.com,2,10:00,09:00
+8,Mathematics,frank.new@school.com,2,08:00,09:00
+1,Art,robert.taylor@school.com,1,15:00,16:00
+Missing Grade Level,English,grace.test@school.com,3,09:00,10:00
+9,Science,tom.new@school.com,3,10:00,11:00
+Invalid Grade Level,Social Studies,amy.test@school.com,4,11:00,12:00
+10,Physical Education,ben.valid@school.com,4,14:00,15:00
+1,Music,patricia.brown@school.com,1,16:00,17:00
+11,Art,carol.new@school.com,5,15:00,16:00
+12,Computer Science,dan.test@school.com,5,17:00,18:00
+

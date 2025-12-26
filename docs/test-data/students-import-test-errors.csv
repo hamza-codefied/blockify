@@ -1,0 +1,21 @@
+fullName,email,gradeLevel,phone,address,zipcode,guardian_name,guardian_phone,guardian_email,guardian_address,guardian_zipcode,status
+Alice Test,alice.test@school.com,5,+1-555-5001,"501 Test St, City, State",50001,Parent Alice Test,+1-555-6001,parent.alice.test@email.com,"501 Test St, City, State",50001,active
+Bob Sample,bob.sample@school.com,6,+1-555-5002,"502 Test St, City, State",50002,Parent Bob Sample,+1-555-6002,parent.bob.sample@email.com,"502 Test St, City, State",50002,active
+Emma Johnson,emma.johnson1@school.com,1,+1-555-1001,"101 Student St, City, State",20001,Parent Emma Johnson,+1-555-2001,parent.emma.johnson1@email.com,"101 Student St, City, State",20001,active
+Charlie Valid,charlie.valid@school.com,7,+1-555-5003,"503 Test St, City, State",50003,Parent Charlie Valid,+1-555-6003,parent.charlie.valid@email.com,"503 Test St, City, State",50003,active
+Invalid Email Format,invalid-email-format,8,+1-555-5004,"504 Test St, City, State",50004,Parent Invalid,+1-555-6004,parent.invalid@email.com,"504 Test St, City, State",50004,active
+Missing Name,,9,+1-555-5005,"505 Test St, City, State",50005,Parent Missing,+1-555-6005,parent.missing@email.com,"505 Test St, City, State",50005,active
+Diana New,diana.new@school.com,10,+1-555-5006,"506 Test St, City, State",50006,Parent Diana New,+1-555-6006,parent.diana.new@email.com,"506 Test St, City, State",50006,active
+Michael Chen,michael.chen2@school.com,1,+1-555-1002,"102 Student St, City, State",20002,Parent Michael Chen,+1-555-2002,parent.michael.chen2@email.com,"102 Student St, City, State",20002,active
+Invalid Grade Level,invalid.grade@school.com,99,+1-555-5007,"507 Test St, City, State",50007,Parent Invalid Grade,+1-555-6007,parent.invalid.grade@email.com,"507 Test St, City, State",50007,active
+Frank Valid,frank.valid@school.com,11,+1-555-5008,"508 Test St, City, State",50008,Parent Frank Valid,+1-555-6008,parent.frank.valid@email.com,"508 Test St, City, State",50008,active
+Grace Test,grace.test@school.com,12,+1-555-5009,"509 Test St, City, State",50009,Parent Grace Test,+1-555-6009,parent.grace.test@email.com,"509 Test St, City, State",50009,active
+Missing Grade Level,missing.grade@school.com,,+1-555-5010,"510 Test St, City, State",50010,Parent Missing Grade,+1-555-6010,parent.missing.grade@email.com,"510 Test St, City, State",50010,active
+Sophia Rodriguez,sophia.rodriguez3@school.com,1,+1-555-1003,"103 Student St, City, State",20003,Parent Sophia Rodriguez,+1-555-2003,parent.sophia.rodriguez3@email.com,"103 Student St, City, State",20003,active
+Henry New,henry.new@school.com,2,+1-555-5011,"511 Test St, City, State",50011,Parent Henry New,+1-555-6011,parent.henry.new@email.com,"511 Test St, City, State",50011,active
+Invalid Grade Low,invalid.low@school.com,0,+1-555-5012,"512 Test St, City, State",50012,Parent Invalid Low,+1-555-6012,parent.invalid.low@email.com,"512 Test St, City, State",50012,active
+Iris Valid,iris.valid@school.com,3,+1-555-5013,"513 Test St, City, State",50013,Parent Iris Valid,+1-555-6013,parent.iris.valid@email.com,"513 Test St, City, State",50013,active
+Jack Test,jack.test@school.com,4,+1-555-5014,"514 Test St, City, State",50014,Parent Jack Test,+1-555-6014,parent.jack.test@email.com,"514 Test St, City, State",50014,active
+James Williams,james.williams4@school.com,1,+1-555-1004,"104 Student St, City, State",20004,Parent James Williams,+1-555-2004,parent.james.williams4@email.com,"104 Student St, City, State",20004,active
+Invalid Grade High,invalid.high@school.com,13,+1-555-5015,"515 Test St, City, State",50015,Parent Invalid High,+1-555-6015,parent.invalid.high@email.com,"515 Test St, City, State",50015,active
+

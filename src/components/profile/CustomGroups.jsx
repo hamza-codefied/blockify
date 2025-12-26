@@ -16,9 +16,10 @@ import {
   Button,
 } from 'antd';
 import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import { PlusOutlined } from '@ant-design/icons';
 import './grades.css';
 import { CustomGroupModal } from './CustomGroupModal';
-import { TbEdit, TbPlus } from 'react-icons/tb';
+import { TbEdit } from 'react-icons/tb';
 import { RiDeleteBinLine } from 'react-icons/ri';
 import {
   useGetCustomGroups,
@@ -151,9 +152,14 @@ export const CustomGroups = () => {
             Custom Groups
           </PageTitle>
           <Button
-            variant='primary'
-            icon={<TbPlus className='w-5 h-5' />}
+            type='primary'
+            icon={<PlusOutlined />}
             onClick={handleAddClick}
+            style={{
+              backgroundColor: '#00B894',
+              borderColor: '#00B894',
+            }}
+            className='hover:!bg-[#00b894] hover:!border-[#00b894]'
           >
             Add Custom Group
           </Button>

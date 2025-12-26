@@ -1,0 +1,7 @@
+fullName,email,password,roleName,gradeNames,phone,address,zipcode,status
+Sarah Manager,sarah.manager@school.com,SecurePass123,manager,"1,2,3,4,5",+1-555-1001,"100 Manager Street, City, State",10001,active
+Michael Teacher,michael.teacher@school.com,TeacherPass456,manager,"6,7,8",+1-555-1002,"200 Teacher Avenue, City, State",10002,active
+Jennifer Admin,jennifer.admin@school.com,AdminPass789,manager,"9,10,11,12",+1-555-1003,"300 Admin Road, City, State",10003,active
+David Lead,david.lead@school.com,LeadPass2024,manager,"1,2,3,4,5,6,7,8,9,10,11,12",,,"",active
+Lisa Coordinator,lisa.coordinator@school.com,CoordPass123,manager,"1,2",+1-555-1004,"400 Coordinator Lane, City, State",10004,inactive
+
