@@ -1,481 +1,601 @@
 gradeLevel,courseName,managerEmail,dayOfWeek,startTime,endTime
 1,Mathematics,sarah.collins@school.com,1,08:00,09:00
-1,English,michael.wilson@school.com,1,09:00,10:00
-1,Science,jennifer.davis@school.com,1,10:00,11:00
-1,Social Studies,david.martinez@school.com,1,11:00,12:00
-1,Physical Education,lisa.anderson@school.com,1,14:00,15:00
+1,English,michael.wilson@school.com,1,08:00,09:00
+1,Science,jennifer.davis@school.com,1,09:00,10:00
+1,Social Studies,david.martinez@school.com,1,09:00,10:00
+1,Physical Education,lisa.anderson@school.com,1,10:00,11:00
 1,Art,robert.taylor@school.com,1,15:00,16:00
-1,Music,patricia.brown@school.com,1,16:00,17:00
-1,Computer Science,christopher.lee@school.com,1,17:00,18:00
-1,Mathematics,nancy.white@school.com,2,08:00,09:00
-1,English,daniel.harris@school.com,2,09:00,10:00
-1,Science,karen.thompson@school.com,2,10:00,11:00
-1,Social Studies,mark.garcia@school.com,2,11:00,12:00
-1,Physical Education,betty.martinez@school.com,2,14:00,15:00
-1,Art,steven.robinson@school.com,2,15:00,16:00
-1,Music,michelle.clark@school.com,2,16:00,17:00
-1,Computer Science,andrew.rodriguez@school.com,2,17:00,18:00
-1,Mathematics,donna.lewis@school.com,3,08:00,09:00
-1,English,kevin.walker@school.com,3,09:00,10:00
-1,Science,ruth.hall@school.com,3,10:00,11:00
-1,Social Studies,jason.allen@school.com,3,11:00,12:00
-1,Physical Education,emily.johnson@school.com,3,14:00,15:00
-1,Art,james.smith@school.com,3,15:00,16:00
-1,Music,maria.garcia@school.com,3,16:00,17:00
-1,Computer Science,william.brown@school.com,3,17:00,18:00
-1,Mathematics,jessica.davis@school.com,4,08:00,09:00
-1,English,richard.miller@school.com,4,09:00,10:00
-1,Science,ashley.wilson@school.com,4,10:00,11:00
-1,Social Studies,thomas.moore@school.com,4,11:00,12:00
-1,Physical Education,amanda.taylor@school.com,4,14:00,15:00
-1,Art,matthew.anderson@school.com,4,15:00,16:00
-1,Music,melissa.thomas@school.com,4,16:00,17:00
-1,Computer Science,daniel.jackson@school.com,4,17:00,18:00
-1,Mathematics,nicole.white@school.com,5,08:00,09:00
-1,English,christopher.harris@school.com,5,09:00,10:00
-1,Science,stephanie.martin@school.com,5,10:00,11:00
-1,Social Studies,joseph.thompson@school.com,5,11:00,12:00
-1,Physical Education,michelle.garcia@school.com,5,14:00,15:00
-1,Art,ryan.martinez@school.com,5,15:00,16:00
-1,Music,kimberly.robinson@school.com,5,16:00,17:00
-1,Computer Science,brandon.clark@school.com,5,17:00,18:00
-2,Mathematics,sarah.collins@school.com,1,08:00,09:00
-2,English,michael.wilson@school.com,1,09:00,10:00
-2,Science,jennifer.davis@school.com,1,10:00,11:00
-2,Social Studies,david.martinez@school.com,1,11:00,12:00
-2,Physical Education,lisa.anderson@school.com,1,14:00,15:00
-2,Art,robert.taylor@school.com,1,15:00,16:00
-2,Music,patricia.brown@school.com,1,16:00,17:00
-2,Computer Science,christopher.lee@school.com,1,17:00,18:00
-2,Mathematics,nancy.white@school.com,2,08:00,09:00
-2,English,daniel.harris@school.com,2,09:00,10:00
-2,Science,karen.thompson@school.com,2,10:00,11:00
-2,Social Studies,mark.garcia@school.com,2,11:00,12:00
-2,Physical Education,betty.martinez@school.com,2,14:00,15:00
-2,Art,steven.robinson@school.com,2,15:00,16:00
-2,Music,michelle.clark@school.com,2,16:00,17:00
-2,Computer Science,andrew.rodriguez@school.com,2,17:00,18:00
-2,Mathematics,donna.lewis@school.com,3,08:00,09:00
-2,English,kevin.walker@school.com,3,09:00,10:00
-2,Science,ruth.hall@school.com,3,10:00,11:00
-2,Social Studies,jason.allen@school.com,3,11:00,12:00
-2,Physical Education,emily.johnson@school.com,3,14:00,15:00
-2,Art,james.smith@school.com,3,15:00,16:00
-2,Music,maria.garcia@school.com,3,16:00,17:00
-2,Computer Science,william.brown@school.com,3,17:00,18:00
-2,Mathematics,jessica.davis@school.com,4,08:00,09:00
-2,English,richard.miller@school.com,4,09:00,10:00
-2,Science,ashley.wilson@school.com,4,10:00,11:00
-2,Social Studies,thomas.moore@school.com,4,11:00,12:00
-2,Physical Education,amanda.taylor@school.com,4,14:00,15:00
-2,Art,matthew.anderson@school.com,4,15:00,16:00
-2,Music,melissa.thomas@school.com,4,16:00,17:00
-2,Computer Science,daniel.jackson@school.com,4,17:00,18:00
-2,Mathematics,nicole.white@school.com,5,08:00,09:00
-2,English,christopher.harris@school.com,5,09:00,10:00
-2,Science,stephanie.martin@school.com,5,10:00,11:00
-2,Social Studies,joseph.thompson@school.com,5,11:00,12:00
-2,Physical Education,michelle.garcia@school.com,5,14:00,15:00
-2,Art,ryan.martinez@school.com,5,15:00,16:00
-2,Music,kimberly.robinson@school.com,5,16:00,17:00
-2,Computer Science,brandon.clark@school.com,5,17:00,18:00
-3,Mathematics,lauren.rodriguez@school.com,1,08:00,09:00
-3,English,justin.lewis@school.com,1,09:00,10:00
-3,Science,sarah.collins@school.com,1,10:00,11:00
-3,Social Studies,michael.wilson@school.com,1,11:00,12:00
-3,Physical Education,jennifer.davis@school.com,1,14:00,15:00
-3,Art,david.martinez@school.com,1,15:00,16:00
-3,Music,lisa.anderson@school.com,1,16:00,17:00
-3,Computer Science,robert.taylor@school.com,1,17:00,18:00
-3,Mathematics,patricia.brown@school.com,2,08:00,09:00
-3,English,christopher.lee@school.com,2,09:00,10:00
-3,Science,nancy.white@school.com,2,10:00,11:00
-3,Social Studies,daniel.harris@school.com,2,11:00,12:00
-3,Physical Education,karen.thompson@school.com,2,14:00,15:00
-3,Art,mark.garcia@school.com,2,15:00,16:00
-3,Music,betty.martinez@school.com,2,16:00,17:00
-3,Computer Science,steven.robinson@school.com,2,17:00,18:00
-3,Mathematics,michelle.clark@school.com,3,08:00,09:00
-3,English,andrew.rodriguez@school.com,3,09:00,10:00
-3,Science,donna.lewis@school.com,3,10:00,11:00
-3,Social Studies,kevin.walker@school.com,3,11:00,12:00
-3,Physical Education,ruth.hall@school.com,3,14:00,15:00
-3,Art,jason.allen@school.com,3,15:00,16:00
-3,Music,emily.johnson@school.com,3,16:00,17:00
-3,Computer Science,james.smith@school.com,3,17:00,18:00
-3,Mathematics,maria.garcia@school.com,4,08:00,09:00
-3,English,william.brown@school.com,4,09:00,10:00
-3,Science,jessica.davis@school.com,4,10:00,11:00
-3,Social Studies,richard.miller@school.com,4,11:00,12:00
-3,Physical Education,ashley.wilson@school.com,4,14:00,15:00
-3,Art,thomas.moore@school.com,4,15:00,16:00
-3,Music,amanda.taylor@school.com,4,16:00,17:00
-3,Computer Science,matthew.anderson@school.com,4,17:00,18:00
-3,Mathematics,melissa.thomas@school.com,5,08:00,09:00
-3,English,daniel.jackson@school.com,5,09:00,10:00
-3,Science,nicole.white@school.com,5,10:00,11:00
-3,Social Studies,christopher.harris@school.com,5,11:00,12:00
-3,Physical Education,stephanie.martin@school.com,5,14:00,15:00
-3,Art,joseph.thompson@school.com,5,15:00,16:00
-3,Music,michelle.garcia@school.com,5,16:00,17:00
-3,Computer Science,ryan.martinez@school.com,5,17:00,18:00
-4,Mathematics,kimberly.robinson@school.com,1,08:00,09:00
-4,English,brandon.clark@school.com,1,09:00,10:00
-4,Science,lauren.rodriguez@school.com,1,10:00,11:00
-4,Social Studies,justin.lewis@school.com,1,11:00,12:00
-4,Physical Education,sarah.collins@school.com,1,14:00,15:00
-4,Art,michael.wilson@school.com,1,15:00,16:00
-4,Music,jennifer.davis@school.com,1,16:00,17:00
-4,Computer Science,david.martinez@school.com,1,17:00,18:00
-4,Mathematics,lisa.anderson@school.com,2,08:00,09:00
-4,English,robert.taylor@school.com,2,09:00,10:00
-4,Science,patricia.brown@school.com,2,10:00,11:00
-4,Social Studies,christopher.lee@school.com,2,11:00,12:00
-4,Physical Education,nancy.white@school.com,2,14:00,15:00
-4,Art,daniel.harris@school.com,2,15:00,16:00
-4,Music,karen.thompson@school.com,2,16:00,17:00
-4,Computer Science,mark.garcia@school.com,2,17:00,18:00
-4,Mathematics,betty.martinez@school.com,3,08:00,09:00
-4,English,steven.robinson@school.com,3,09:00,10:00
-4,Science,michelle.clark@school.com,3,10:00,11:00
-4,Social Studies,andrew.rodriguez@school.com,3,11:00,12:00
-4,Physical Education,donna.lewis@school.com,3,14:00,15:00
-4,Art,kevin.walker@school.com,3,15:00,16:00
-4,Music,ruth.hall@school.com,3,16:00,17:00
-4,Computer Science,jason.allen@school.com,3,17:00,18:00
-4,Mathematics,emily.johnson@school.com,4,08:00,09:00
-4,English,james.smith@school.com,4,09:00,10:00
-4,Science,maria.garcia@school.com,4,10:00,11:00
-4,Social Studies,william.brown@school.com,4,11:00,12:00
-4,Physical Education,jessica.davis@school.com,4,14:00,15:00
-4,Art,richard.miller@school.com,4,15:00,16:00
-4,Music,ashley.wilson@school.com,4,16:00,17:00
-4,Computer Science,thomas.moore@school.com,4,17:00,18:00
-4,Mathematics,amanda.taylor@school.com,5,08:00,09:00
-4,English,matthew.anderson@school.com,5,09:00,10:00
-4,Science,melissa.thomas@school.com,5,10:00,11:00
-4,Social Studies,daniel.jackson@school.com,5,11:00,12:00
-4,Physical Education,nicole.white@school.com,5,14:00,15:00
-4,Art,christopher.harris@school.com,5,15:00,16:00
-4,Music,stephanie.martin@school.com,5,16:00,17:00
-4,Computer Science,joseph.thompson@school.com,5,17:00,18:00
-5,Mathematics,michelle.garcia@school.com,1,08:00,09:00
-5,English,ryan.martinez@school.com,1,09:00,10:00
-5,Science,kimberly.robinson@school.com,1,10:00,11:00
-5,Social Studies,brandon.clark@school.com,1,11:00,12:00
-5,Physical Education,lauren.rodriguez@school.com,1,14:00,15:00
-5,Art,justin.lewis@school.com,1,15:00,16:00
-5,Music,sarah.collins@school.com,1,16:00,17:00
-5,Computer Science,michael.wilson@school.com,1,17:00,18:00
-5,Mathematics,jennifer.davis@school.com,2,08:00,09:00
-5,English,david.martinez@school.com,2,09:00,10:00
-5,Science,lisa.anderson@school.com,2,10:00,11:00
-5,Social Studies,robert.taylor@school.com,2,11:00,12:00
-5,Physical Education,patricia.brown@school.com,2,14:00,15:00
-5,Art,christopher.lee@school.com,2,15:00,16:00
-5,Music,nancy.white@school.com,2,16:00,17:00
-5,Computer Science,daniel.harris@school.com,2,17:00,18:00
-5,Mathematics,karen.thompson@school.com,3,08:00,09:00
-5,English,mark.garcia@school.com,3,09:00,10:00
-5,Science,betty.martinez@school.com,3,10:00,11:00
-5,Social Studies,steven.robinson@school.com,3,11:00,12:00
-5,Physical Education,michelle.clark@school.com,3,14:00,15:00
-5,Art,andrew.rodriguez@school.com,3,15:00,16:00
-5,Music,donna.lewis@school.com,3,16:00,17:00
-5,Computer Science,kevin.walker@school.com,3,17:00,18:00
-5,Mathematics,ruth.hall@school.com,4,08:00,09:00
-5,English,jason.allen@school.com,4,09:00,10:00
-5,Science,emily.johnson@school.com,4,10:00,11:00
-5,Social Studies,james.smith@school.com,4,11:00,12:00
-5,Physical Education,maria.garcia@school.com,4,14:00,15:00
-5,Art,william.brown@school.com,4,15:00,16:00
-5,Music,jessica.davis@school.com,4,16:00,17:00
-5,Computer Science,richard.miller@school.com,4,17:00,18:00
-5,Mathematics,ashley.wilson@school.com,5,08:00,09:00
-5,English,thomas.moore@school.com,5,09:00,10:00
-5,Science,amanda.taylor@school.com,5,10:00,11:00
-5,Social Studies,matthew.anderson@school.com,5,11:00,12:00
-5,Physical Education,melissa.thomas@school.com,5,14:00,15:00
-5,Art,daniel.jackson@school.com,5,15:00,16:00
-5,Music,nicole.white@school.com,5,16:00,17:00
-5,Computer Science,christopher.harris@school.com,5,17:00,18:00
-6,Mathematics,stephanie.martin@school.com,1,08:00,09:00
-6,English,joseph.thompson@school.com,1,09:00,10:00
-6,Science,michelle.garcia@school.com,1,10:00,11:00
-6,Social Studies,ryan.martinez@school.com,1,11:00,12:00
-6,Physical Education,kimberly.robinson@school.com,1,14:00,15:00
-6,Art,brandon.clark@school.com,1,15:00,16:00
-6,Music,lauren.rodriguez@school.com,1,16:00,17:00
-6,Computer Science,justin.lewis@school.com,1,17:00,18:00
-6,Mathematics,sarah.collins@school.com,2,08:00,09:00
-6,English,michael.wilson@school.com,2,09:00,10:00
-6,Science,jennifer.davis@school.com,2,10:00,11:00
-6,Social Studies,david.martinez@school.com,2,11:00,12:00
-6,Physical Education,lisa.anderson@school.com,2,14:00,15:00
-6,Art,robert.taylor@school.com,2,15:00,16:00
-6,Music,patricia.brown@school.com,2,16:00,17:00
-6,Computer Science,christopher.lee@school.com,2,17:00,18:00
-6,Mathematics,nancy.white@school.com,3,08:00,09:00
-6,English,daniel.harris@school.com,3,09:00,10:00
-6,Science,karen.thompson@school.com,3,10:00,11:00
-6,Social Studies,mark.garcia@school.com,3,11:00,12:00
-6,Physical Education,betty.martinez@school.com,3,14:00,15:00
-6,Art,steven.robinson@school.com,3,15:00,16:00
-6,Music,michelle.clark@school.com,3,16:00,17:00
-6,Computer Science,andrew.rodriguez@school.com,3,17:00,18:00
-6,Mathematics,donna.lewis@school.com,4,08:00,09:00
-6,English,kevin.walker@school.com,4,09:00,10:00
-6,Science,ruth.hall@school.com,4,10:00,11:00
-6,Social Studies,jason.allen@school.com,4,11:00,12:00
-6,Physical Education,emily.johnson@school.com,4,14:00,15:00
-6,Art,james.smith@school.com,4,15:00,16:00
-6,Music,maria.garcia@school.com,4,16:00,17:00
-6,Computer Science,william.brown@school.com,4,17:00,18:00
-6,Mathematics,jessica.davis@school.com,5,08:00,09:00
-6,English,richard.miller@school.com,5,09:00,10:00
-6,Science,ashley.wilson@school.com,5,10:00,11:00
-6,Social Studies,thomas.moore@school.com,5,11:00,12:00
-6,Physical Education,amanda.taylor@school.com,5,14:00,15:00
-6,Art,matthew.anderson@school.com,5,15:00,16:00
-6,Music,melissa.thomas@school.com,5,16:00,17:00
-6,Computer Science,daniel.jackson@school.com,5,17:00,18:00
-7,Mathematics,nicole.white@school.com,1,08:00,09:00
-7,English,christopher.harris@school.com,1,09:00,10:00
-7,Science,stephanie.martin@school.com,1,10:00,11:00
-7,Social Studies,joseph.thompson@school.com,1,11:00,12:00
-7,Physical Education,michelle.garcia@school.com,1,14:00,15:00
-7,Art,ryan.martinez@school.com,1,15:00,16:00
-7,Music,kimberly.robinson@school.com,1,16:00,17:00
-7,Computer Science,brandon.clark@school.com,1,17:00,18:00
-7,Mathematics,lauren.rodriguez@school.com,2,08:00,09:00
-7,English,justin.lewis@school.com,2,09:00,10:00
-7,Science,sarah.collins@school.com,2,10:00,11:00
-7,Social Studies,michael.wilson@school.com,2,11:00,12:00
-7,Physical Education,jennifer.davis@school.com,2,14:00,15:00
-7,Art,david.martinez@school.com,2,15:00,16:00
-7,Music,lisa.anderson@school.com,2,16:00,17:00
-7,Computer Science,robert.taylor@school.com,2,17:00,18:00
-7,Mathematics,patricia.brown@school.com,3,08:00,09:00
-7,English,christopher.lee@school.com,3,09:00,10:00
-7,Science,nancy.white@school.com,3,10:00,11:00
-7,Social Studies,daniel.harris@school.com,3,11:00,12:00
-7,Physical Education,karen.thompson@school.com,3,14:00,15:00
-7,Art,mark.garcia@school.com,3,15:00,16:00
-7,Music,betty.martinez@school.com,3,16:00,17:00
-7,Computer Science,steven.robinson@school.com,3,17:00,18:00
-7,Mathematics,michelle.clark@school.com,4,08:00,09:00
-7,English,andrew.rodriguez@school.com,4,09:00,10:00
-7,Science,donna.lewis@school.com,4,10:00,11:00
-7,Social Studies,kevin.walker@school.com,4,11:00,12:00
-7,Physical Education,ruth.hall@school.com,4,14:00,15:00
-7,Art,jason.allen@school.com,4,15:00,16:00
-7,Music,emily.johnson@school.com,4,16:00,17:00
-7,Computer Science,james.smith@school.com,4,17:00,18:00
-7,Mathematics,maria.garcia@school.com,5,08:00,09:00
-7,English,william.brown@school.com,5,09:00,10:00
-7,Science,jessica.davis@school.com,5,10:00,11:00
-7,Social Studies,richard.miller@school.com,5,11:00,12:00
-7,Physical Education,ashley.wilson@school.com,5,14:00,15:00
-7,Art,thomas.moore@school.com,5,15:00,16:00
-7,Music,amanda.taylor@school.com,5,16:00,17:00
-7,Computer Science,matthew.anderson@school.com,5,17:00,18:00
-8,Mathematics,melissa.thomas@school.com,1,08:00,09:00
-8,English,daniel.jackson@school.com,1,09:00,10:00
-8,Science,nicole.white@school.com,1,10:00,11:00
-8,Social Studies,christopher.harris@school.com,1,11:00,12:00
-8,Physical Education,stephanie.martin@school.com,1,14:00,15:00
-8,Art,joseph.thompson@school.com,1,15:00,16:00
-8,Music,michelle.garcia@school.com,1,16:00,17:00
-8,Computer Science,ryan.martinez@school.com,1,17:00,18:00
-8,Mathematics,kimberly.robinson@school.com,2,08:00,09:00
-8,English,brandon.clark@school.com,2,09:00,10:00
-8,Science,lauren.rodriguez@school.com,2,10:00,11:00
-8,Social Studies,justin.lewis@school.com,2,11:00,12:00
-8,Physical Education,sarah.collins@school.com,2,14:00,15:00
-8,Art,michael.wilson@school.com,2,15:00,16:00
-8,Music,jennifer.davis@school.com,2,16:00,17:00
-8,Computer Science,david.martinez@school.com,2,17:00,18:00
-8,Mathematics,lisa.anderson@school.com,3,08:00,09:00
-8,English,robert.taylor@school.com,3,09:00,10:00
-8,Science,patricia.brown@school.com,3,10:00,11:00
-8,Social Studies,christopher.lee@school.com,3,11:00,12:00
-8,Physical Education,nancy.white@school.com,3,14:00,15:00
-8,Art,daniel.harris@school.com,3,15:00,16:00
-8,Music,karen.thompson@school.com,3,16:00,17:00
-8,Computer Science,mark.garcia@school.com,3,17:00,18:00
-8,Mathematics,betty.martinez@school.com,4,08:00,09:00
-8,English,steven.robinson@school.com,4,09:00,10:00
-8,Science,michelle.clark@school.com,4,10:00,11:00
-8,Social Studies,andrew.rodriguez@school.com,4,11:00,12:00
-8,Physical Education,donna.lewis@school.com,4,14:00,15:00
-8,Art,kevin.walker@school.com,4,15:00,16:00
-8,Music,ruth.hall@school.com,4,16:00,17:00
-8,Computer Science,jason.allen@school.com,4,17:00,18:00
-8,Mathematics,emily.johnson@school.com,5,08:00,09:00
-8,English,james.smith@school.com,5,09:00,10:00
-8,Science,maria.garcia@school.com,5,10:00,11:00
-8,Social Studies,william.brown@school.com,5,11:00,12:00
-8,Physical Education,jessica.davis@school.com,5,14:00,15:00
-8,Art,richard.miller@school.com,5,15:00,16:00
-8,Music,ashley.wilson@school.com,5,16:00,17:00
-8,Computer Science,thomas.moore@school.com,5,17:00,18:00
-9,Mathematics,amanda.taylor@school.com,1,08:00,09:00
-9,English,matthew.anderson@school.com,1,09:00,10:00
-9,Science,melissa.thomas@school.com,1,10:00,11:00
-9,Social Studies,daniel.jackson@school.com,1,11:00,12:00
-9,Physical Education,nicole.white@school.com,1,14:00,15:00
-9,Art,christopher.harris@school.com,1,15:00,16:00
-9,Music,stephanie.martin@school.com,1,16:00,17:00
-9,Computer Science,joseph.thompson@school.com,1,17:00,18:00
-9,Mathematics,michelle.garcia@school.com,2,08:00,09:00
-9,English,ryan.martinez@school.com,2,09:00,10:00
-9,Science,kimberly.robinson@school.com,2,10:00,11:00
-9,Social Studies,brandon.clark@school.com,2,11:00,12:00
-9,Physical Education,lauren.rodriguez@school.com,2,14:00,15:00
+1,English,patricia.brown@school.com,1,15:00,16:00
+1,Music,christopher.lee@school.com,1,15:00,16:00
+1,Computer Science,nancy.white@school.com,1,16:00,17:00
+1,Mathematics,daniel.harris@school.com,1,16:00,17:00
+1,Science,karen.thompson@school.com,2,08:00,09:00
+1,Mathematics,mark.garcia@school.com,2,08:00,09:00
+1,English,betty.martinez@school.com,2,09:00,10:00
+1,Art,steven.robinson@school.com,2,09:00,10:00
+1,Social Studies,michelle.clark@school.com,2,10:00,11:00
+1,Physical Education,andrew.rodriguez@school.com,2,10:00,11:00
+1,Music,donna.lewis@school.com,2,14:00,15:00
+1,Computer Science,kevin.walker@school.com,2,14:00,15:00
+1,Mathematics,ruth.hall@school.com,2,15:00,16:00
+1,English,jason.allen@school.com,2,15:00,16:00
+1,Science,emily.johnson@school.com,3,08:00,09:00
+1,Art,james.smith@school.com,3,08:00,09:00
+1,Social Studies,maria.garcia@school.com,3,09:00,10:00
+1,Physical Education,william.brown@school.com,3,09:00,10:00
+1,Mathematics,jessica.davis@school.com,3,10:00,11:00
+1,Music,richard.miller@school.com,3,10:00,11:00
+1,English,ashley.wilson@school.com,3,14:00,15:00
+1,Computer Science,thomas.moore@school.com,3,14:00,15:00
+1,Science,amanda.taylor@school.com,3,15:00,16:00
+1,Art,matthew.anderson@school.com,3,15:00,16:00
+1,Social Studies,melissa.thomas@school.com,4,08:00,09:00
+1,Physical Education,daniel.jackson@school.com,4,08:00,09:00
+1,Mathematics,nicole.white@school.com,4,09:00,10:00
+1,English,christopher.harris@school.com,4,09:00,10:00
+1,Science,stephanie.martin@school.com,4,10:00,11:00
+1,Music,joseph.thompson@school.com,4,10:00,11:00
+1,Art,michelle.garcia@school.com,4,14:00,15:00
+1,Computer Science,ryan.martinez@school.com,4,14:00,15:00
+1,Social Studies,kimberly.robinson@school.com,4,15:00,16:00
+1,Physical Education,brandon.clark@school.com,4,15:00,16:00
+1,Mathematics,lauren.rodriguez@school.com,5,08:00,09:00
+1,English,justin.lewis@school.com,5,08:00,09:00
+1,Science,sarah.collins@school.com,5,09:00,10:00
+1,Art,michael.wilson@school.com,5,09:00,10:00
+1,Social Studies,jennifer.davis@school.com,5,10:00,11:00
+1,Music,david.martinez@school.com,5,10:00,11:00
+1,Physical Education,lisa.anderson@school.com,5,14:00,15:00
+1,Computer Science,robert.taylor@school.com,5,14:00,15:00
+1,Mathematics,patricia.brown@school.com,5,15:00,16:00
+1,English,christopher.lee@school.com,5,15:00,16:00
+2,Mathematics,nancy.white@school.com,1,08:00,09:00
+2,English,daniel.harris@school.com,1,08:00,09:00
+2,Science,karen.thompson@school.com,1,09:00,10:00
+2,Art,mark.garcia@school.com,1,09:00,10:00
+2,Social Studies,betty.martinez@school.com,1,10:00,11:00
+2,Physical Education,steven.robinson@school.com,1,10:00,11:00
+2,Music,michelle.clark@school.com,1,14:00,15:00
+2,Computer Science,andrew.rodriguez@school.com,1,14:00,15:00
+2,Mathematics,donna.lewis@school.com,1,15:00,16:00
+2,English,kevin.walker@school.com,1,15:00,16:00
+2,Science,ruth.hall@school.com,2,08:00,09:00
+2,Art,jason.allen@school.com,2,08:00,09:00
+2,Social Studies,emily.johnson@school.com,2,09:00,10:00
+2,Physical Education,james.smith@school.com,2,09:00,10:00
+2,Mathematics,maria.garcia@school.com,2,10:00,11:00
+2,Music,william.brown@school.com,2,10:00,11:00
+2,English,jessica.davis@school.com,2,14:00,15:00
+2,Computer Science,richard.miller@school.com,2,14:00,15:00
+2,Science,ashley.wilson@school.com,2,15:00,16:00
+2,Art,thomas.moore@school.com,2,15:00,16:00
+2,Social Studies,amanda.taylor@school.com,3,08:00,09:00
+2,Physical Education,matthew.anderson@school.com,3,08:00,09:00
+2,Mathematics,melissa.thomas@school.com,3,09:00,10:00
+2,English,daniel.jackson@school.com,3,09:00,10:00
+2,Science,nicole.white@school.com,3,10:00,11:00
+2,Music,christopher.harris@school.com,3,10:00,11:00
+2,Art,stephanie.martin@school.com,3,14:00,15:00
+2,Computer Science,joseph.thompson@school.com,3,14:00,15:00
+2,Social Studies,michelle.garcia@school.com,3,15:00,16:00
+2,Physical Education,ryan.martinez@school.com,3,15:00,16:00
+2,Mathematics,kimberly.robinson@school.com,4,08:00,09:00
+2,English,brandon.clark@school.com,4,08:00,09:00
+2,Science,lauren.rodriguez@school.com,4,09:00,10:00
+2,Art,justin.lewis@school.com,4,09:00,10:00
+2,Social Studies,sarah.collins@school.com,4,10:00,11:00
+2,Music,michael.wilson@school.com,4,10:00,11:00
+2,Physical Education,jennifer.davis@school.com,4,14:00,15:00
+2,Computer Science,david.martinez@school.com,4,14:00,15:00
+2,Mathematics,lisa.anderson@school.com,4,15:00,16:00
+2,English,robert.taylor@school.com,4,15:00,16:00
+2,Science,patricia.brown@school.com,5,08:00,09:00
+2,Art,christopher.lee@school.com,5,08:00,09:00
+2,Social Studies,nancy.white@school.com,5,09:00,10:00
+2,Physical Education,daniel.harris@school.com,5,09:00,10:00
+2,Mathematics,karen.thompson@school.com,5,10:00,11:00
+2,Music,mark.garcia@school.com,5,10:00,11:00
+2,English,betty.martinez@school.com,5,14:00,15:00
+2,Computer Science,steven.robinson@school.com,5,14:00,15:00
+2,Science,michelle.clark@school.com,5,15:00,16:00
+2,Art,andrew.rodriguez@school.com,5,15:00,16:00
+3,Mathematics,donna.lewis@school.com,1,08:00,09:00
+3,English,kevin.walker@school.com,1,08:00,09:00
+3,Science,ruth.hall@school.com,1,09:00,10:00
+3,Art,jason.allen@school.com,1,09:00,10:00
+3,Social Studies,emily.johnson@school.com,1,10:00,11:00
+3,Physical Education,james.smith@school.com,1,10:00,11:00
+3,Music,maria.garcia@school.com,1,14:00,15:00
+3,Computer Science,william.brown@school.com,1,14:00,15:00
+3,Mathematics,jessica.davis@school.com,1,15:00,16:00
+3,English,richard.miller@school.com,1,15:00,16:00
+3,Science,ashley.wilson@school.com,2,08:00,09:00
+3,Art,thomas.moore@school.com,2,08:00,09:00
+3,Social Studies,amanda.taylor@school.com,2,09:00,10:00
+3,Physical Education,matthew.anderson@school.com,2,09:00,10:00
+3,Mathematics,melissa.thomas@school.com,2,10:00,11:00
+3,Music,daniel.jackson@school.com,2,10:00,11:00
+3,English,nicole.white@school.com,2,14:00,15:00
+3,Computer Science,christopher.harris@school.com,2,14:00,15:00
+3,Science,stephanie.martin@school.com,2,15:00,16:00
+3,Art,joseph.thompson@school.com,2,15:00,16:00
+3,Social Studies,michelle.garcia@school.com,3,08:00,09:00
+3,Physical Education,ryan.martinez@school.com,3,08:00,09:00
+3,Mathematics,kimberly.robinson@school.com,3,09:00,10:00
+3,English,brandon.clark@school.com,3,09:00,10:00
+3,Science,lauren.rodriguez@school.com,3,10:00,11:00
+3,Music,justin.lewis@school.com,3,10:00,11:00
+3,Art,sarah.collins@school.com,3,14:00,15:00
+3,Computer Science,michael.wilson@school.com,3,14:00,15:00
+3,Social Studies,jennifer.davis@school.com,3,15:00,16:00
+3,Physical Education,david.martinez@school.com,3,15:00,16:00
+3,Mathematics,lisa.anderson@school.com,4,08:00,09:00
+3,English,robert.taylor@school.com,4,08:00,09:00
+3,Science,patricia.brown@school.com,4,09:00,10:00
+3,Art,christopher.lee@school.com,4,09:00,10:00
+3,Social Studies,nancy.white@school.com,4,10:00,11:00
+3,Music,daniel.harris@school.com,4,10:00,11:00
+3,Physical Education,karen.thompson@school.com,4,14:00,15:00
+3,Computer Science,mark.garcia@school.com,4,14:00,15:00
+3,Mathematics,betty.martinez@school.com,4,15:00,16:00
+3,English,steven.robinson@school.com,4,15:00,16:00
+3,Science,michelle.clark@school.com,5,08:00,09:00
+3,Art,andrew.rodriguez@school.com,5,08:00,09:00
+3,Social Studies,donna.lewis@school.com,5,09:00,10:00
+3,Physical Education,kevin.walker@school.com,5,09:00,10:00
+3,Mathematics,ruth.hall@school.com,5,10:00,11:00
+3,Music,jason.allen@school.com,5,10:00,11:00
+3,English,emily.johnson@school.com,5,14:00,15:00
+3,Computer Science,james.smith@school.com,5,14:00,15:00
+3,Science,maria.garcia@school.com,5,15:00,16:00
+3,Art,william.brown@school.com,5,15:00,16:00
+4,Mathematics,jessica.davis@school.com,1,08:00,09:00
+4,English,richard.miller@school.com,1,08:00,09:00
+4,Science,ashley.wilson@school.com,1,09:00,10:00
+4,Art,thomas.moore@school.com,1,09:00,10:00
+4,Social Studies,amanda.taylor@school.com,1,10:00,11:00
+4,Physical Education,matthew.anderson@school.com,1,10:00,11:00
+4,Music,melissa.thomas@school.com,1,14:00,15:00
+4,Computer Science,daniel.jackson@school.com,1,14:00,15:00
+4,Mathematics,nicole.white@school.com,1,15:00,16:00
+4,English,christopher.harris@school.com,1,15:00,16:00
+4,Science,stephanie.martin@school.com,2,08:00,09:00
+4,Art,joseph.thompson@school.com,2,08:00,09:00
+4,Social Studies,michelle.garcia@school.com,2,09:00,10:00
+4,Physical Education,ryan.martinez@school.com,2,09:00,10:00
+4,Mathematics,kimberly.robinson@school.com,2,10:00,11:00
+4,Music,brandon.clark@school.com,2,10:00,11:00
+4,English,lauren.rodriguez@school.com,2,14:00,15:00
+4,Computer Science,justin.lewis@school.com,2,14:00,15:00
+4,Science,sarah.collins@school.com,2,15:00,16:00
+4,Art,michael.wilson@school.com,2,15:00,16:00
+4,Social Studies,jennifer.davis@school.com,3,08:00,09:00
+4,Physical Education,david.martinez@school.com,3,08:00,09:00
+4,Mathematics,lisa.anderson@school.com,3,09:00,10:00
+4,English,robert.taylor@school.com,3,09:00,10:00
+4,Science,patricia.brown@school.com,3,10:00,11:00
+4,Music,christopher.lee@school.com,3,10:00,11:00
+4,Art,nancy.white@school.com,3,14:00,15:00
+4,Computer Science,daniel.harris@school.com,3,14:00,15:00
+4,Social Studies,karen.thompson@school.com,3,15:00,16:00
+4,Physical Education,mark.garcia@school.com,3,15:00,16:00
+4,Mathematics,betty.martinez@school.com,4,08:00,09:00
+4,English,steven.robinson@school.com,4,08:00,09:00
+4,Science,michelle.clark@school.com,4,09:00,10:00
+4,Art,andrew.rodriguez@school.com,4,09:00,10:00
+4,Social Studies,donna.lewis@school.com,4,10:00,11:00
+4,Music,kevin.walker@school.com,4,10:00,11:00
+4,Physical Education,ruth.hall@school.com,4,14:00,15:00
+4,Computer Science,jason.allen@school.com,4,14:00,15:00
+4,Mathematics,emily.johnson@school.com,4,15:00,16:00
+4,English,james.smith@school.com,4,15:00,16:00
+4,Science,maria.garcia@school.com,5,08:00,09:00
+4,Art,william.brown@school.com,5,08:00,09:00
+4,Social Studies,jessica.davis@school.com,5,09:00,10:00
+4,Physical Education,richard.miller@school.com,5,09:00,10:00
+4,Mathematics,ashley.wilson@school.com,5,10:00,11:00
+4,Music,thomas.moore@school.com,5,10:00,11:00
+4,English,amanda.taylor@school.com,5,14:00,15:00
+4,Computer Science,matthew.anderson@school.com,5,14:00,15:00
+4,Science,melissa.thomas@school.com,5,15:00,16:00
+4,Art,daniel.jackson@school.com,5,15:00,16:00
+5,Mathematics,nicole.white@school.com,1,08:00,09:00
+5,English,christopher.harris@school.com,1,08:00,09:00
+5,Science,stephanie.martin@school.com,1,09:00,10:00
+5,Art,joseph.thompson@school.com,1,09:00,10:00
+5,Social Studies,michelle.garcia@school.com,1,10:00,11:00
+5,Physical Education,ryan.martinez@school.com,1,10:00,11:00
+5,Music,kimberly.robinson@school.com,1,14:00,15:00
+5,Computer Science,brandon.clark@school.com,1,14:00,15:00
+5,Mathematics,lauren.rodriguez@school.com,1,15:00,16:00
+5,English,justin.lewis@school.com,1,15:00,16:00
+5,Science,sarah.collins@school.com,2,08:00,09:00
+5,Art,michael.wilson@school.com,2,08:00,09:00
+5,Social Studies,jennifer.davis@school.com,2,09:00,10:00
+5,Physical Education,david.martinez@school.com,2,09:00,10:00
+5,Mathematics,lisa.anderson@school.com,2,10:00,11:00
+5,Music,robert.taylor@school.com,2,10:00,11:00
+5,English,patricia.brown@school.com,2,14:00,15:00
+5,Computer Science,christopher.lee@school.com,2,14:00,15:00
+5,Science,nancy.white@school.com,2,15:00,16:00
+5,Art,daniel.harris@school.com,2,15:00,16:00
+5,Social Studies,karen.thompson@school.com,3,08:00,09:00
+5,Physical Education,mark.garcia@school.com,3,08:00,09:00
+5,Mathematics,betty.martinez@school.com,3,09:00,10:00
+5,English,steven.robinson@school.com,3,09:00,10:00
+5,Science,michelle.clark@school.com,3,10:00,11:00
+5,Music,andrew.rodriguez@school.com,3,10:00,11:00
+5,Art,donna.lewis@school.com,3,14:00,15:00
+5,Computer Science,kevin.walker@school.com,3,14:00,15:00
+5,Social Studies,ruth.hall@school.com,3,15:00,16:00
+5,Physical Education,jason.allen@school.com,3,15:00,16:00
+5,Mathematics,emily.johnson@school.com,4,08:00,09:00
+5,English,james.smith@school.com,4,08:00,09:00
+5,Science,maria.garcia@school.com,4,09:00,10:00
+5,Art,william.brown@school.com,4,09:00,10:00
+5,Social Studies,jessica.davis@school.com,4,10:00,11:00
+5,Music,richard.miller@school.com,4,10:00,11:00
+5,Physical Education,ashley.wilson@school.com,4,14:00,15:00
+5,Computer Science,thomas.moore@school.com,4,14:00,15:00
+5,Mathematics,amanda.taylor@school.com,4,15:00,16:00
+5,English,matthew.anderson@school.com,4,15:00,16:00
+5,Science,melissa.thomas@school.com,5,08:00,09:00
+5,Art,daniel.jackson@school.com,5,08:00,09:00
+5,Social Studies,nicole.white@school.com,5,09:00,10:00
+5,Physical Education,christopher.harris@school.com,5,09:00,10:00
+5,Mathematics,stephanie.martin@school.com,5,10:00,11:00
+5,Music,joseph.thompson@school.com,5,10:00,11:00
+5,English,michelle.garcia@school.com,5,14:00,15:00
+5,Computer Science,ryan.martinez@school.com,5,14:00,15:00
+5,Science,kimberly.robinson@school.com,5,15:00,16:00
+5,Art,brandon.clark@school.com,5,15:00,16:00
+6,Mathematics,lauren.rodriguez@school.com,1,08:00,09:00
+6,English,justin.lewis@school.com,1,08:00,09:00
+6,Science,sarah.collins@school.com,1,09:00,10:00
+6,Art,michael.wilson@school.com,1,09:00,10:00
+6,Social Studies,jennifer.davis@school.com,1,10:00,11:00
+6,Physical Education,david.martinez@school.com,1,10:00,11:00
+6,Music,lisa.anderson@school.com,1,14:00,15:00
+6,Computer Science,robert.taylor@school.com,1,14:00,15:00
+6,Mathematics,patricia.brown@school.com,1,15:00,16:00
+6,English,christopher.lee@school.com,1,15:00,16:00
+6,Science,nancy.white@school.com,2,08:00,09:00
+6,Art,daniel.harris@school.com,2,08:00,09:00
+6,Social Studies,karen.thompson@school.com,2,09:00,10:00
+6,Physical Education,mark.garcia@school.com,2,09:00,10:00
+6,Mathematics,betty.martinez@school.com,2,10:00,11:00
+6,Music,steven.robinson@school.com,2,10:00,11:00
+6,English,michelle.clark@school.com,2,14:00,15:00
+6,Computer Science,andrew.rodriguez@school.com,2,14:00,15:00
+6,Science,donna.lewis@school.com,2,15:00,16:00
+6,Art,kevin.walker@school.com,2,15:00,16:00
+6,Social Studies,ruth.hall@school.com,3,08:00,09:00
+6,Physical Education,jason.allen@school.com,3,08:00,09:00
+6,Mathematics,emily.johnson@school.com,3,09:00,10:00
+6,English,james.smith@school.com,3,09:00,10:00
+6,Science,maria.garcia@school.com,3,10:00,11:00
+6,Music,william.brown@school.com,3,10:00,11:00
+6,Art,jessica.davis@school.com,3,14:00,15:00
+6,Computer Science,richard.miller@school.com,3,14:00,15:00
+6,Social Studies,ashley.wilson@school.com,3,15:00,16:00
+6,Physical Education,thomas.moore@school.com,3,15:00,16:00
+6,Mathematics,amanda.taylor@school.com,4,08:00,09:00
+6,English,matthew.anderson@school.com,4,08:00,09:00
+6,Science,melissa.thomas@school.com,4,09:00,10:00
+6,Art,daniel.jackson@school.com,4,09:00,10:00
+6,Social Studies,nicole.white@school.com,4,10:00,11:00
+6,Music,christopher.harris@school.com,4,10:00,11:00
+6,Physical Education,stephanie.martin@school.com,4,14:00,15:00
+6,Computer Science,joseph.thompson@school.com,4,14:00,15:00
+6,Mathematics,michelle.garcia@school.com,4,15:00,16:00
+6,English,ryan.martinez@school.com,4,15:00,16:00
+6,Science,kimberly.robinson@school.com,5,08:00,09:00
+6,Art,brandon.clark@school.com,5,08:00,09:00
+6,Social Studies,lauren.rodriguez@school.com,5,09:00,10:00
+6,Physical Education,justin.lewis@school.com,5,09:00,10:00
+6,Mathematics,sarah.collins@school.com,5,10:00,11:00
+6,Music,michael.wilson@school.com,5,10:00,11:00
+6,English,jennifer.davis@school.com,5,14:00,15:00
+6,Computer Science,david.martinez@school.com,5,14:00,15:00
+6,Science,lisa.anderson@school.com,5,15:00,16:00
+6,Art,robert.taylor@school.com,5,15:00,16:00
+7,Mathematics,patricia.brown@school.com,1,08:00,09:00
+7,English,christopher.lee@school.com,1,08:00,09:00
+7,Science,nancy.white@school.com,1,09:00,10:00
+7,Art,daniel.harris@school.com,1,09:00,10:00
+7,Social Studies,karen.thompson@school.com,1,10:00,11:00
+7,Physical Education,mark.garcia@school.com,1,10:00,11:00
+7,Music,betty.martinez@school.com,1,14:00,15:00
+7,Computer Science,steven.robinson@school.com,1,14:00,15:00
+7,Mathematics,michelle.clark@school.com,1,15:00,16:00
+7,English,andrew.rodriguez@school.com,1,15:00,16:00
+7,Science,donna.lewis@school.com,2,08:00,09:00
+7,Art,kevin.walker@school.com,2,08:00,09:00
+7,Social Studies,ruth.hall@school.com,2,09:00,10:00
+7,Physical Education,jason.allen@school.com,2,09:00,10:00
+7,Mathematics,emily.johnson@school.com,2,10:00,11:00
+7,Music,james.smith@school.com,2,10:00,11:00
+7,English,maria.garcia@school.com,2,14:00,15:00
+7,Computer Science,william.brown@school.com,2,14:00,15:00
+7,Science,jessica.davis@school.com,2,15:00,16:00
+7,Art,richard.miller@school.com,2,15:00,16:00
+7,Social Studies,ashley.wilson@school.com,3,08:00,09:00
+7,Physical Education,thomas.moore@school.com,3,08:00,09:00
+7,Mathematics,amanda.taylor@school.com,3,09:00,10:00
+7,English,matthew.anderson@school.com,3,09:00,10:00
+7,Science,melissa.thomas@school.com,3,10:00,11:00
+7,Music,daniel.jackson@school.com,3,10:00,11:00
+7,Art,nicole.white@school.com,3,14:00,15:00
+7,Computer Science,christopher.harris@school.com,3,14:00,15:00
+7,Social Studies,stephanie.martin@school.com,3,15:00,16:00
+7,Physical Education,joseph.thompson@school.com,3,15:00,16:00
+7,Mathematics,michelle.garcia@school.com,4,08:00,09:00
+7,English,ryan.martinez@school.com,4,08:00,09:00
+7,Science,kimberly.robinson@school.com,4,09:00,10:00
+7,Art,brandon.clark@school.com,4,09:00,10:00
+7,Social Studies,lauren.rodriguez@school.com,4,10:00,11:00
+7,Music,justin.lewis@school.com,4,10:00,11:00
+7,Physical Education,sarah.collins@school.com,4,14:00,15:00
+7,Computer Science,michael.wilson@school.com,4,14:00,15:00
+7,Mathematics,jennifer.davis@school.com,4,15:00,16:00
+7,English,david.martinez@school.com,4,15:00,16:00
+7,Science,lisa.anderson@school.com,5,08:00,09:00
+7,Art,robert.taylor@school.com,5,08:00,09:00
+7,Social Studies,patricia.brown@school.com,5,09:00,10:00
+7,Physical Education,christopher.lee@school.com,5,09:00,10:00
+7,Mathematics,nancy.white@school.com,5,10:00,11:00
+7,Music,daniel.harris@school.com,5,10:00,11:00
+7,English,karen.thompson@school.com,5,14:00,15:00
+7,Computer Science,mark.garcia@school.com,5,14:00,15:00
+7,Science,betty.martinez@school.com,5,15:00,16:00
+7,Art,steven.robinson@school.com,5,15:00,16:00
+8,Mathematics,michelle.clark@school.com,1,08:00,09:00
+8,English,andrew.rodriguez@school.com,1,08:00,09:00
+8,Science,donna.lewis@school.com,1,09:00,10:00
+8,Art,kevin.walker@school.com,1,09:00,10:00
+8,Social Studies,ruth.hall@school.com,1,10:00,11:00
+8,Physical Education,jason.allen@school.com,1,10:00,11:00
+8,Music,emily.johnson@school.com,1,14:00,15:00
+8,Computer Science,james.smith@school.com,1,14:00,15:00
+8,Mathematics,maria.garcia@school.com,1,15:00,16:00
+8,English,william.brown@school.com,1,15:00,16:00
+8,Science,jessica.davis@school.com,2,08:00,09:00
+8,Art,richard.miller@school.com,2,08:00,09:00
+8,Social Studies,ashley.wilson@school.com,2,09:00,10:00
+8,Physical Education,thomas.moore@school.com,2,09:00,10:00
+8,Mathematics,amanda.taylor@school.com,2,10:00,11:00
+8,Music,matthew.anderson@school.com,2,10:00,11:00
+8,English,melissa.thomas@school.com,2,14:00,15:00
+8,Computer Science,daniel.jackson@school.com,2,14:00,15:00
+8,Science,nicole.white@school.com,2,15:00,16:00
+8,Art,christopher.harris@school.com,2,15:00,16:00
+8,Social Studies,stephanie.martin@school.com,3,08:00,09:00
+8,Physical Education,joseph.thompson@school.com,3,08:00,09:00
+8,Mathematics,michelle.garcia@school.com,3,09:00,10:00
+8,English,ryan.martinez@school.com,3,09:00,10:00
+8,Science,kimberly.robinson@school.com,3,10:00,11:00
+8,Music,brandon.clark@school.com,3,10:00,11:00
+8,Art,lauren.rodriguez@school.com,3,14:00,15:00
+8,Computer Science,justin.lewis@school.com,3,14:00,15:00
+8,Social Studies,sarah.collins@school.com,3,15:00,16:00
+8,Physical Education,michael.wilson@school.com,3,15:00,16:00
+8,Mathematics,jennifer.davis@school.com,4,08:00,09:00
+8,English,david.martinez@school.com,4,08:00,09:00
+8,Science,lisa.anderson@school.com,4,09:00,10:00
+8,Art,robert.taylor@school.com,4,09:00,10:00
+8,Social Studies,patricia.brown@school.com,4,10:00,11:00
+8,Music,christopher.lee@school.com,4,10:00,11:00
+8,Physical Education,nancy.white@school.com,4,14:00,15:00
+8,Computer Science,daniel.harris@school.com,4,14:00,15:00
+8,Mathematics,karen.thompson@school.com,4,15:00,16:00
+8,English,mark.garcia@school.com,4,15:00,16:00
+8,Science,betty.martinez@school.com,5,08:00,09:00
+8,Art,steven.robinson@school.com,5,08:00,09:00
+8,Social Studies,michelle.clark@school.com,5,09:00,10:00
+8,Physical Education,andrew.rodriguez@school.com,5,09:00,10:00
+8,Mathematics,donna.lewis@school.com,5,10:00,11:00
+8,Music,kevin.walker@school.com,5,10:00,11:00
+8,English,ruth.hall@school.com,5,14:00,15:00
+8,Computer Science,jason.allen@school.com,5,14:00,15:00
+8,Science,emily.johnson@school.com,5,15:00,16:00
+8,Art,james.smith@school.com,5,15:00,16:00
+9,Mathematics,maria.garcia@school.com,1,08:00,09:00
+9,English,william.brown@school.com,1,08:00,09:00
+9,Science,jessica.davis@school.com,1,09:00,10:00
+9,Art,richard.miller@school.com,1,09:00,10:00
+9,Social Studies,ashley.wilson@school.com,1,10:00,11:00
+9,Physical Education,thomas.moore@school.com,1,10:00,11:00
+9,Music,amanda.taylor@school.com,1,14:00,15:00
+9,Computer Science,matthew.anderson@school.com,1,14:00,15:00
+9,Mathematics,melissa.thomas@school.com,1,15:00,16:00
+9,English,daniel.jackson@school.com,1,15:00,16:00
+9,Science,nicole.white@school.com,2,08:00,09:00
+9,Art,christopher.harris@school.com,2,08:00,09:00
+9,Social Studies,stephanie.martin@school.com,2,09:00,10:00
+9,Physical Education,joseph.thompson@school.com,2,09:00,10:00
+9,Mathematics,michelle.garcia@school.com,2,10:00,11:00
+9,Music,ryan.martinez@school.com,2,10:00,11:00
+9,English,kimberly.robinson@school.com,2,14:00,15:00
+9,Computer Science,brandon.clark@school.com,2,14:00,15:00
+9,Science,lauren.rodriguez@school.com,2,15:00,16:00
 9,Art,justin.lewis@school.com,2,15:00,16:00
-9,Music,sarah.collins@school.com,2,16:00,17:00
-9,Computer Science,michael.wilson@school.com,2,17:00,18:00
-9,Mathematics,jennifer.davis@school.com,3,08:00,09:00
+9,Social Studies,sarah.collins@school.com,3,08:00,09:00
+9,Physical Education,michael.wilson@school.com,3,08:00,09:00
+9,Mathematics,jennifer.davis@school.com,3,09:00,10:00
 9,English,david.martinez@school.com,3,09:00,10:00
 9,Science,lisa.anderson@school.com,3,10:00,11:00
-9,Social Studies,robert.taylor@school.com,3,11:00,12:00
-9,Physical Education,patricia.brown@school.com,3,14:00,15:00
-9,Art,christopher.lee@school.com,3,15:00,16:00
-9,Music,nancy.white@school.com,3,16:00,17:00
-9,Computer Science,daniel.harris@school.com,3,17:00,18:00
+9,Music,robert.taylor@school.com,3,10:00,11:00
+9,Art,patricia.brown@school.com,3,14:00,15:00
+9,Computer Science,christopher.lee@school.com,3,14:00,15:00
+9,Social Studies,nancy.white@school.com,3,15:00,16:00
+9,Physical Education,daniel.harris@school.com,3,15:00,16:00
 9,Mathematics,karen.thompson@school.com,4,08:00,09:00
-9,English,mark.garcia@school.com,4,09:00,10:00
-9,Science,betty.martinez@school.com,4,10:00,11:00
-9,Social Studies,steven.robinson@school.com,4,11:00,12:00
-9,Physical Education,michelle.clark@school.com,4,14:00,15:00
-9,Art,andrew.rodriguez@school.com,4,15:00,16:00
-9,Music,donna.lewis@school.com,4,16:00,17:00
-9,Computer Science,kevin.walker@school.com,4,17:00,18:00
-9,Mathematics,ruth.hall@school.com,5,08:00,09:00
-9,English,jason.allen@school.com,5,09:00,10:00
-9,Science,emily.johnson@school.com,5,10:00,11:00
-9,Social Studies,james.smith@school.com,5,11:00,12:00
-9,Physical Education,maria.garcia@school.com,5,14:00,15:00
-9,Art,william.brown@school.com,5,15:00,16:00
-9,Music,jessica.davis@school.com,5,16:00,17:00
-9,Computer Science,richard.miller@school.com,5,17:00,18:00
-10,Mathematics,ashley.wilson@school.com,1,08:00,09:00
-10,English,thomas.moore@school.com,1,09:00,10:00
-10,Science,amanda.taylor@school.com,1,10:00,11:00
-10,Social Studies,matthew.anderson@school.com,1,11:00,12:00
-10,Physical Education,melissa.thomas@school.com,1,14:00,15:00
-10,Art,daniel.jackson@school.com,1,15:00,16:00
-10,Music,nicole.white@school.com,1,16:00,17:00
-10,Computer Science,christopher.harris@school.com,1,17:00,18:00
-10,Mathematics,stephanie.martin@school.com,2,08:00,09:00
-10,English,joseph.thompson@school.com,2,09:00,10:00
-10,Science,michelle.garcia@school.com,2,10:00,11:00
-10,Social Studies,ryan.martinez@school.com,2,11:00,12:00
-10,Physical Education,kimberly.robinson@school.com,2,14:00,15:00
-10,Art,brandon.clark@school.com,2,15:00,16:00
-10,Music,lauren.rodriguez@school.com,2,16:00,17:00
-10,Computer Science,justin.lewis@school.com,2,17:00,18:00
-10,Mathematics,sarah.collins@school.com,3,08:00,09:00
-10,English,michael.wilson@school.com,3,09:00,10:00
-10,Science,jennifer.davis@school.com,3,10:00,11:00
-10,Social Studies,david.martinez@school.com,3,11:00,12:00
-10,Physical Education,lisa.anderson@school.com,3,14:00,15:00
-10,Art,robert.taylor@school.com,3,15:00,16:00
-10,Music,patricia.brown@school.com,3,16:00,17:00
-10,Computer Science,christopher.lee@school.com,3,17:00,18:00
-10,Mathematics,nancy.white@school.com,4,08:00,09:00
-10,English,daniel.harris@school.com,4,09:00,10:00
-10,Science,karen.thompson@school.com,4,10:00,11:00
-10,Social Studies,mark.garcia@school.com,4,11:00,12:00
-10,Physical Education,betty.martinez@school.com,4,14:00,15:00
-10,Art,steven.robinson@school.com,4,15:00,16:00
-10,Music,michelle.clark@school.com,4,16:00,17:00
-10,Computer Science,andrew.rodriguez@school.com,4,17:00,18:00
-10,Mathematics,donna.lewis@school.com,5,08:00,09:00
-10,English,kevin.walker@school.com,5,09:00,10:00
-10,Science,ruth.hall@school.com,5,10:00,11:00
-10,Social Studies,jason.allen@school.com,5,11:00,12:00
-10,Physical Education,emily.johnson@school.com,5,14:00,15:00
-10,Art,james.smith@school.com,5,15:00,16:00
-10,Music,maria.garcia@school.com,5,16:00,17:00
-10,Computer Science,william.brown@school.com,5,17:00,18:00
-11,Mathematics,jessica.davis@school.com,1,08:00,09:00
-11,English,richard.miller@school.com,1,09:00,10:00
-11,Science,ashley.wilson@school.com,1,10:00,11:00
-11,Social Studies,thomas.moore@school.com,1,11:00,12:00
-11,Physical Education,amanda.taylor@school.com,1,14:00,15:00
-11,Art,matthew.anderson@school.com,1,15:00,16:00
-11,Music,melissa.thomas@school.com,1,16:00,17:00
-11,Computer Science,daniel.jackson@school.com,1,17:00,18:00
-11,Mathematics,nicole.white@school.com,2,08:00,09:00
-11,English,christopher.harris@school.com,2,09:00,10:00
-11,Science,stephanie.martin@school.com,2,10:00,11:00
-11,Social Studies,joseph.thompson@school.com,2,11:00,12:00
-11,Physical Education,michelle.garcia@school.com,2,14:00,15:00
-11,Art,ryan.martinez@school.com,2,15:00,16:00
-11,Music,kimberly.robinson@school.com,2,16:00,17:00
-11,Computer Science,brandon.clark@school.com,2,17:00,18:00
-11,Mathematics,lauren.rodriguez@school.com,3,08:00,09:00
-11,English,justin.lewis@school.com,3,09:00,10:00
-11,Science,sarah.collins@school.com,3,10:00,11:00
-11,Social Studies,michael.wilson@school.com,3,11:00,12:00
-11,Physical Education,jennifer.davis@school.com,3,14:00,15:00
-11,Art,david.martinez@school.com,3,15:00,16:00
-11,Music,lisa.anderson@school.com,3,16:00,17:00
-11,Computer Science,robert.taylor@school.com,3,17:00,18:00
-11,Mathematics,patricia.brown@school.com,4,08:00,09:00
-11,English,christopher.lee@school.com,4,09:00,10:00
-11,Science,nancy.white@school.com,4,10:00,11:00
-11,Social Studies,daniel.harris@school.com,4,11:00,12:00
-11,Physical Education,karen.thompson@school.com,4,14:00,15:00
-11,Art,mark.garcia@school.com,4,15:00,16:00
-11,Music,betty.martinez@school.com,4,16:00,17:00
-11,Computer Science,steven.robinson@school.com,4,17:00,18:00
-11,Mathematics,michelle.clark@school.com,5,08:00,09:00
-11,English,andrew.rodriguez@school.com,5,09:00,10:00
-11,Science,donna.lewis@school.com,5,10:00,11:00
-11,Social Studies,kevin.walker@school.com,5,11:00,12:00
-11,Physical Education,ruth.hall@school.com,5,14:00,15:00
-11,Art,jason.allen@school.com,5,15:00,16:00
-11,Music,emily.johnson@school.com,5,16:00,17:00
-11,Computer Science,james.smith@school.com,5,17:00,18:00
-12,Mathematics,maria.garcia@school.com,1,08:00,09:00
-12,English,william.brown@school.com,1,09:00,10:00
-12,Science,jessica.davis@school.com,1,10:00,11:00
-12,Social Studies,richard.miller@school.com,1,11:00,12:00
-12,Physical Education,ashley.wilson@school.com,1,14:00,15:00
-12,Art,thomas.moore@school.com,1,15:00,16:00
-12,Music,amanda.taylor@school.com,1,16:00,17:00
-12,Computer Science,matthew.anderson@school.com,1,17:00,18:00
-12,Mathematics,melissa.thomas@school.com,2,08:00,09:00
-12,English,daniel.jackson@school.com,2,09:00,10:00
-12,Science,nicole.white@school.com,2,10:00,11:00
-12,Social Studies,christopher.harris@school.com,2,11:00,12:00
-12,Physical Education,stephanie.martin@school.com,2,14:00,15:00
-12,Art,joseph.thompson@school.com,2,15:00,16:00
-12,Music,michelle.garcia@school.com,2,16:00,17:00
-12,Computer Science,ryan.martinez@school.com,2,17:00,18:00
-12,Mathematics,kimberly.robinson@school.com,3,08:00,09:00
-12,English,brandon.clark@school.com,3,09:00,10:00
-12,Science,lauren.rodriguez@school.com,3,10:00,11:00
-12,Social Studies,justin.lewis@school.com,3,11:00,12:00
-12,Physical Education,sarah.collins@school.com,3,14:00,15:00
-12,Art,michael.wilson@school.com,3,15:00,16:00
-12,Music,jennifer.davis@school.com,3,16:00,17:00
-12,Computer Science,david.martinez@school.com,3,17:00,18:00
-12,Mathematics,lisa.anderson@school.com,4,08:00,09:00
-12,English,robert.taylor@school.com,4,09:00,10:00
-12,Science,patricia.brown@school.com,4,10:00,11:00
-12,Social Studies,christopher.lee@school.com,4,11:00,12:00
-12,Physical Education,nancy.white@school.com,4,14:00,15:00
-12,Art,daniel.harris@school.com,4,15:00,16:00
-12,Music,karen.thompson@school.com,4,16:00,17:00
-12,Computer Science,mark.garcia@school.com,4,17:00,18:00
-12,Mathematics,betty.martinez@school.com,5,08:00,09:00
-12,English,steven.robinson@school.com,5,09:00,10:00
-12,Science,michelle.clark@school.com,5,10:00,11:00
-12,Social Studies,andrew.rodriguez@school.com,5,11:00,12:00
-12,Physical Education,donna.lewis@school.com,5,14:00,15:00
-12,Art,kevin.walker@school.com,5,15:00,16:00
-12,Music,ruth.hall@school.com,5,16:00,17:00
-12,Computer Science,jason.allen@school.com,5,17:00,18:00
+9,English,mark.garcia@school.com,4,08:00,09:00
+9,Science,betty.martinez@school.com,4,09:00,10:00
+9,Art,steven.robinson@school.com,4,09:00,10:00
+9,Social Studies,michelle.clark@school.com,4,10:00,11:00
+9,Music,andrew.rodriguez@school.com,4,10:00,11:00
+9,Physical Education,donna.lewis@school.com,4,14:00,15:00
+9,Computer Science,kevin.walker@school.com,4,14:00,15:00
+9,Mathematics,ruth.hall@school.com,4,15:00,16:00
+9,English,jason.allen@school.com,4,15:00,16:00
+9,Science,emily.johnson@school.com,5,08:00,09:00
+9,Art,james.smith@school.com,5,08:00,09:00
+9,Social Studies,maria.garcia@school.com,5,09:00,10:00
+9,Physical Education,william.brown@school.com,5,09:00,10:00
+9,Mathematics,jessica.davis@school.com,5,10:00,11:00
+9,Music,richard.miller@school.com,5,10:00,11:00
+9,English,ashley.wilson@school.com,5,14:00,15:00
+9,Computer Science,thomas.moore@school.com,5,14:00,15:00
+9,Science,amanda.taylor@school.com,5,15:00,16:00
+9,Art,matthew.anderson@school.com,5,15:00,16:00
+10,Mathematics,melissa.thomas@school.com,1,08:00,09:00
+10,English,daniel.jackson@school.com,1,08:00,09:00
+10,Science,nicole.white@school.com,1,09:00,10:00
+10,Art,christopher.harris@school.com,1,09:00,10:00
+10,Social Studies,stephanie.martin@school.com,1,10:00,11:00
+10,Physical Education,joseph.thompson@school.com,1,10:00,11:00
+10,Music,michelle.garcia@school.com,1,14:00,15:00
+10,Computer Science,ryan.martinez@school.com,1,14:00,15:00
+10,Mathematics,kimberly.robinson@school.com,1,15:00,16:00
+10,English,brandon.clark@school.com,1,15:00,16:00
+10,Science,lauren.rodriguez@school.com,2,08:00,09:00
+10,Art,justin.lewis@school.com,2,08:00,09:00
+10,Social Studies,sarah.collins@school.com,2,09:00,10:00
+10,Physical Education,michael.wilson@school.com,2,09:00,10:00
+10,Mathematics,jennifer.davis@school.com,2,10:00,11:00
+10,Music,david.martinez@school.com,2,10:00,11:00
+10,English,lisa.anderson@school.com,2,14:00,15:00
+10,Computer Science,robert.taylor@school.com,2,14:00,15:00
+10,Science,patricia.brown@school.com,2,15:00,16:00
+10,Art,christopher.lee@school.com,2,15:00,16:00
+10,Social Studies,nancy.white@school.com,3,08:00,09:00
+10,Physical Education,daniel.harris@school.com,3,08:00,09:00
+10,Mathematics,karen.thompson@school.com,3,09:00,10:00
+10,English,mark.garcia@school.com,3,09:00,10:00
+10,Science,betty.martinez@school.com,3,10:00,11:00
+10,Music,steven.robinson@school.com,3,10:00,11:00
+10,Art,michelle.clark@school.com,3,14:00,15:00
+10,Computer Science,andrew.rodriguez@school.com,3,14:00,15:00
+10,Social Studies,donna.lewis@school.com,3,15:00,16:00
+10,Physical Education,kevin.walker@school.com,3,15:00,16:00
+10,Mathematics,ruth.hall@school.com,4,08:00,09:00
+10,English,jason.allen@school.com,4,08:00,09:00
+10,Science,emily.johnson@school.com,4,09:00,10:00
+10,Art,james.smith@school.com,4,09:00,10:00
+10,Social Studies,maria.garcia@school.com,4,10:00,11:00
+10,Music,william.brown@school.com,4,10:00,11:00
+10,Physical Education,jessica.davis@school.com,4,14:00,15:00
+10,Computer Science,richard.miller@school.com,4,14:00,15:00
+10,Mathematics,ashley.wilson@school.com,4,15:00,16:00
+10,English,thomas.moore@school.com,4,15:00,16:00
+10,Science,amanda.taylor@school.com,5,08:00,09:00
+10,Art,matthew.anderson@school.com,5,08:00,09:00
+10,Social Studies,melissa.thomas@school.com,5,09:00,10:00
+10,Physical Education,daniel.jackson@school.com,5,09:00,10:00
+10,Mathematics,nicole.white@school.com,5,10:00,11:00
+10,Music,christopher.harris@school.com,5,10:00,11:00
+10,English,stephanie.martin@school.com,5,14:00,15:00
+10,Computer Science,joseph.thompson@school.com,5,14:00,15:00
+10,Science,michelle.garcia@school.com,5,15:00,16:00
+10,Art,ryan.martinez@school.com,5,15:00,16:00
+11,Mathematics,kimberly.robinson@school.com,1,08:00,09:00
+11,English,brandon.clark@school.com,1,08:00,09:00
+11,Science,lauren.rodriguez@school.com,1,09:00,10:00
+11,Art,justin.lewis@school.com,1,09:00,10:00
+11,Social Studies,sarah.collins@school.com,1,10:00,11:00
+11,Physical Education,michael.wilson@school.com,1,10:00,11:00
+11,Music,jennifer.davis@school.com,1,14:00,15:00
+11,Computer Science,david.martinez@school.com,1,14:00,15:00
+11,Mathematics,lisa.anderson@school.com,1,15:00,16:00
+11,English,robert.taylor@school.com,1,15:00,16:00
+11,Science,patricia.brown@school.com,2,08:00,09:00
+11,Art,christopher.lee@school.com,2,08:00,09:00
+11,Social Studies,nancy.white@school.com,2,09:00,10:00
+11,Physical Education,daniel.harris@school.com,2,09:00,10:00
+11,Mathematics,karen.thompson@school.com,2,10:00,11:00
+11,Music,mark.garcia@school.com,2,10:00,11:00
+11,English,betty.martinez@school.com,2,14:00,15:00
+11,Computer Science,steven.robinson@school.com,2,14:00,15:00
+11,Science,michelle.clark@school.com,2,15:00,16:00
+11,Art,andrew.rodriguez@school.com,2,15:00,16:00
+11,Social Studies,donna.lewis@school.com,3,08:00,09:00
+11,Physical Education,kevin.walker@school.com,3,08:00,09:00
+11,Mathematics,ruth.hall@school.com,3,09:00,10:00
+11,English,jason.allen@school.com,3,09:00,10:00
+11,Science,emily.johnson@school.com,3,10:00,11:00
+11,Music,james.smith@school.com,3,10:00,11:00
+11,Art,maria.garcia@school.com,3,14:00,15:00
+11,Computer Science,william.brown@school.com,3,14:00,15:00
+11,Social Studies,jessica.davis@school.com,3,15:00,16:00
+11,Physical Education,richard.miller@school.com,3,15:00,16:00
+11,Mathematics,ashley.wilson@school.com,4,08:00,09:00
+11,English,thomas.moore@school.com,4,08:00,09:00
+11,Science,amanda.taylor@school.com,4,09:00,10:00
+11,Art,matthew.anderson@school.com,4,09:00,10:00
+11,Social Studies,melissa.thomas@school.com,4,10:00,11:00
+11,Music,daniel.jackson@school.com,4,10:00,11:00
+11,Physical Education,nicole.white@school.com,4,14:00,15:00
+11,Computer Science,christopher.harris@school.com,4,14:00,15:00
+11,Mathematics,stephanie.martin@school.com,4,15:00,16:00
+11,English,joseph.thompson@school.com,4,15:00,16:00
+11,Science,michelle.garcia@school.com,5,08:00,09:00
+11,Art,ryan.martinez@school.com,5,08:00,09:00
+11,Social Studies,kimberly.robinson@school.com,5,09:00,10:00
+11,Physical Education,brandon.clark@school.com,5,09:00,10:00
+11,Mathematics,lauren.rodriguez@school.com,5,10:00,11:00
+11,Music,justin.lewis@school.com,5,10:00,11:00
+11,English,sarah.collins@school.com,5,14:00,15:00
+11,Computer Science,michael.wilson@school.com,5,14:00,15:00
+11,Science,jennifer.davis@school.com,5,15:00,16:00
+11,Art,david.martinez@school.com,5,15:00,16:00
+12,Mathematics,lisa.anderson@school.com,1,08:00,09:00
+12,English,robert.taylor@school.com,1,08:00,09:00
+12,Science,patricia.brown@school.com,1,09:00,10:00
+12,Art,christopher.lee@school.com,1,09:00,10:00
+12,Social Studies,nancy.white@school.com,1,10:00,11:00
+12,Physical Education,daniel.harris@school.com,1,10:00,11:00
+12,Music,karen.thompson@school.com,1,14:00,15:00
+12,Computer Science,mark.garcia@school.com,1,14:00,15:00
+12,Mathematics,betty.martinez@school.com,1,15:00,16:00
+12,English,steven.robinson@school.com,1,15:00,16:00
+12,Science,michelle.clark@school.com,2,08:00,09:00
+12,Art,andrew.rodriguez@school.com,2,08:00,09:00
+12,Social Studies,donna.lewis@school.com,2,09:00,10:00
+12,Physical Education,kevin.walker@school.com,2,09:00,10:00
+12,Mathematics,ruth.hall@school.com,2,10:00,11:00
+12,Music,jason.allen@school.com,2,10:00,11:00
+12,English,emily.johnson@school.com,2,14:00,15:00
+12,Computer Science,james.smith@school.com,2,14:00,15:00
+12,Science,maria.garcia@school.com,2,15:00,16:00
+12,Art,william.brown@school.com,2,15:00,16:00
+12,Social Studies,jessica.davis@school.com,3,08:00,09:00
+12,Physical Education,richard.miller@school.com,3,08:00,09:00
+12,Mathematics,ashley.wilson@school.com,3,09:00,10:00
+12,English,thomas.moore@school.com,3,09:00,10:00
+12,Science,amanda.taylor@school.com,3,10:00,11:00
+12,Music,matthew.anderson@school.com,3,10:00,11:00
+12,Art,melissa.thomas@school.com,3,14:00,15:00
+12,Computer Science,daniel.jackson@school.com,3,14:00,15:00
+12,Social Studies,nicole.white@school.com,3,15:00,16:00
+12,Physical Education,christopher.harris@school.com,3,15:00,16:00
+12,Mathematics,stephanie.martin@school.com,4,08:00,09:00
+12,English,joseph.thompson@school.com,4,08:00,09:00
+12,Science,michelle.garcia@school.com,4,09:00,10:00
+12,Art,ryan.martinez@school.com,4,09:00,10:00
+12,Social Studies,kimberly.robinson@school.com,4,10:00,11:00
+12,Music,brandon.clark@school.com,4,10:00,11:00
+12,Physical Education,lauren.rodriguez@school.com,4,14:00,15:00
+12,Computer Science,justin.lewis@school.com,4,14:00,15:00
+12,Mathematics,sarah.collins@school.com,4,15:00,16:00
+12,English,michael.wilson@school.com,4,15:00,16:00
+12,Science,jennifer.davis@school.com,5,08:00,09:00
+12,Art,david.martinez@school.com,5,08:00,09:00
+12,Social Studies,lisa.anderson@school.com,5,09:00,10:00
+12,Physical Education,robert.taylor@school.com,5,09:00,10:00
+12,Mathematics,patricia.brown@school.com,5,10:00,11:00
+12,Music,christopher.lee@school.com,5,10:00,11:00
+12,English,nancy.white@school.com,5,14:00,15:00
+12,Computer Science,daniel.harris@school.com,5,14:00,15:00
+12,Science,karen.thompson@school.com,5,15:00,16:00
+12,Art,mark.garcia@school.com,5,15:00,16:00

@@ -313,6 +313,11 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
                               <span className='ml-2 text-sm max-sm:text-xs'>
                                 {formatTime(schedule.endTime)}
                               </span>
+                              {schedule.code && (
+                                <span className='ml-3 text-xs text-gray-500 dark:text-gray-400 font-mono max-sm:hidden'>
+                                  {schedule.code}
+                                </span>
+                              )}
                             </div>
                             {/* Action icons */}
                             <div className='flex space-x-2 ml-4'>

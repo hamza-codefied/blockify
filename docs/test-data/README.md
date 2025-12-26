@@ -136,10 +136,36 @@ To test error handling manually, you can:
 6. Remove `gradeLevels` from managers CSV (will fail - grades are required)
 7. Use non-existent grade names or levels (will fail if grades don't exist in system)
 
+## Schedule Assignment After Student Import
+
+**Important**: Students are imported **without schedules**. After importing students, you need to assign schedules to them.
+
+### Files for Schedule Assignment
+
+- **`student-schedule-assignment-guide.csv`**: Reference guide showing recommended non-conflicting schedule assignments for test students
+- **`SCHEDULE_ASSIGNMENT_GUIDE.md`**: Detailed guide on how to assign schedules without conflicts
+
+### Import Order
+
+1. **Import Managers** (`managers-import-test.csv`) - Required first
+2. **Import Schedules** (`schedules-import-test.csv`) - Depends on managers
+3. **Import Students** (`students-import-test.csv`) - Can be done after schedules
+4. **Assign Schedules** - Use the assignment guide to assign non-conflicting schedules
+
+### Schedule Assignment Notes
+
+- The `schedules-import-test.csv` file contains **overlapping schedules by design** (like real colleges/universities)
+- When assigning schedules to students, ensure no conflicts (same time slot)
+- The system will automatically reject conflicting schedule assignments
+- Use the assignment guide to ensure test students have valid, non-overlapping schedules
+- For error testing, intentionally assign conflicting schedules to test conflict detection
+
 ## Important Notes
 
 - **Grades must exist in the system** before importing students or managers
 - **Roles must exist in the system** before importing managers (default "manager" role exists, custom roles must be created first)
+- **Managers must be imported before schedules** (schedules reference manager emails)
+- **Schedules can be imported before or after students** (students don't need schedules during import)
 - Default grades (1-12) are automatically seeded when a school is created
 - For managers, you can use either:
   - `gradeLevels`: Comma-separated numbers (e.g., "1,2,3")

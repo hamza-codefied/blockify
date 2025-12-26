@@ -81,8 +81,12 @@ export const useUpdateStudent = () => {
     mutationFn: ({ studentId, data }) => updateStudent(studentId, data),
     onSuccess: (data, variables) => {
       message.success('Student updated successfully');
+      //>>> Invalidate all student-related queries
       queryClient.invalidateQueries({ queryKey: ['students'] });
       queryClient.invalidateQueries({ queryKey: ['students', variables.studentId] });
+      //>>> Invalidate schedules queries to refresh schedule selection state
+      //>>> This ensures the modal shows updated schedules when reopened
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
       return data;
     },
     onError: (error) => {

@@ -26,7 +26,8 @@ export const useGetSchedules = (params = {}, enabled = true) => {
     queryKey: ['schedules', params],
     queryFn: () => getSchedules(params),
     enabled: enabled,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 0, // Always refetch to get latest isSelected flags when studentId is provided
+    //>>> When studentId is in params, we want fresh data to show correct schedule selection state
   });
 };
 

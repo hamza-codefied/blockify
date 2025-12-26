@@ -2,11 +2,12 @@
 import React, { useEffect, useMemo } from 'react';
 import { Modal, Input, Form, Button, Select, Divider } from 'antd';
 import './UserModal.css';
-import { useUpdateStudent } from '@/hooks/useStudents';
+import { useGetStudent, useUpdateStudent } from '@/hooks/useStudents';
 import { useUpdateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetRoles } from '@/hooks/useRoles';
 import { useGetSchedules } from '@/hooks/useSchedules';
+import { useQueryClient } from '@tanstack/react-query';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 import { ScheduleSelector } from './ScheduleSelector';
 
@@ -14,6 +15,8 @@ const { Option } = Select;
 
 export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => {
   const [form] = Form.useForm();
+  const [initialValues, setInitialValues] = React.useState(null);
+  const queryClient = useQueryClient();
   const updateStudentMutation = useUpdateStudent();
   const updateManagerMutation = useUpdateManager();
   
@@ -36,8 +39,24 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
     );
   }, [roles, activeTab]);
 
-  // Get selected grade ID for schedule fetching
+  // Get selected grade ID for schedule fetching (from form watch)
   const selectedGradeId = Form.useWatch('gradeId', form);
+  
+  // Also compute gradeId from user object for initial load (fallback)
+  const userGradeId = React.useMemo(() => {
+    if (!user || !grades.length || activeTab !== 'students') return null;
+    if (user.gradeName) {
+      const matchingGrade = grades.find(g => {
+        const displayName = formatGradeDisplayName(g);
+        return displayName === user.gradeName || g.gradeName === user.gradeName;
+      });
+      return matchingGrade?.id || null;
+    }
+    return null;
+  }, [user, grades, activeTab]);
+  
+  // Use selectedGradeId from form if available, otherwise fall back to userGradeId
+  const effectiveGradeId = selectedGradeId || userGradeId;
   
   // Get selected schedule IDs (must be at top level, not conditional)
   const selectedScheduleIds = Form.useWatch('scheduleIds', form) || [];
@@ -45,40 +64,67 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   // Fetch schedules for selected grade (students only)
   // When editing a student, include studentId to get isSelected flags
   const { data: schedulesData, isLoading: schedulesLoading } = useGetSchedules(
-    activeTab === 'students' && selectedGradeId
+    activeTab === 'students' && effectiveGradeId
       ? { 
-          gradeId: selectedGradeId, 
+          gradeId: effectiveGradeId, 
           limit: 1000,
           ...(user?.id && activeTab === 'students' ? { studentId: user.id } : {})
         }
       : {},
-    activeTab === 'students' && !!selectedGradeId
+    activeTab === 'students' && !!effectiveGradeId
   );
   // API returns: { success: true, message: "...", data: [...schedules...], pagination: {...} }
-  // So data is already the schedules array, not nested
-  const availableSchedules = Array.isArray(schedulesData?.data) ? schedulesData.data : (schedulesData?.data?.schedules || []);
+  // So data is already the schedules array
+  const availableSchedules = Array.isArray(schedulesData?.data) ? schedulesData.data : [];
 
-  // When schedules are loaded with isSelected flags, update form values
+  // Fetch latest student details (includes scheduleIds) when modal opens
+  const { data: studentDetailsData } = useGetStudent(
+    user?.id,
+    open && activeTab === 'students' && !!user?.id
+  );
+  const studentScheduleIdsFromAPI = Array.isArray(studentDetailsData?.data?.scheduleIds)
+    ? studentDetailsData.data.scheduleIds
+    : [];
+
+  // Invalidate and refetch schedules when modal opens for a student
+  // This ensures fresh data with correct isSelected flags
   useEffect(() => {
-    if (open && user && activeTab === 'students' && availableSchedules.length > 0) {
-      // Extract schedule IDs that are marked as selected from API
-      const selectedFromAPI = availableSchedules
-        .filter(schedule => schedule.isSelected === true)
-        .map(schedule => schedule.id);
-      
-      // Only update if we have selected schedules from API and form doesn't already have them
-      if (selectedFromAPI.length > 0) {
-        const currentScheduleIds = form.getFieldValue('scheduleIds') || [];
-        // Only update if they're different (to avoid infinite loops)
-        if (JSON.stringify(selectedFromAPI.sort()) !== JSON.stringify(currentScheduleIds.sort())) {
-          form.setFieldsValue({ scheduleIds: selectedFromAPI });
-        }
-      }
+    if (open && user && activeTab === 'students' && effectiveGradeId) {
+      // Invalidate schedules query to force refetch when modal opens
+      queryClient.invalidateQueries({ 
+        queryKey: ['schedules', { gradeId: effectiveGradeId, studentId: user.id }] 
+      });
+      // Also invalidate student details so scheduleIds are always fresh
+      queryClient.invalidateQueries({
+        queryKey: ['students', user.id]
+      });
     }
-  }, [availableSchedules, open, user, activeTab, form]);
+  }, [open, user, activeTab, effectiveGradeId, queryClient]);
+
+  // Student edit: always sync selected schedules from student details (single source of truth).
+  // Keep this independent from schedules list loading, so it works consistently on every open.
+  useEffect(() => {
+    if (!open || activeTab !== 'students' || !user?.id) return;
+    if (!studentDetailsData?.data) return;
+
+    form.setFieldsValue({ scheduleIds: studentScheduleIdsFromAPI });
+
+    setInitialValues(prev => {
+      const baseValues = prev || {
+        fullName: user.fullName,
+        email: user.email,
+        gradeId: effectiveGradeId || null,
+        status: user.status || 'active',
+      };
+      return {
+        ...baseValues,
+        scheduleIds: studentScheduleIdsFromAPI
+      };
+    });
+  }, [open, activeTab, user?.id, studentDetailsData?.data, studentScheduleIdsFromAPI, effectiveGradeId, form]);
 
   useEffect(() => {
-    if (open && user) {
+    if (open && user && grades.length > 0) {
       // Find grade ID from gradeName for students
       let gradeId = null;
       if (user.gradeName && grades.length > 0) {
@@ -104,7 +150,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         }).filter(Boolean);
       }
       
-      form.setFieldsValue({
+      const formValues = {
         fullName: user.fullName,
         email: user.email,
         gradeId: gradeId, // Use gradeId instead of gradeName
@@ -119,55 +165,118 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         guardian_email: user.guardian_email || null,
         guardian_address: user.guardian_address || null,
         guardian_zipcode: user.guardian_zipcode || null,
-        scheduleIds: user.scheduleIds || [], // Student's selected schedules
+        scheduleIds: [], // Will be updated by schedules useEffect after API loads with isSelected flags
         status: user.status,
-      });
+      };
+      
+      form.setFieldsValue(formValues);
+      //>>> Store initial values for change detection (without scheduleIds - will be set by schedules useEffect)
+      setInitialValues({ ...formValues, scheduleIds: [] });
     }
   }, [open, user, form, grades]);
 
   if (!user) return null;
+
+  //>>> Helper to compare arrays (for scheduleIds and gradeIds)
+  const arraysEqual = (a, b) => {
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+    if (a.length !== b.length) return false;
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
+    return sortedA.every((val, idx) => val === sortedB[idx]);
+  };
+
+  //>>> Helper to get only changed fields
+  const getChangedFields = (currentValues, initialValues) => {
+    const changed = {};
+    
+    for (const key in currentValues) {
+      const currentValue = currentValues[key];
+      const initialValue = initialValues[key];
+      
+      //>>> Handle arrays (scheduleIds, gradeIds)
+      if (Array.isArray(currentValue) || Array.isArray(initialValue)) {
+        if (!arraysEqual(currentValue || [], initialValue || [])) {
+          changed[key] = currentValue || [];
+        }
+      }
+      //>>> Handle null/undefined/empty string normalization
+      else if (currentValue !== initialValue) {
+        //>>> Only include if value actually changed (not just null -> null)
+        if (currentValue !== null && currentValue !== undefined && currentValue !== '') {
+          changed[key] = currentValue;
+        } else if (initialValue !== null && initialValue !== undefined && initialValue !== '') {
+          //>>> Field was cleared
+          changed[key] = null;
+        }
+      }
+    }
+    
+    return changed;
+  };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       
       if (activeTab === 'students') {
-        // Convert gradeId to gradeName
-        const selectedGrade = grades.find(g => g.id === values.gradeId);
-        const updateData = {
-          fullName: values.fullName,
-          email: values.email,
-          gradeName: selectedGrade?.gradeName || values.gradeName, // Use gradeName from selected grade
-          phone: values.phone || null,
-          address: values.address || null,
-          zipcode: values.zipcode || null,
-          guardian_name: values.guardian_name || null,
-          guardian_phone: values.guardian_phone || null,
-          guardian_email: values.guardian_email || null,
-          guardian_address: values.guardian_address || null,
-          guardian_zipcode: values.guardian_zipcode || null,
-          status: values.status,
-          scheduleIds: values.scheduleIds || [], // Optional array of schedule IDs (replaces all existing)
-          ...(values.password && { password: values.password }),
-        };
+        //>>> Get only changed fields
+        const changedFields = getChangedFields(values, initialValues || {});
+        
+        //>>> If nothing changed, don't send request
+        if (Object.keys(changedFields).length === 0) {
+          onClose();
+          return;
+        }
+        
+        //>>> Build update data with only changed fields
+        const updateData = {};
+        
+        if ('fullName' in changedFields) updateData.fullName = changedFields.fullName;
+        if ('email' in changedFields) updateData.email = changedFields.email;
+        if ('gradeId' in changedFields) {
+          const selectedGrade = grades.find(g => g.id === changedFields.gradeId);
+          updateData.gradeName = selectedGrade?.gradeName || changedFields.gradeName;
+        }
+        if ('phone' in changedFields) updateData.phone = changedFields.phone || null;
+        if ('address' in changedFields) updateData.address = changedFields.address || null;
+        if ('zipcode' in changedFields) updateData.zipcode = changedFields.zipcode || null;
+        if ('guardian_name' in changedFields) updateData.guardian_name = changedFields.guardian_name || null;
+        if ('guardian_phone' in changedFields) updateData.guardian_phone = changedFields.guardian_phone || null;
+        if ('guardian_email' in changedFields) updateData.guardian_email = changedFields.guardian_email || null;
+        if ('guardian_address' in changedFields) updateData.guardian_address = changedFields.guardian_address || null;
+        if ('guardian_zipcode' in changedFields) updateData.guardian_zipcode = changedFields.guardian_zipcode || null;
+        if ('status' in changedFields) updateData.status = changedFields.status;
+        if ('scheduleIds' in changedFields) updateData.scheduleIds = changedFields.scheduleIds || [];
+        if ('password' in changedFields && changedFields.password) updateData.password = changedFields.password;
         
         await updateStudentMutation.mutateAsync({
           studentId: user.id,
           data: updateData,
         });
       } else {
-        // Send gradeIds directly (UUIDs) - no need to convert to names
-        const updateData = {
-          fullName: values.fullName,
-          email: values.email,
-          roleId: values.roleId, // Required - UUID of role
-          phone: values.phone || null,
-          address: values.address || null,
-          zipcode: values.zipcode || null,
-          gradeIds: values.gradeIds || [], // Array of grade UUIDs (from dropdown selection)
-          status: values.status,
-          ...(values.password && { password: values.password }),
-        };
+        //>>> Get only changed fields
+        const changedFields = getChangedFields(values, initialValues || {});
+        
+        //>>> If nothing changed, don't send request
+        if (Object.keys(changedFields).length === 0) {
+          onClose();
+          return;
+        }
+        
+        //>>> Build update data with only changed fields
+        const updateData = {};
+        
+        if ('fullName' in changedFields) updateData.fullName = changedFields.fullName;
+        if ('email' in changedFields) updateData.email = changedFields.email;
+        if ('roleId' in changedFields) updateData.roleId = changedFields.roleId;
+        if ('phone' in changedFields) updateData.phone = changedFields.phone || null;
+        if ('address' in changedFields) updateData.address = changedFields.address || null;
+        if ('zipcode' in changedFields) updateData.zipcode = changedFields.zipcode || null;
+        if ('gradeIds' in changedFields) updateData.gradeIds = changedFields.gradeIds || [];
+        if ('status' in changedFields) updateData.status = changedFields.status;
+        if ('password' in changedFields && changedFields.password) updateData.password = changedFields.password;
         
         await updateManagerMutation.mutateAsync({
           managerId: user.id,
@@ -175,9 +284,9 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         });
       }
       
-      form.resetFields();
-      onClose();
+      //>>> Call onSuccess callback before closing to allow parent to refetch data
       if (onSuccess) onSuccess();
+      onClose();
     } catch (error) {
       console.error('Form validation or API error:', error);
     }
@@ -188,13 +297,18 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
     : updateManagerMutation.isPending;
 
   return (
-    <Modal
-      title={<div className="user-modal-header">{`Edit ${activeTab === 'students' ? 'Student' : 'Manager'}`}</div>}
-      open={open}
-      onCancel={onClose}
+      <Modal
+        title={<div className="user-modal-header">{`Edit ${activeTab === 'students' ? 'Student' : 'Manager'}`}</div>}
+        open={open}
+        destroyOnClose
+        onCancel={() => {
+          onClose();
+        }}
       footer={
         <div className="user-modal-footer">
-          <Button key="cancel" onClick={onClose}>
+          <Button key="cancel" onClick={() => {
+            onClose();
+          }}>
             Cancel
           </Button>
           <Button

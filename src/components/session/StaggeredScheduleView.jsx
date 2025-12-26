@@ -273,6 +273,11 @@ export const StaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
 
               <div className='text-gray-700 dark:text-white font-medium mb-2 text-sm'>
                 {schedule.name || `Schedule ${index + 1}`}
+                {schedule.code && (
+                  <span className='ml-2 text-xs text-gray-500 dark:text-gray-400 font-mono'>
+                    ({schedule.code})
+                  </span>
+                )}
               </div>
               <div className='w-full bg-white dark:bg-gray-800 p-2 flex flex-col items-center gap-2 text-center border-2 border-gray-200 dark:border-gray-700 rounded-lg'>
                 <div className='text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-semibold text-center py-1 w-[80px]'>
