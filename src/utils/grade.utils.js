@@ -3,15 +3,12 @@
  */
 
 /**
- * Format grade display name with section
- * @param {Object} grade - Grade object with gradeName and optional section
- * @returns {string} Formatted grade name (e.g., "8 A", "8 B", or just "8")
+ * Format grade display name (section field is ignored)
+ * @param {Object} grade - Grade object with gradeName
+ * @returns {string} Grade name (e.g., "8", "Grade 9")
  */
 export const formatGradeDisplayName = (grade) => {
   if (!grade) return '';
-  if (grade.section) {
-    return `${grade.gradeName} ${grade.section}`;
-  }
   return grade.gradeName || '';
 };
 

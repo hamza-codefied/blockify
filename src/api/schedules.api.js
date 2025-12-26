@@ -26,7 +26,7 @@ export const getScheduleById = async (scheduleId) => {
 
 /**
  * Create a new schedule
- * @param {Object} data - Schedule data (gradeId, managerId, subjectId, name?, dayOfWeek, startTime, endTime, exceptions?)
+ * @param {Object} data - Schedule data (gradeId, managerId, name, dayOfWeek, startTime, endTime, exceptions?, additionalGradeIds?)
  * @returns {Promise} API response with created schedule
  */
 export const createSchedule = async (data) => {
@@ -86,6 +86,23 @@ export const updateException = async (scheduleId, exceptionId, data) => {
  */
 export const deleteException = async (scheduleId, exceptionId) => {
   const response = await apiClient.delete(`/admin/schedules/${scheduleId}/exceptions/${exceptionId}`);
+  return response.data;
+};
+
+/**
+ * Import schedules from CSV
+ * @param {File} file - CSV file
+ * @returns {Promise} API response with import results
+ */
+export const importSchedulesCSV = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await apiClient.post('/admin/schedules/import', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

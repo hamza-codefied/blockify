@@ -21,7 +21,6 @@ import {
   getDefaultGradeQueryParams,
 } from '@/utils/grade.utils';
 import { useGetManagers } from '@/hooks/useManagers';
-import { useGetSubjects } from '@/hooks/useSubjects';
 
 const { Text } = Typography;
 
@@ -65,7 +64,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     return enableWeekendSessions ? ALL_DAY_NAMES : WEEKDAY_NAMES;
   }, [enableWeekendSessions]);
 
-  // Fetch grades, managers, and subjects
+  // Fetch grades and managers
   const { data: gradesData } = useGetGrades({
     page: 1,
     limit: 100,
@@ -76,14 +75,23 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     limit: 100,
     status: 'active',
   });
-  const { data: subjectsData } = useGetSubjects({
-    page: 1,
-    limit: 100,
-    status: 'active',
-  });
   const grades = gradesData?.data || [];
-  const managers = managersData?.data || [];
-  const subjects = subjectsData?.data || [];
+  //>>> Managers API returns { success: true, data: { managers: [...], pagination: {...} } }
+  const allManagers = managersData?.data?.managers || managersData?.data || [];
+
+  // Watch selected grade to filter managers
+  const selectedGradeId = Form.useWatch('gradeId', form);
+  
+  // Filter managers by selected grade
+  const managers = useMemo(() => {
+    if (!selectedGradeId) {
+      return []; // Don't show any managers until a grade is selected
+    }
+    return allManagers.filter(manager => {
+      // Check if manager has the selected grade in their gradeIds array
+      return manager.gradeIds && manager.gradeIds.includes(selectedGradeId);
+    });
+  }, [allManagers, selectedGradeId]);
 
   useEffect(() => {
     if (!open) {
@@ -91,6 +99,23 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
       setSelectedDays([]);
     }
   }, [open, form]);
+
+  //>>> Clear manager selection when grade changes
+  useEffect(() => {
+    if (selectedGradeId) {
+      const currentManagerId = form.getFieldValue('managerId');
+      if (currentManagerId) {
+        //>>> Check if current manager is still valid for the new grade
+        const currentManager = allManagers.find(m => m.id === currentManagerId);
+        if (!currentManager || !currentManager.gradeIds?.includes(selectedGradeId)) {
+          form.setFieldValue('managerId', undefined);
+        }
+      }
+    } else {
+      //>>> Clear manager if no grade is selected
+      form.setFieldValue('managerId', undefined);
+    }
+  }, [selectedGradeId, allManagers, form]);
 
   const toggleDay = day => {
     if (selectedDays.includes(day)) {
@@ -103,7 +128,12 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const { gradeId, managerId, subjectId, name } = values;
+      const { gradeId, managerId, name, additionalGradeIds } = values;
+
+      // Filter out primary grade from additional grades if it's included
+      const filteredAdditionalGradeIds = (additionalGradeIds || []).filter(
+        id => id !== gradeId
+      );
 
       // Create a schedule for each selected day with its specific times
       const schedulePromises = selectedDays.map(day => {
@@ -120,11 +150,11 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
         return createScheduleMutation.mutateAsync({
           gradeId,
           managerId,
-          subjectId,
-          name: name || null,
+          name: name.trim(),
           dayOfWeek,
           startTime: startTimeStr,
           endTime: endTimeStr,
+          additionalGradeIds: filteredAdditionalGradeIds.length > 0 ? filteredAdditionalGradeIds : undefined,
         });
       });
 
@@ -154,11 +184,34 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
       <Form form={form} layout='vertical'>
         {/* ===== Grade Select ===== */}
         <Form.Item
-          label='Grade'
+          label='Primary Grade'
           name='gradeId'
-          rules={[{ required: true, message: 'Please select grade' }]}
+          rules={[{ required: true, message: 'Please select primary grade' }]}
+          tooltip='The primary grade for this schedule. You can add additional grades below.'
         >
-          <Select placeholder='Select grade' loading={!gradesData}>
+          <Select placeholder='Select primary grade' loading={!gradesData}>
+            {grades.map(grade => (
+              <Select.Option key={grade.id} value={grade.id}>
+                {formatGradeDisplayName(grade)}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        {/* ===== Additional Grades Select ===== */}
+        <Form.Item
+          label='Additional Grades (Optional)'
+          name='additionalGradeIds'
+          tooltip='Select additional grades that can also use this schedule (e.g., for cross-grade classes)'
+        >
+          <Select
+            mode='multiple'
+            placeholder='Select additional grades (optional)'
+            loading={!gradesData}
+            filterOption={(input, option) =>
+              (option?.children?.toLowerCase() ?? '').includes(input.toLowerCase())
+            }
+          >
             {grades.map(grade => (
               <Select.Option key={grade.id} value={grade.id}>
                 {formatGradeDisplayName(grade)}
@@ -182,28 +235,17 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           </Select>
         </Form.Item>
 
-        {/* ===== Subject Select ===== */}
+        {/* ===== Course Name (Required) ===== */}
         <Form.Item
-          label='Subject'
-          name='subjectId'
-          rules={[{ required: true, message: 'Please select subject' }]}
-        >
-          <Select placeholder='Select subject' loading={!subjectsData}>
-            {subjects.map(subject => (
-              <Select.Option key={subject.id} value={subject.id}>
-                {subject.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {/* ===== Name (Optional) ===== */}
-        <Form.Item
-          label='Schedule Name (Optional)'
+          label='Course Name'
           name='name'
-          tooltip='Optional name for this schedule (e.g., "Morning Session", "Afternoon Session")'
+          rules={[
+            { required: true, message: 'Please enter course name' },
+            { whitespace: true, message: 'Course name cannot be empty' }
+          ]}
+          tooltip='Enter the course name for this schedule (e.g., "Math", "English", "Science")'
         >
-          <Input placeholder='e.g., Morning Session' maxLength={200} />
+          <Input placeholder='e.g., Math, English, Science' maxLength={200} />
         </Form.Item>
 
         {/* ===== Select Days (Mon–Fri) ===== */}
@@ -343,3 +385,5 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     </Modal>
   );
 };
+
+export default AddSessionModal;

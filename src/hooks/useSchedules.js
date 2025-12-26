@@ -12,17 +12,22 @@ import {
   createException,
   updateException,
   deleteException,
+  importSchedulesCSV,
 } from '@/api/schedules.api';
 import { message } from 'antd';
 
 /**
  * Hook for getting all schedules
+ * @param {Object} params - Query parameters (page, limit, gradeId, etc.)
+ * @param {boolean} enabled - Whether to enable the query (default: true)
  */
-export const useGetSchedules = (params = {}) => {
+export const useGetSchedules = (params = {}, enabled = true) => {
   return useQuery({
     queryKey: ['schedules', params],
     queryFn: () => getSchedules(params),
-    staleTime: 30 * 1000, // 30 seconds
+    enabled: enabled,
+    staleTime: 0, // Always refetch to get latest isSelected flags when studentId is provided
+    //>>> When studentId is in params, we want fresh data to show correct schedule selection state
   });
 };
 
@@ -177,6 +182,43 @@ export const useDeleteException = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to delete exception';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
+/**
+ * Hook for importing schedules from CSV
+ */
+export const useImportSchedulesCSV = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: importSchedulesCSV,
+    onSuccess: (data) => {
+      const { successful, failed, errorCSV } = data.data || {};
+      if (successful === 0 && failed > 0) {
+        //>>> All records failed - show concise message and let modal handle error CSV
+        message.warning(
+          `No schedules imported. All ${failed} row(s) failed. Download the error CSV file to see details.`,
+          5 // Show for 5 seconds
+        );
+      } else if (failed > 0) {
+        message.warning(
+          `Import completed: ${successful || 0} succeeded, ${failed || 0} failed`
+        );
+      } else {
+        message.success(`Successfully imported ${successful || 0} ${successful === 1 ? 'schedule' : 'schedules'}`);
+      }
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to import schedules';
       message.error(errorMessage);
       throw error;
     },

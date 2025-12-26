@@ -14,7 +14,8 @@ import {
   Pagination,
   Button,
 } from 'antd';
-import { TbEdit, TbEye, TbPlus, TbTrash } from 'react-icons/tb';
+import { PlusOutlined } from '@ant-design/icons';
+import { TbEdit, TbEye, TbTrash } from 'react-icons/tb';
 import { ManagerPermissionModal } from './ManagerPermissionModal';
 import { CreateRoleModal } from './CreateRoleModal';
 import { useGetRoles, useDeleteRole } from '@/hooks/useRoles';
@@ -129,9 +130,14 @@ export const PermissionManagement = () => {
             Permission Management
           </PageTitle>
           <Button
-            variant='primary'
-            icon={<TbPlus className='w-5 h-5' />}
+            type='primary'
+            icon={<PlusOutlined />}
             onClick={() => setOpenCreateModal(true)}
+            style={{
+              backgroundColor: '#00B894',
+              borderColor: '#00B894',
+            }}
+            className='hover:!bg-[#00b894] hover:!border-[#00b894]'
           >
             Create Role
           </Button>

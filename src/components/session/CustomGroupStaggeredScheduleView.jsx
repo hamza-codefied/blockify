@@ -82,7 +82,10 @@ export const CustomGroupStaggeredScheduleView = () => {
   };
 
   return (
-    <div className='w-full mx-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-2xl p-5 sm:p-8'>
+    <div 
+      className='w-full mx-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-2xl p-5 sm:p-8'
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       {/* Header */}
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-3'>
         <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
@@ -142,7 +145,7 @@ export const CustomGroupStaggeredScheduleView = () => {
           {selectedCustomGroupName || 'this custom group'} on {activeDay}
         </div>
       ) : (
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4'>
+        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4' style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {daySchedules.map((schedule, index) => (
             <div
               key={schedule.id}

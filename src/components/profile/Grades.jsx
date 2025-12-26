@@ -11,7 +11,8 @@ import {
   Pagination,
   Button,
 } from 'antd';
-import { TbEdit, TbPlus } from 'react-icons/tb';
+import { PlusOutlined } from '@ant-design/icons';
+import { TbEdit } from 'react-icons/tb';
 import './grades.css';
 import { GradeModal } from './GradeModal';
 import { RiDeleteBinLine } from 'react-icons/ri';
@@ -119,9 +120,14 @@ export const Grades = () => {
             Grades
           </PageTitle>
           <Button
-            variant='primary'
-            icon={<TbPlus className='w-5 h-5' />}
+            type='primary'
+            icon={<PlusOutlined />}
             onClick={handleAddClick}
+            style={{
+              backgroundColor: '#00B894',
+              borderColor: '#00B894',
+            }}
+            className='hover:!bg-[#00b894] hover:!border-[#00b894]'
           >
             Add Grade
           </Button>

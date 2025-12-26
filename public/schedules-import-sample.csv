@@ -1,0 +1,12 @@
+gradeLevel,courseName,managerEmail,dayOfWeek,startTime,endTime,additionalGradeIds
+8,Mathematics,sarah.manager@school.com,1,08:00,09:00,
+9,English,michael.teacher@school.com,1,09:00,10:00,
+10,Science,jennifer.admin@school.com,1,10:00,11:00,
+11,Social Studies,david.lead@school.com,2,11:00,12:00,
+12,Physical Education,lisa.coordinator@school.com,2,14:00,15:00,
+8,Art,sarah.manager@school.com,3,15:00,16:00,
+9,Music,michael.teacher@school.com,3,16:00,17:00,
+10,Computer Science,jennifer.admin@school.com,4,17:00,18:00,
+11,Mathematics,david.lead@school.com,5,08:00,09:00,"9,10"
+12,English,lisa.coordinator@school.com,5,09:00,10:00,"8,9"
+

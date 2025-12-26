@@ -26,7 +26,7 @@ export const getStudentById = async (studentId) => {
 
 /**
  * Create a new student
- * @param {Object} data - Student data (fullName, email, gradeId OR gradeName, password?, phone?, address?, zipcode?, guardian_name?, guardian_phone?, guardian_email?, guardian_address?, guardian_zipcode?, status?)
+ * @param {Object} data - Student data (fullName, email, gradeId OR gradeName, password?, phone?, address?, zipcode?, guardian_name?, guardian_phone?, guardian_email?, guardian_address?, guardian_zipcode?, status?, scheduleIds?)
  * @returns {Promise} API response with created student (includes enrolledAt and contact/guardian fields)
  */
 export const createStudent = async (data) => {
@@ -37,7 +37,7 @@ export const createStudent = async (data) => {
 /**
  * Update student
  * @param {string} studentId - Student UUID
- * @param {Object} data - Updated student data
+ * @param {Object} data - Updated student data (scheduleIds? - optional array to update student's schedules)
  * @returns {Promise} API response with updated student
  */
 export const updateStudent = async (studentId, data) => {

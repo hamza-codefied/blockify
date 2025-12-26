@@ -4,6 +4,7 @@ import { RiDeleteBinLine } from 'react-icons/ri';
 import { TbEdit } from 'react-icons/tb';
 import '@/components/session/early-session-requests.css';
 import { Select, Modal, Form, Button, Spin, Empty } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import {
   useGetSchedules,
   useDeleteSchedule,
@@ -12,6 +13,7 @@ import {
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useAuthStore } from '@/store/authStore';
+import { PERMISSIONS } from '@/utils/permissions';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
 import { formatTime } from '@/utils/time';
@@ -42,8 +44,8 @@ const ALL_DAY_NUMBERS = {
   Sunday: 0,
 };
 
-export const StaggeredScheduleView = () => {
-  const { user } = useAuthStore();
+export const StaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
+  const { user, hasPermission } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
 
   // Fetch school settings to check enableWeekendSessions
@@ -60,6 +62,7 @@ export const StaggeredScheduleView = () => {
 
   const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [selectedGradeName, setSelectedGradeName] = useState(null);
+  const [selectedCourseName, setSelectedCourseName] = useState(null);
   const [activeDay, setActiveDay] = useState('Monday');
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -82,7 +85,7 @@ export const StaggeredScheduleView = () => {
     }
   }, [grades, selectedGradeId]);
 
-  // Fetch schedules filtered by grade
+  // Fetch all schedules for the selected grade (to populate course dropdown)
   const {
     data: schedulesData,
     isLoading,
@@ -90,11 +93,25 @@ export const StaggeredScheduleView = () => {
   } = useGetSchedules({
     gradeId: selectedGradeId,
     page: 1,
-    limit: 100,
-  });
+    limit: 1000, // Get all schedules to extract unique course names
+  }, !!selectedGradeId);
 
   const deleteScheduleMutation = useDeleteSchedule();
-  const schedules = schedulesData?.data || [];
+  const allSchedules = schedulesData?.data || [];
+
+  // Extract unique course names from schedules for the selected grade
+  const courseNames = useMemo(() => {
+    const uniqueNames = [...new Set(allSchedules.map(s => s.name).filter(Boolean))];
+    return uniqueNames.sort();
+  }, [allSchedules]);
+
+  // Filter schedules by selected course name - only show when both grade and course are selected
+  const schedules = useMemo(() => {
+    if (!selectedCourseName) {
+      return []; // Don't show any schedules if course is not selected
+    }
+    return allSchedules.filter(s => s.name === selectedCourseName);
+  }, [allSchedules, selectedCourseName]);
 
   // Get schedules for the active day
   const activeDayNumber = DAY_NUMBERS[activeDay];
@@ -106,6 +123,11 @@ export const StaggeredScheduleView = () => {
     const grade = grades.find(g => g.id === gradeId);
     setSelectedGradeId(gradeId);
     setSelectedGradeName(grade ? formatGradeDisplayName(grade) : null);
+    setSelectedCourseName(null); // Reset course when grade changes
+  };
+
+  const handleCourseChange = courseName => {
+    setSelectedCourseName(courseName);
   };
 
   const handleEdit = schedule => {
@@ -132,24 +154,64 @@ export const StaggeredScheduleView = () => {
   };
 
   return (
-    <div className='w-full mx-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-2xl p-5 sm:p-8'>
+    <div 
+      className='w-full mx-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-2xl p-5 sm:p-8'
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       {/* Header */}
-      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-3'>
-        <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
-          Manage Session Schedules
-        </h2>
-        <Select
-          value={selectedGradeId}
-          onChange={handleGradeChange}
-          size='small'
-          style={{ width: 140 }}
-          loading={!gradesData}
-          placeholder='Select Grade'
-          options={grades.map(grade => ({
-            value: grade.id,
-            label: formatGradeDisplayName(grade),
-          }))}
-        />
+      <div className='mb-10'>
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3'>
+          <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
+            Schedules
+          </h2>
+          {onAddSchedule && hasPermission(PERMISSIONS.SCHEDULES_CREATE) && (
+            <div className='flex gap-2'>
+              <button
+                onClick={onAddSchedule}
+                className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
+              >
+                Add Schedule +
+              </button>
+              {onImportCSV && (
+                <button
+                  onClick={onImportCSV}
+                  className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d] flex items-center gap-2'
+                >
+                  <UploadOutlined />
+                  Import CSV
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+        <div className='flex gap-2'>
+          <Select
+            value={selectedGradeId}
+            onChange={handleGradeChange}
+            size='small'
+            style={{ width: 140 }}
+            loading={!gradesData}
+            placeholder='Select Grade'
+            options={grades.map(grade => ({
+              value: grade.id,
+              label: formatGradeDisplayName(grade),
+            }))}
+          />
+          <Select
+            value={selectedCourseName}
+            onChange={handleCourseChange}
+            size='small'
+            style={{ width: 180 }}
+            loading={isLoading}
+            placeholder='Select Course'
+            allowClear
+            disabled={!selectedGradeId || courseNames.length === 0}
+            options={courseNames.map(courseName => ({
+              value: courseName,
+              label: courseName,
+            }))}
+          />
+        </div>
       </div>
 
       {/* Day Selector */}
@@ -182,13 +244,16 @@ export const StaggeredScheduleView = () => {
         <div className='text-center py-8 text-gray-500'>
           Please select a grade to view schedules
         </div>
+      ) : !selectedCourseName ? (
+        <div className='text-center py-8 text-gray-500'>
+          Please select a course to view schedules
+        </div>
       ) : daySchedules.length === 0 ? (
         <div className='text-center py-8 text-gray-500'>
-          No schedules found for {selectedGradeName || 'this grade'} on{' '}
-          {activeDay}
+          No schedules found for {selectedCourseName} in {selectedGradeName || 'this grade'} on {activeDay}
         </div>
       ) : (
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4'>
+        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4' style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {daySchedules.map((schedule, index) => (
             <div
               key={schedule.id}
@@ -208,12 +273,12 @@ export const StaggeredScheduleView = () => {
 
               <div className='text-gray-700 dark:text-white font-medium mb-2 text-sm'>
                 {schedule.name || `Schedule ${index + 1}`}
+                {schedule.code && (
+                  <span className='ml-2 text-xs text-gray-500 dark:text-gray-400 font-mono'>
+                    ({schedule.code})
+                  </span>
+                )}
               </div>
-              {schedule.subject && (
-                <div className='text-xs text-gray-500 dark:text-gray-400 mb-1'>
-                  {schedule.subject.name}
-                </div>
-              )}
               <div className='w-full bg-white dark:bg-gray-800 p-2 flex flex-col items-center gap-2 text-center border-2 border-gray-200 dark:border-gray-700 rounded-lg'>
                 <div className='text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-white font-semibold text-center py-1 w-[80px]'>
                   {formatTime(schedule.startTime)}

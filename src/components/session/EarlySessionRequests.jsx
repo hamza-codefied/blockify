@@ -73,6 +73,15 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
       style={{
         borderRadius: 12,
         boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      bodyStyle={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
       }}
     >
       <div className='flex justify-between items-center mb-4'>
@@ -97,7 +106,7 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
         )}
       </div>
 
-      <div className='early-session-wrapper'>
+      <div className='early-session-wrapper' style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         <Row
           justify='space-between'
           className='early-session-header'
@@ -127,10 +136,11 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
             <Empty description='No pending early session end requests' />
           </div>
         ) : (
-          <List
-            itemLayout='horizontal'
-            dataSource={requests}
-            renderItem={req => {
+          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+            <List
+              itemLayout='horizontal'
+              dataSource={requests}
+              renderItem={req => {
               const studentName = req.student?.fullName || 'Unknown';
               const studentGrade = req.student?.grade;
               const gradeName = studentGrade ? formatGradeDisplayName(studentGrade) : 'N/A';
@@ -182,7 +192,8 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
                 </List.Item>
               );
             }}
-          />
+            />
+          </div>
         )}
       </div>
 

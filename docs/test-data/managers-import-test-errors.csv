@@ -1,0 +1,22 @@
+fullName,email,password,roleName,gradeNames,phone,address,zipcode,status
+Tom New Manager,tom.new@school.com,NewPass123,manager,"1,2,3",+1-555-0201,"201 Manager St, City, State",20101,active
+Sarah Collins,sarah.collins@school.com,SecurePass123,manager,"1,2,3,4,5,6,7,8,9,10,11,12",+1-555-0101,"123 Main St, City, State",12345,active
+Amy Test Manager,amy.test@school.com,TestPass456,manager,"4,5,6",+1-555-0202,"202 Manager St, City, State",20102,active
+Michael Wilson,michael.wilson@school.com,ManagerPass456,manager,"1,2,3,4,5,6,7,8,9,10,11,12",+1-555-0102,"456 Oak Ave, City, State",12346,active
+Invalid Email Format,invalid-email-format,Pass123,manager,"7,8",+1-555-0203,"203 Manager St, City, State",20103,active
+Missing Name,,MissingPass,manager,"9,10",+1-555-0204,"204 Manager St, City, State",20104,active
+Ben Valid Manager,ben.valid@school.com,ValidPass789,manager,"11,12",+1-555-0205,"205 Manager St, City, State",20105,active
+Jennifer Davis,jennifer.davis@school.com,AdminPass789,manager,"1,2,3,4,5,6,7,8,9,10,11,12",+1-555-0103,"789 Pine Rd, City, State",12347,active
+Short Password,short.pass@school.com,Pass1,manager,"1,2",+1-555-0206,"206 Manager St, City, State",20106,active
+Carol New Manager,carol.new@school.com,NewPass2024,manager,"3,4,5",+1-555-0207,"207 Manager St, City, State",20107,active
+Missing Password,missing.pass@school.com,,manager,"6,7",+1-555-0208,"208 Manager St, City, State",20108,active
+David Martinez,david.martinez@school.com,SecureKey2024,manager,"1,2,3,4,5,6,7,8,9,10,11,12",+1-555-0104,"321 Elm St, City, State",12348,active
+Dan Test Manager,dan.test@school.com,TestPass2024,manager,"8,9",+1-555-0209,"209 Manager St, City, State",20109,active
+Invalid Role,invalid.role@school.com,RolePass123,invalid-role,"10,11",+1-555-0210,"210 Manager St, City, State",20110,active
+Eve Valid Manager,eve.valid@school.com,ValidPass2024,manager,"12",+1-555-0211,"211 Manager St, City, State",20111,active
+Lisa Anderson,lisa.anderson@school.com,Manager2024!,manager,"1,2,3,4,5,6,7,8,9,10,11,12",+1-555-0105,"654 Maple Dr, City, State",12349,active
+Missing Grades,missing.grades@school.com,GradesPass123,manager,,+1-555-0212,"212 Manager St, City, State",20112,active
+Frank New Manager,frank.new@school.com,NewPass2024!,manager,"1,2,3,4",+1-555-0213,"213 Manager St, City, State",20113,active
+Invalid Grade Names,invalid.grades@school.com,GradesPass123,manager,"99,100,101",+1-555-0214,"214 Manager St, City, State",20114,active
+Grace Test Manager,grace.test@school.com,TestPass2024@,manager,"5,6,7",+1-555-0215,"215 Manager St, City, State",20115,active
+

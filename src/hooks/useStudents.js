@@ -12,6 +12,7 @@ import {
   importStudentsCSV,
 } from '@/api/students.api';
 import { message } from 'antd';
+import { showScheduleConflictModal, formatScheduleConflictError } from '@/utils/errorFormatter.jsx';
 
 /**
  * Hook for getting all students
@@ -58,7 +59,13 @@ export const useCreateStudent = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to create student';
-      message.error(errorMessage);
+      
+      // Show schedule conflicts in a modal for better UX
+      if (showScheduleConflictModal(errorMessage)) {
+        // Modal was shown, don't show toast
+      } else {
+        message.error(errorMessage);
+      }
       throw error;
     },
   });
@@ -74,8 +81,12 @@ export const useUpdateStudent = () => {
     mutationFn: ({ studentId, data }) => updateStudent(studentId, data),
     onSuccess: (data, variables) => {
       message.success('Student updated successfully');
+      //>>> Invalidate all student-related queries
       queryClient.invalidateQueries({ queryKey: ['students'] });
       queryClient.invalidateQueries({ queryKey: ['students', variables.studentId] });
+      //>>> Invalidate schedules queries to refresh schedule selection state
+      //>>> This ensures the modal shows updated schedules when reopened
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
       return data;
     },
     onError: (error) => {
@@ -83,7 +94,13 @@ export const useUpdateStudent = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to update student';
-      message.error(errorMessage);
+      
+      // Show schedule conflicts in a modal for better UX
+      if (showScheduleConflictModal(errorMessage)) {
+        // Modal was shown, don't show toast
+      } else {
+        message.error(errorMessage);
+      }
       throw error;
     },
   });
@@ -121,8 +138,14 @@ export const useImportStudentsCSV = () => {
   return useMutation({
     mutationFn: importStudentsCSV,
     onSuccess: (data) => {
-      const { successful, failed } = data.data || {};
-      if (failed > 0) {
+      const { successful, failed, errorCSV } = data.data || {};
+      if (successful === 0 && failed > 0) {
+        //>>> All records failed - show concise message and let modal handle error CSV
+        message.warning(
+          `No students imported. All ${failed} row(s) failed. Download the error CSV file to see details.`,
+          5 // Show for 5 seconds
+        );
+      } else if (failed > 0) {
         message.warning(
           `Import completed: ${successful || 0} succeeded, ${failed || 0} failed`
         );

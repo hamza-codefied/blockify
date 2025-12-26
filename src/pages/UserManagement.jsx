@@ -402,9 +402,14 @@ export const UserManagement = () => {
               className='flex justify-center md:justify-end flex-wrap gap-2'
             >
               <Button
-                variant='primary'
-                icon={<PlusOutlined className='w-5 h-5' />}
+                type='primary'
+                icon={<PlusOutlined />}
                 onClick={() => setIsModalOpen(true)}
+                style={{
+                  backgroundColor: '#00B894',
+                  borderColor: '#00B894',
+                }}
+                className='hover:!bg-[#00b894] hover:!border-[#00b894]'
               >
                 Manually Add
               </Button>
