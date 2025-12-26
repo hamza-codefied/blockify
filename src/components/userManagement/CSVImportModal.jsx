@@ -4,6 +4,7 @@ import { Modal, Upload, Button, Typography, Alert } from 'antd';
 import { UploadOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useImportStudentsCSV } from '@/hooks/useStudents';
 import { useImportManagersCSV } from '@/hooks/useManagers';
+import { useImportSchedulesCSV } from '@/hooks/useSchedules';
 
 const { Text, Title } = Typography;
 const { Dragger } = Upload;
@@ -13,6 +14,7 @@ export const CSVImportModal = ({ open, onClose, activeTab, onSuccess }) => {
   const [fileList, setFileList] = useState([]);
   const importStudentsMutation = useImportStudentsCSV();
   const importManagersMutation = useImportManagersCSV();
+  const importSchedulesMutation = useImportSchedulesCSV();
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -71,8 +73,10 @@ export const CSVImportModal = ({ open, onClose, activeTab, onSuccess }) => {
     try {
       if (activeTab === 'students') {
         await importStudentsMutation.mutateAsync(file);
-      } else {
+      } else if (activeTab === 'managers') {
         await importManagersMutation.mutateAsync(file);
+      } else if (activeTab === 'schedules') {
+        await importSchedulesMutation.mutateAsync(file);
       }
       
       setFile(null);
@@ -86,15 +90,31 @@ export const CSVImportModal = ({ open, onClose, activeTab, onSuccess }) => {
 
   const isLoading = activeTab === 'students' 
     ? importStudentsMutation.isPending 
-    : importManagersMutation.isPending;
+    : activeTab === 'managers'
+    ? importManagersMutation.isPending
+    : importSchedulesMutation.isPending;
 
-  const csvFormat = activeTab === 'students' 
-    ? 'fullName, email, gradeLevel (required: 1-12, optional: password, status)'
-    : 'fullName, email, password (optional: department, status)';
+  const getCSVFormat = () => {
+    if (activeTab === 'students') {
+      return 'fullName, email, gradeLevel (required: 1-12, optional: password, status)';
+    } else if (activeTab === 'managers') {
+      return 'fullName, email, password, roleName, gradeNames (optional: phone, address, zipcode, status)';
+    } else if (activeTab === 'schedules') {
+      return 'gradeLevel (1-12), courseName, managerEmail, dayOfWeek (1-5 for Mon-Fri), startTime (HH:mm), endTime (HH:mm)';
+    }
+    return '';
+  };
+
+  const getTitle = () => {
+    if (activeTab === 'students') return 'Students';
+    if (activeTab === 'managers') return 'Managers';
+    if (activeTab === 'schedules') return 'Schedules';
+    return 'Data';
+  };
 
   return (
     <Modal
-      title={`Import ${activeTab === 'students' ? 'Students' : 'Managers'} from CSV`}
+      title={`Import ${getTitle()} from CSV`}
       open={open}
       onCancel={() => {
         setFile(null);
@@ -122,7 +142,7 @@ export const CSVImportModal = ({ open, onClose, activeTab, onSuccess }) => {
           message='CSV Format Required'
           description={
             <div>
-              <Text>Required columns: <strong>{csvFormat}</strong></Text>
+              <Text>Required columns: <strong>{getCSVFormat()}</strong></Text>
               <br />
               <Text type='secondary' className='text-xs'>
                 CSV must have a header row. Maximum file size: 10MB

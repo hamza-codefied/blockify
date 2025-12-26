@@ -6,10 +6,12 @@ import { HiMiniSignal } from 'react-icons/hi2';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
 import { Select, Spin } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import { useGetSchedules } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useAuthStore } from '@/store/authStore';
+import { PERMISSIONS } from '@/utils/permissions';
 import { useDeleteSchedule } from '@/hooks/useSchedules';
 import { formatTime } from '@/utils/time';
 import {
@@ -38,8 +40,8 @@ const ALL_DAY_NUMBERS = {
   Sunday: 0,
 };
 
-export const UnstaggeredScheduleView = () => {
-  const { user } = useAuthStore();
+export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
+  const { user, hasPermission } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
 
   // Fetch school settings to check enableWeekendSessions
@@ -79,7 +81,7 @@ export const UnstaggeredScheduleView = () => {
     }
   }, [grades, selectedGradeId]);
 
-  //>>> Fetch all schedules for the selected grade
+  //>>> Fetch all schedules for the selected grade (to populate course dropdown)
   const {
     data: schedulesData,
     isLoading,
@@ -101,10 +103,10 @@ export const UnstaggeredScheduleView = () => {
     return uniqueNames.sort();
   }, [allSchedules]);
 
-  //>>> Filter schedules by selected course name
+  //>>> Filter schedules by selected course name - only show when both grade and course are selected
   const schedules = useMemo(() => {
     if (!selectedCourseName) {
-      return allSchedules; // Show all if no course selected
+      return []; // Don't show any schedules if course is not selected
     }
     return allSchedules.filter(s => s.name === selectedCourseName);
   }, [allSchedules, selectedCourseName]);
@@ -183,12 +185,36 @@ export const UnstaggeredScheduleView = () => {
   };
 
   return (
-    <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
+    <div 
+      className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       {/* Header */}
-      <div className='flex justify-between items-center mb-14 max-sm:flex-col max-sm:items-start max-sm:gap-3'>
-        <h2 className='text-lg font-semibold max-sm:text-base text-gray-800 dark:text-gray-200'>
-          Manage Session Schedules
-        </h2>
+      <div className='mb-14'>
+        <div className='flex justify-between items-center mb-4 max-sm:flex-col max-sm:items-start max-sm:gap-3'>
+          <h2 className='text-lg font-semibold max-sm:text-base text-gray-800 dark:text-gray-200'>
+            Schedules
+          </h2>
+          {onAddSchedule && hasPermission(PERMISSIONS.SCHEDULES_CREATE) && (
+            <div className='flex gap-2'>
+              <button
+                onClick={onAddSchedule}
+                className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
+              >
+                Add Schedule +
+              </button>
+              {onImportCSV && (
+                <button
+                  onClick={onImportCSV}
+                  className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d] flex items-center gap-2'
+                >
+                  <UploadOutlined />
+                  Import CSV
+                </button>
+              )}
+            </div>
+          )}
+        </div>
         <div className='flex gap-2'>
           <Select
             value={selectedGradeId}
@@ -232,12 +258,16 @@ export const UnstaggeredScheduleView = () => {
         <div className='text-center py-4 text-gray-500'>
           Please select a grade to view schedules
         </div>
-      ) : allDaysWithSchedules.length === 0 ? (
+      ) : !selectedCourseName ? (
         <div className='text-center py-8 text-gray-500'>
-          No schedules found for {selectedGradeName || 'this grade'}
+          Please select a course to view schedules
+        </div>
+      ) : allDaysWithSchedules.length === 0 || allDaysWithSchedules.every(day => day.schedules.length === 0) ? (
+        <div className='text-center py-8 text-gray-500'>
+          No schedules found for {selectedCourseName} in {selectedGradeName || 'this grade'}
         </div>
       ) : (
-        <div className='flex flex-col justify-between gap-[25px]'>
+        <div className='flex flex-col justify-between gap-[28px]' style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {allDaysWithSchedules.map((dayData, index) => {
             const daySchedules = dayData.schedules || [];
             const hasSchedules = daySchedules.length > 0;
@@ -245,7 +275,8 @@ export const UnstaggeredScheduleView = () => {
             return (
               <div
                 key={index}
-                className={`relative py-4 flex flex-col gap-3 border-2 shadow-lg rounded-lg px-4 transition-all duration-300 ${
+                className={`relative py-4 flex items-center justify-between gap-5 border-2 shadow-lg rounded-lg px-4 transition-all duration-300
+                  max-sm:flex-col max-sm:items-start max-sm:gap-3 ${
                   dayData.active
                     ? 'bg-[#2f2f2f] dark:bg-gray-700 text-white border-[#2f2f2f] dark:border-gray-600'
                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
@@ -259,63 +290,55 @@ export const UnstaggeredScheduleView = () => {
                   </div>
                 )}
 
-                {/* Day Header */}
-                <div className='font-medium text-base max-sm:text-sm'>
-                  {dayData.day}
-                </div>
-
-                {/* Schedules for this day */}
-                {hasSchedules ? (
-                  <div className='flex flex-col gap-3'>
-                    {daySchedules.map((schedule, scheduleIndex) => (
-                      <div
-                        key={schedule.id || scheduleIndex}
-                        className='flex items-center justify-between gap-5 w-full'
-                      >
-                        {/* Time line */}
-                        <div className='flex flex-col gap-1 flex-1'>
-                          <div className='flex items-center justify-between w-full'>
-                            <span className='mr-2 text-sm max-sm:text-xs'>
-                              {formatTime(schedule.startTime)}
-                            </span>
-                            <div
-                              className='flex-1 mx-2 h-[1px] w-full lg:w-20'
-                              style={{ borderBottom: '3px dotted #00B894' }}
-                            ></div>
-                            <span className='ml-2 text-sm max-sm:text-xs'>
-                              {formatTime(schedule.endTime)}
-                            </span>
-                          </div>
-                          {schedule.name && (
-                            <div className='text-xs text-gray-500 dark:text-gray-400'>
-                              {schedule.name}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Action icons */}
-                        <div className='flex space-x-2'>
-                          <RiDeleteBinLine
-                            onClick={() => handleDelete(schedule)}
-                            className={`w-5 h-5 cursor-pointer ${
-                              dayData.active ? 'text-red-500' : 'text-[#801818]'
-                            }`}
-                          />
-                          <TbEdit
-                            onClick={() => handleEdit(schedule)}
-                            className={`w-5 h-5 cursor-pointer ${
-                              dayData.active ? 'text-green-500' : 'text-[#00B894]'
-                            }`}
-                          />
-                        </div>
-                      </div>
-                    ))}
+                <div className='flex flex-col sm:flex-row justify-start gap-24 max-md:gap-10 max-lg:gap-18 max-xl:gap-5 w-full'>
+                  {/* Day */}
+                  <div className='font-medium text-base max-sm:text-sm w-[100px]'>
+                    {dayData.day}
                   </div>
-                ) : (
-                  <span className='text-sm text-gray-400 italic'>
-                    No schedule
-                  </span>
-                )}
+
+                  {/* Time line */}
+                  <div className='flex items-center max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
+                    {hasSchedules ? (
+                      <div className='flex flex-col gap-3 w-full'>
+                        {daySchedules.map((schedule, scheduleIndex) => (
+                          <div key={schedule.id || scheduleIndex} className='flex items-center justify-between w-full'>
+                            <div className='flex items-center justify-between w-full max-sm:w-full'>
+                              <span className='mr-2 text-sm max-sm:text-xs'>
+                                {formatTime(schedule.startTime)}
+                              </span>
+                              <div
+                                className='flex-1 mx-2 h-[1px] w-full lg:w-20'
+                                style={{ borderBottom: '3px dotted #00B894' }}
+                              ></div>
+                              <span className='ml-2 text-sm max-sm:text-xs'>
+                                {formatTime(schedule.endTime)}
+                              </span>
+                            </div>
+                            {/* Action icons */}
+                            <div className='flex space-x-2 ml-4'>
+                              <RiDeleteBinLine
+                                onClick={() => handleDelete(schedule)}
+                                className={`w-5 h-5 cursor-pointer ${
+                                  dayData.active ? 'text-red-500' : 'text-[#801818]'
+                                }`}
+                              />
+                              <TbEdit
+                                onClick={() => handleEdit(schedule)}
+                                className={`w-5 h-5 cursor-pointer ${
+                                  dayData.active ? 'text-green-500' : 'text-[#00B894]'
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className='text-sm text-gray-400 italic'>
+                        No schedule
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             );
           })}

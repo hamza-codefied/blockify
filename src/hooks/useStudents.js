@@ -12,6 +12,7 @@ import {
   importStudentsCSV,
 } from '@/api/students.api';
 import { message } from 'antd';
+import { showScheduleConflictModal, formatScheduleConflictError } from '@/utils/errorFormatter.jsx';
 
 /**
  * Hook for getting all students
@@ -58,7 +59,13 @@ export const useCreateStudent = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to create student';
-      message.error(errorMessage);
+      
+      // Show schedule conflicts in a modal for better UX
+      if (showScheduleConflictModal(errorMessage)) {
+        // Modal was shown, don't show toast
+      } else {
+        message.error(errorMessage);
+      }
       throw error;
     },
   });
@@ -83,7 +90,13 @@ export const useUpdateStudent = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to update student';
-      message.error(errorMessage);
+      
+      // Show schedule conflicts in a modal for better UX
+      if (showScheduleConflictModal(errorMessage)) {
+        // Modal was shown, don't show toast
+      } else {
+        message.error(errorMessage);
+      }
       throw error;
     },
   });

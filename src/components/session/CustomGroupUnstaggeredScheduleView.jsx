@@ -100,7 +100,10 @@ export const CustomGroupUnstaggeredScheduleView = () => {
   };
 
   return (
-    <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'>
+    <div 
+      className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       {/* Header */}
       <div className='flex justify-between items-center mb-14 max-sm:flex-col max-sm:items-start max-sm:gap-3'>
         <h2 className='text-lg font-semibold max-sm:text-base text-gray-800 dark:text-gray-200'>
@@ -139,7 +142,7 @@ export const CustomGroupUnstaggeredScheduleView = () => {
           {selectedCustomGroupName || 'this custom group'}
         </div>
       ) : (
-        <div className='flex flex-col justify-between gap-[28px]'>
+        <div className='flex flex-col justify-between gap-[28px]' style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {allDaysWithSchedules.map(dayData => {
             const schedule = dayData.schedule;
             const hasSchedule = !!schedule;

@@ -4,6 +4,7 @@ import { RiDeleteBinLine } from 'react-icons/ri';
 import { TbEdit } from 'react-icons/tb';
 import '@/components/session/early-session-requests.css';
 import { Select, Modal, Form, Button, Spin, Empty } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import {
   useGetSchedules,
   useDeleteSchedule,
@@ -12,6 +13,7 @@ import {
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useAuthStore } from '@/store/authStore';
+import { PERMISSIONS } from '@/utils/permissions';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
 import { formatTime } from '@/utils/time';
@@ -42,8 +44,8 @@ const ALL_DAY_NUMBERS = {
   Sunday: 0,
 };
 
-export const StaggeredScheduleView = () => {
-  const { user } = useAuthStore();
+export const StaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
+  const { user, hasPermission } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
 
   // Fetch school settings to check enableWeekendSessions
@@ -83,7 +85,7 @@ export const StaggeredScheduleView = () => {
     }
   }, [grades, selectedGradeId]);
 
-  // Fetch all schedules for the selected grade
+  // Fetch all schedules for the selected grade (to populate course dropdown)
   const {
     data: schedulesData,
     isLoading,
@@ -103,10 +105,10 @@ export const StaggeredScheduleView = () => {
     return uniqueNames.sort();
   }, [allSchedules]);
 
-  // Filter schedules by selected course name
+  // Filter schedules by selected course name - only show when both grade and course are selected
   const schedules = useMemo(() => {
     if (!selectedCourseName) {
-      return allSchedules; // Show all if no course selected
+      return []; // Don't show any schedules if course is not selected
     }
     return allSchedules.filter(s => s.name === selectedCourseName);
   }, [allSchedules, selectedCourseName]);
@@ -152,12 +154,36 @@ export const StaggeredScheduleView = () => {
   };
 
   return (
-    <div className='w-full mx-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-2xl p-5 sm:p-8'>
+    <div 
+      className='w-full mx-auto bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-2xl p-5 sm:p-8'
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       {/* Header */}
-      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-3'>
-        <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
-          Manage Session Schedules
-        </h2>
+      <div className='mb-10'>
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3'>
+          <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
+            Schedules
+          </h2>
+          {onAddSchedule && hasPermission(PERMISSIONS.SCHEDULES_CREATE) && (
+            <div className='flex gap-2'>
+              <button
+                onClick={onAddSchedule}
+                className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
+              >
+                Add Schedule +
+              </button>
+              {onImportCSV && (
+                <button
+                  onClick={onImportCSV}
+                  className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d] flex items-center gap-2'
+                >
+                  <UploadOutlined />
+                  Import CSV
+                </button>
+              )}
+            </div>
+          )}
+        </div>
         <div className='flex gap-2'>
           <Select
             value={selectedGradeId}
@@ -218,13 +244,16 @@ export const StaggeredScheduleView = () => {
         <div className='text-center py-8 text-gray-500'>
           Please select a grade to view schedules
         </div>
+      ) : !selectedCourseName ? (
+        <div className='text-center py-8 text-gray-500'>
+          Please select a course to view schedules
+        </div>
       ) : daySchedules.length === 0 ? (
         <div className='text-center py-8 text-gray-500'>
-          No schedules found for {selectedGradeName || 'this grade'} on{' '}
-          {activeDay}
+          No schedules found for {selectedCourseName} in {selectedGradeName || 'this grade'} on {activeDay}
         </div>
       ) : (
-        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4'>
+        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4' style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {daySchedules.map((schedule, index) => (
             <div
               key={schedule.id}

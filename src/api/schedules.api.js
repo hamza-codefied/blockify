@@ -89,3 +89,20 @@ export const deleteException = async (scheduleId, exceptionId) => {
   return response.data;
 };
 
+/**
+ * Import schedules from CSV
+ * @param {File} file - CSV file
+ * @returns {Promise} API response with import results
+ */
+export const importSchedulesCSV = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await apiClient.post('/admin/schedules/import', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+

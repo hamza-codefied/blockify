@@ -16,6 +16,7 @@ import { SessionChart } from '@/components/session/SessionChart';
 import { AddSessionModal } from '@/components/session/AddSessionModal';
 import { SessionModal } from '@/components/session/SessionModal';
 import { StaggeredScheduleView } from '@/components/session/StaggeredScheduleView';
+import { CSVImportModal } from '@/components/userManagement/CSVImportModal';
 import { CustomGroupSessionChart } from '@/components/session/CustomGroupSessionChart';
 import { CustomGroupUnstaggeredScheduleView } from '@/components/session/CustomGroupUnstaggeredScheduleView';
 import { CustomGroupStaggeredScheduleView } from '@/components/session/CustomGroupStaggeredScheduleView';
@@ -40,6 +41,7 @@ export const Session = () => {
   const [openCustomGroupSessionModal, setOpenCustomGroupSessionModal] =
     useState(false); // For custom group sessions
   const [selectedCustomGroupId, setSelectedCustomGroupId] = useState(null); // Selected custom group for session creation
+  const [isCSVImportModalOpen, setIsCSVImportModalOpen] = useState(false); // For CSV import
 
   const { user, hasPermission } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
@@ -63,14 +65,6 @@ export const Session = () => {
       <div className='flex justify-between items-center mb-4'>
         <div></div>
         <div className='flex gap-2'>
-          {hasPermission(PERMISSIONS.SCHEDULES_CREATE) && (
-            <button
-              onClick={() => setOpenScheduleModal(true)}
-              className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
-            >
-              Add Schedule +
-            </button>
-          )}
           {hasPermission(PERMISSIONS.SESSIONS_CREATE) && (
             <button
               onClick={() => setOpenSessionModal(true)}
@@ -90,18 +84,32 @@ export const Session = () => {
       </LockedSection>
 
       <div className='grid grid-cols-1 xl:grid-cols-2 items-stretch gap-4 mt-4'>
-        <LockedSection 
-          permission={PERMISSIONS.REQUESTS_READ}
-          lockMessage="You do not have permission to view early end requests"
-        >
-          <EarlySessionRequests sessionType='grade' />
-        </LockedSection>
-        <LockedSection 
-          permission={PERMISSIONS.SCHEDULES_READ}
-          lockMessage="You do not have permission to view schedules"
-        >
-          {isStaggered ? <StaggeredScheduleView /> : <UnstaggeredScheduleView />}
-        </LockedSection>
+        <div style={{ display: 'flex', alignItems: 'stretch' }}>
+          <LockedSection 
+            permission={PERMISSIONS.REQUESTS_READ}
+            lockMessage="You do not have permission to view early end requests"
+          >
+            <EarlySessionRequests sessionType='grade' />
+          </LockedSection>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'stretch' }}>
+          <LockedSection 
+            permission={PERMISSIONS.SCHEDULES_READ}
+            lockMessage="You do not have permission to view schedules"
+          >
+            {isStaggered ? (
+              <StaggeredScheduleView 
+                onAddSchedule={() => setOpenScheduleModal(true)}
+                onImportCSV={() => setIsCSVImportModalOpen(true)}
+              />
+            ) : (
+              <UnstaggeredScheduleView 
+                onAddSchedule={() => setOpenScheduleModal(true)}
+                onImportCSV={() => setIsCSVImportModalOpen(true)}
+              />
+            )}
+          </LockedSection>
+        </div>
       </div>
 
       <div className='mt-4'>
@@ -163,22 +171,26 @@ export const Session = () => {
       </LockedSection>
 
       <div className='grid grid-cols-1 xl:grid-cols-2 items-stretch gap-4 mt-4'>
-        <LockedSection 
-          permission={PERMISSIONS.REQUESTS_READ}
-          lockMessage="You do not have permission to view early end requests"
-        >
-          <EarlySessionRequests sessionType='customGroup' />
-        </LockedSection>
-        <LockedSection 
-          permission={PERMISSIONS.SCHEDULES_READ}
-          lockMessage="You do not have permission to view custom group schedules"
-        >
-          {isStaggered ? (
-            <CustomGroupStaggeredScheduleView />
-          ) : (
-            <CustomGroupUnstaggeredScheduleView />
-          )}
-        </LockedSection>
+        <div style={{ display: 'flex', alignItems: 'stretch' }}>
+          <LockedSection 
+            permission={PERMISSIONS.REQUESTS_READ}
+            lockMessage="You do not have permission to view early end requests"
+          >
+            <EarlySessionRequests sessionType='customGroup' />
+          </LockedSection>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'stretch' }}>
+          <LockedSection 
+            permission={PERMISSIONS.SCHEDULES_READ}
+            lockMessage="You do not have permission to view custom group schedules"
+          >
+            {isStaggered ? (
+              <CustomGroupStaggeredScheduleView />
+            ) : (
+              <CustomGroupUnstaggeredScheduleView />
+            )}
+          </LockedSection>
+        </div>
       </div>
     </>
   );
@@ -268,6 +280,16 @@ export const Session = () => {
         customGroupId={selectedCustomGroupId}
         onSuccess={() => {
           setOpenCustomGroupSessionModal(false);
+        }}
+      />
+
+      {/* CSV Import Modal - For importing schedules */}
+      <CSVImportModal
+        open={isCSVImportModalOpen}
+        onClose={() => setIsCSVImportModalOpen(false)}
+        activeTab='schedules'
+        onSuccess={() => {
+          setIsCSVImportModalOpen(false);
         }}
       />
     </>

@@ -1,12 +1,14 @@
 'use client';
 import React, { useEffect, useMemo } from 'react';
-import { Modal, Form, Input, Select, Divider } from 'antd';
+import { Modal, Form, Input, Select, Divider, Button } from 'antd';
+import './UserModal.css';
 import { useCreateStudent } from '@/hooks/useStudents';
 import { useCreateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetRoles } from '@/hooks/useRoles';
 import { useGetSchedules } from '@/hooks/useSchedules';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { ScheduleSelector } from './ScheduleSelector';
 
 const { Option } = Select;
 
@@ -36,6 +38,9 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
 
   // Get selected grade ID for schedule fetching
   const selectedGradeId = Form.useWatch('gradeId', form);
+  
+  // Get selected schedule IDs (must be at top level, not conditional)
+  const selectedScheduleIds = Form.useWatch('scheduleIds', form) || [];
   
   // Fetch schedules for selected grade (students only)
   const { data: schedulesData, isLoading: schedulesLoading } = useGetSchedules(
@@ -120,38 +125,51 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
 
   return (
     <Modal
-      title={`Add ${activeTab === 'students' ? 'Student' : 'Manager'}`}
+      title={<div className="user-modal-header">{`Add ${activeTab === 'students' ? 'Student' : 'Manager'}`}</div>}
       open={open}
       onCancel={onClose}
-      onOk={handleSubmit}
-      okText='Save'
-      cancelText='Cancel'
-      confirmLoading={isLoading}
       centered
-      style={{ top: 0 }}
-      bodyStyle={{
-        maxHeight: '70vh',
-        overflowY: 'auto',
-        paddingRight: '12px',
-      }}
-      okButtonProps={{
-        style: {
-          backgroundColor: '#00B894',
-          borderColor: '#00B894',
+      className="user-modal-content"
+      styles={{
+        content: {
+          padding: 0,
         },
-        className: 'hover:!bg-[#00b894] hover:!border-[#00b894]',
-      }}
-      cancelButtonProps={{
-        style: {
-          borderColor: '#00B894',
+        body: {
+          padding: 0,
         },
-        className: 'hover:!text-[#00b894] hover:!border-[#00b894]',
+        header: {
+          padding: 0,
+        },
+        footer: {
+          padding: 0,
+        }
       }}
+      footer={
+        <div className="user-modal-footer">
+          <Button key="cancel" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            key="save"
+            type='primary'
+            loading={isLoading}
+            onClick={handleSubmit}
+            style={{
+              backgroundColor: '#00B894',
+              borderColor: '#00B894',
+            }}
+            className='hover:!bg-[#00b894] hover:!border-[#00b894]'
+          >
+            Save
+          </Button>
+        </div>
+      }
     >
-      <Form
-        form={form}
-        layout='vertical'
-        initialValues={{
+      <div className="user-modal-body">
+        <Form
+          form={form}
+          layout='vertical'
+          initialValues={{
           status: 'active',
         }}
       >
@@ -199,40 +217,19 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
               name='scheduleIds'
               tooltip='Select schedules for this student. Schedules must not conflict (same day, overlapping times).'
             >
-              <Select
-                mode="multiple"
-                placeholder={
-                  schedulesLoading 
-                    ? 'Loading schedules...' 
-                    : !selectedGradeId 
-                    ? 'Please select a grade first' 
-                    : availableSchedules.length === 0 
-                    ? 'No schedules available for this grade' 
-                    : 'Select schedules (optional)'
-                }
-                showSearch
-                loading={schedulesLoading}
-                filterOption={(input, option) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                }
-                options={availableSchedules.map(schedule => {
-                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                  const dayName = dayNames[schedule.dayOfWeek] || `Day ${schedule.dayOfWeek}`;
-                  const courseName = schedule.name || 'No Course Name';
-                  return {
-                    value: schedule.id,
-                    label: `${courseName} - ${dayName} ${schedule.startTime} - ${schedule.endTime}`
-                  };
-                })}
-                disabled={!selectedGradeId || schedulesLoading}
-                notFoundContent={
-                  schedulesLoading 
-                    ? 'Loading...' 
-                    : availableSchedules.length === 0 
-                    ? 'No schedules found' 
-                    : 'No results found'
-                }
-              />
+              {activeTab === 'students' && selectedGradeId ? (
+                <ScheduleSelector
+                  schedules={availableSchedules}
+                  selectedScheduleIds={selectedScheduleIds}
+                  onChange={(scheduleIds) => form.setFieldsValue({ scheduleIds })}
+                  loading={schedulesLoading}
+                  disabled={!selectedGradeId || schedulesLoading}
+                />
+              ) : (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                  {!selectedGradeId ? 'Please select a grade first' : 'Schedules are only available for students'}
+                </div>
+              )}
             </Form.Item>
 
             <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
@@ -415,7 +412,8 @@ export const AddUserModal = ({ open, onClose, activeTab, onSuccess }) => {
             <Option value='suspended'>Suspended</Option>
           </Select>
         </Form.Item>
-      </Form>
+        </Form>
+      </div>
     </Modal>
   );
 };

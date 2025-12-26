@@ -76,7 +76,22 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     status: 'active',
   });
   const grades = gradesData?.data || [];
-  const managers = managersData?.data || [];
+  //>>> Managers API returns { success: true, data: { managers: [...], pagination: {...} } }
+  const allManagers = managersData?.data?.managers || managersData?.data || [];
+
+  // Watch selected grade to filter managers
+  const selectedGradeId = Form.useWatch('gradeId', form);
+  
+  // Filter managers by selected grade
+  const managers = useMemo(() => {
+    if (!selectedGradeId) {
+      return []; // Don't show any managers until a grade is selected
+    }
+    return allManagers.filter(manager => {
+      // Check if manager has the selected grade in their gradeIds array
+      return manager.gradeIds && manager.gradeIds.includes(selectedGradeId);
+    });
+  }, [allManagers, selectedGradeId]);
 
   useEffect(() => {
     if (!open) {
@@ -84,6 +99,23 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
       setSelectedDays([]);
     }
   }, [open, form]);
+
+  //>>> Clear manager selection when grade changes
+  useEffect(() => {
+    if (selectedGradeId) {
+      const currentManagerId = form.getFieldValue('managerId');
+      if (currentManagerId) {
+        //>>> Check if current manager is still valid for the new grade
+        const currentManager = allManagers.find(m => m.id === currentManagerId);
+        if (!currentManager || !currentManager.gradeIds?.includes(selectedGradeId)) {
+          form.setFieldValue('managerId', undefined);
+        }
+      }
+    } else {
+      //>>> Clear manager if no grade is selected
+      form.setFieldValue('managerId', undefined);
+    }
+  }, [selectedGradeId, allManagers, form]);
 
   const toggleDay = day => {
     if (selectedDays.includes(day)) {

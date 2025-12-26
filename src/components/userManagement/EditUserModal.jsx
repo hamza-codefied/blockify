@@ -1,12 +1,14 @@
 'use client';
 import React, { useEffect, useMemo } from 'react';
 import { Modal, Input, Form, Button, Select, Divider } from 'antd';
+import './UserModal.css';
 import { useUpdateStudent } from '@/hooks/useStudents';
 import { useUpdateManager } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useGetRoles } from '@/hooks/useRoles';
 import { useGetSchedules } from '@/hooks/useSchedules';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { ScheduleSelector } from './ScheduleSelector';
 
 const { Option } = Select;
 
@@ -37,16 +39,43 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   // Get selected grade ID for schedule fetching
   const selectedGradeId = Form.useWatch('gradeId', form);
   
+  // Get selected schedule IDs (must be at top level, not conditional)
+  const selectedScheduleIds = Form.useWatch('scheduleIds', form) || [];
+  
   // Fetch schedules for selected grade (students only)
-  const { data: schedulesData } = useGetSchedules(
+  // When editing a student, include studentId to get isSelected flags
+  const { data: schedulesData, isLoading: schedulesLoading } = useGetSchedules(
     activeTab === 'students' && selectedGradeId
-      ? { gradeId: selectedGradeId, limit: 1000 }
+      ? { 
+          gradeId: selectedGradeId, 
+          limit: 1000,
+          ...(user?.id && activeTab === 'students' ? { studentId: user.id } : {})
+        }
       : {},
     activeTab === 'students' && !!selectedGradeId
   );
   // API returns: { success: true, message: "...", data: [...schedules...], pagination: {...} }
   // So data is already the schedules array, not nested
   const availableSchedules = Array.isArray(schedulesData?.data) ? schedulesData.data : (schedulesData?.data?.schedules || []);
+
+  // When schedules are loaded with isSelected flags, update form values
+  useEffect(() => {
+    if (open && user && activeTab === 'students' && availableSchedules.length > 0) {
+      // Extract schedule IDs that are marked as selected from API
+      const selectedFromAPI = availableSchedules
+        .filter(schedule => schedule.isSelected === true)
+        .map(schedule => schedule.id);
+      
+      // Only update if we have selected schedules from API and form doesn't already have them
+      if (selectedFromAPI.length > 0) {
+        const currentScheduleIds = form.getFieldValue('scheduleIds') || [];
+        // Only update if they're different (to avoid infinite loops)
+        if (JSON.stringify(selectedFromAPI.sort()) !== JSON.stringify(currentScheduleIds.sort())) {
+          form.setFieldsValue({ scheduleIds: selectedFromAPI });
+        }
+      }
+    }
+  }, [availableSchedules, open, user, activeTab, form]);
 
   useEffect(() => {
     if (open && user) {
@@ -160,11 +189,45 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
 
   return (
     <Modal
-      title={`Edit ${user.fullName || user.name}`}
+      title={<div className="user-modal-header">{`Edit ${activeTab === 'students' ? 'Student' : 'Manager'}`}</div>}
       open={open}
       onCancel={onClose}
-      footer={null}
+      footer={
+        <div className="user-modal-footer">
+          <Button key="cancel" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            key="save"
+            type='primary'
+            loading={isLoading}
+            onClick={handleSubmit}
+            style={{
+              backgroundColor: '#00B894',
+              borderColor: '#00B894',
+            }}
+            className='hover:!bg-[#00b894] hover:!border-[#00b894]'
+          >
+            Save Changes
+          </Button>
+        </div>
+      }
       centered
+      className="user-modal-content"
+      styles={{
+        content: {
+          padding: 0,
+        },
+        body: {
+          padding: 0,
+        },
+        header: {
+          padding: 0,
+        },
+        footer: {
+          padding: 0,
+        }
+      }}
       okButtonProps={{
         style: {
           backgroundColor: '#00B894',
@@ -178,7 +241,8 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         className: 'hover:!text-[#00b894] hover:!border-[#00b894]',
       }}
     >
-      <Form form={form} layout='vertical'>
+      <div className="user-modal-body">
+        <Form form={form} layout='vertical'>
         <Form.Item 
           label='Full Name' 
           name='fullName'
@@ -223,24 +287,19 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
               name='scheduleIds'
               tooltip='Select schedules for this student. Schedules must not conflict (same day, overlapping times).'
             >
-              <Select
-                mode="multiple"
-                placeholder='Select schedules (optional)'
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                }
-                options={availableSchedules.map(schedule => {
-                  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                  const dayName = dayNames[schedule.dayOfWeek] || `Day ${schedule.dayOfWeek}`;
-                  const courseName = schedule.name || 'No Course Name';
-                  return {
-                    value: schedule.id,
-                    label: `${courseName} - ${dayName} ${schedule.startTime} - ${schedule.endTime}`
-                  };
-                })}
-                disabled={!selectedGradeId}
-              />
+              {activeTab === 'students' && selectedGradeId ? (
+                <ScheduleSelector
+                  schedules={availableSchedules}
+                  selectedScheduleIds={selectedScheduleIds}
+                  onChange={(scheduleIds) => form.setFieldsValue({ scheduleIds })}
+                  loading={schedulesLoading}
+                  disabled={!selectedGradeId || schedulesLoading}
+                />
+              ) : (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                  {!selectedGradeId ? 'Please select a grade first' : 'Schedules are only available for students'}
+                </div>
+              )}
             </Form.Item>
 
             <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
@@ -424,23 +483,8 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
             <Option value='suspended'>Suspended</Option>
           </Select>
         </Form.Item>
-
-        <div className='flex justify-end mt-4 gap-2'>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button
-            type='primary'
-            loading={isLoading}
-            onClick={handleSubmit}
-            style={{
-              backgroundColor: '#00B894',
-              borderColor: '#00B894',
-            }}
-            className='hover:!bg-[#00b894] hover:!border-[#00b894]'
-          >
-            Save Changes
-          </Button>
-        </div>
-      </Form>
+        </Form>
+      </div>
     </Modal>
   );
 };

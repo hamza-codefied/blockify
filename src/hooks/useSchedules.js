@@ -12,6 +12,7 @@ import {
   createException,
   updateException,
   deleteException,
+  importSchedulesCSV,
 } from '@/api/schedules.api';
 import { message } from 'antd';
 
@@ -180,6 +181,37 @@ export const useDeleteException = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to delete exception';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
+/**
+ * Hook for importing schedules from CSV
+ */
+export const useImportSchedulesCSV = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: importSchedulesCSV,
+    onSuccess: (data) => {
+      const { successful, failed } = data.data || {};
+      if (failed > 0) {
+        message.warning(
+          `Import completed: ${successful || 0} succeeded, ${failed || 0} failed`
+        );
+      } else {
+        message.success(`Successfully imported ${successful || 0} ${successful === 1 ? 'schedule' : 'schedules'}`);
+      }
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to import schedules';
       message.error(errorMessage);
       throw error;
     },
