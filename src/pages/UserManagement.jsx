@@ -30,6 +30,7 @@ import { AddUserModal } from '@/components/userManagement/AddUserModal';
 import { EditUserModal } from '@/components/userManagement/EditUserModal';
 import { DeleteConfirmModal } from '@/components/userManagement/DeleteConfirmModal';
 import { CSVImportModal } from '@/components/userManagement/CSVImportModal';
+import { ScheduleAssignmentModal } from '@/components/userManagement/ScheduleAssignmentModal';
 import { useGetStudents } from '@/hooks/useStudents';
 import { useGetManagers } from '@/hooks/useManagers';
 import { useGetGrades } from '@/hooks/useGrades';
@@ -58,6 +59,7 @@ export const UserManagement = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCSVImportModalOpen, setIsCSVImportModalOpen] = useState(false);
+  const [isScheduleAssignmentModalOpen, setIsScheduleAssignmentModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   // Fetch grades for filter dropdown
@@ -420,6 +422,15 @@ export const UserManagement = () => {
               >
                 Import CSV
               </Button>
+              {activeTab === 'students' && (
+                <Button
+                  icon={<UploadOutlined />}
+                  className='hover:!border-[#00b894] hover:!text-[#00b894] rounded-lg'
+                  onClick={() => setIsScheduleAssignmentModalOpen(true)}
+                >
+                  Assign Schedules with CSV
+                </Button>
+              )}
             </Col>
           </Row>
 
@@ -695,6 +706,18 @@ export const UserManagement = () => {
         onSuccess={handleSuccess}
         activeTab={activeTab}
       />
+
+      {/* Schedule Assignment Modal - Only for students */}
+      {activeTab === 'students' && (
+        <ScheduleAssignmentModal
+          open={isScheduleAssignmentModalOpen}
+          onClose={() => setIsScheduleAssignmentModalOpen(false)}
+          onSuccess={() => {
+            setIsScheduleAssignmentModalOpen(false);
+            handleSuccess();
+          }}
+        />
+      )}
     </>
   );
 };

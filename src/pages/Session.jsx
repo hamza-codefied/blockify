@@ -15,6 +15,7 @@ import { UnstaggeredScheduleView } from '@/components/session/UnstaggeredSchedul
 import { SessionChart } from '@/components/session/SessionChart';
 import { AddSessionModal } from '@/components/session/AddSessionModal';
 import { SessionModal } from '@/components/session/SessionModal';
+import { useCreateUpcomingSessions } from '@/hooks/useSessions';
 import { StaggeredScheduleView } from '@/components/session/StaggeredScheduleView';
 import { CSVImportModal } from '@/components/userManagement/CSVImportModal';
 import { CustomGroupSessionChart } from '@/components/session/CustomGroupSessionChart';
@@ -45,6 +46,7 @@ export const Session = () => {
 
   const { user, hasPermission } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
+  const createUpcomingSessionsMutation = useCreateUpcomingSessions();
 
   // Fetch school settings to determine staggered/unstaggered
   const { data: settingsData } = useGetSchoolSettings(schoolId, !!schoolId);
@@ -67,10 +69,17 @@ export const Session = () => {
         <div className='flex gap-2'>
           {hasPermission(PERMISSIONS.SESSIONS_CREATE) && (
             <button
-              onClick={() => setOpenSessionModal(true)}
-              className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d]'
+              onClick={async () => {
+                try {
+                  await createUpcomingSessionsMutation.mutateAsync();
+                } catch (error) {
+                  // Error handling is done in the hook
+                }
+              }}
+              disabled={createUpcomingSessionsMutation.isPending}
+              className='bg-[#00B894] text-white font-semibold text-sm px-4 py-2 rounded-[4px] hover:bg-[#019a7d] disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              Add Session +
+              {createUpcomingSessionsMutation.isPending ? 'Creating...' : 'Create Upcoming Sessions'}
             </button>
           )}
         </div>
@@ -97,17 +106,11 @@ export const Session = () => {
             permission={PERMISSIONS.SCHEDULES_READ}
             lockMessage="You do not have permission to view schedules"
           >
-            {isStaggered ? (
-              <StaggeredScheduleView 
-                onAddSchedule={() => setOpenScheduleModal(true)}
-                onImportCSV={() => setIsCSVImportModalOpen(true)}
-              />
-            ) : (
-              <UnstaggeredScheduleView 
-                onAddSchedule={() => setOpenScheduleModal(true)}
-                onImportCSV={() => setIsCSVImportModalOpen(true)}
-              />
-            )}
+            {/* Use UnstaggeredScheduleView for both modes since schedules are now course-based */}
+            <UnstaggeredScheduleView 
+              onAddSchedule={() => setOpenScheduleModal(true)}
+              onImportCSV={() => setIsCSVImportModalOpen(true)}
+            />
           </LockedSection>
         </div>
       </div>

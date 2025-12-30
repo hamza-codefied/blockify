@@ -77,3 +77,12 @@ export const cancelSession = async (sessionId, data) => {
   return response.data;
 };
 
+/**
+ * Create upcoming sessions (for schedules starting within next 30 minutes)
+ * @returns {Promise} API response with creation summary (created, skipped, errors)
+ */
+export const createUpcomingSessions = async () => {
+  const response = await apiClient.post('/admin/sessions/create-upcoming');
+  return response.data;
+};
+

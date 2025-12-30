@@ -72,3 +72,19 @@ export const importStudentsCSV = async (file) => {
   return response.data;
 };
 
+/**
+ * Assign schedules to existing students from CSV
+ * @param {File} file - CSV file with email and schedules columns
+ * @returns {Promise} API response with assignment results
+ */
+export const assignSchedulesToStudentsCSV = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await apiClient.post('/admin/students/assign-schedules', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+

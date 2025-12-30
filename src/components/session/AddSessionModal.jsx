@@ -199,7 +199,8 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
         </Form.Item>
 
         {/* ===== Additional Grades Select ===== */}
-        <Form.Item
+        {/* Hidden for now - backend functionality kept intact for future use */}
+        {/* <Form.Item
           label='Additional Grades (Optional)'
           name='additionalGradeIds'
           tooltip='Select additional grades that can also use this schedule (e.g., for cross-grade classes)'
@@ -218,7 +219,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
               </Select.Option>
             ))}
           </Select>
-        </Form.Item>
+        </Form.Item> */}
 
         {/* ===== Manager Select ===== */}
         <Form.Item

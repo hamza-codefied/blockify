@@ -393,7 +393,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
         open={showWarningModal}
         onOk={handleWarningConfirm}
         onCancel={handleWarningCancel}
-        okText='Yes, Reset All Schedules'
+        okText='Yes, Unassign Student Schedules'
         cancelText='Cancel'
         okButtonProps={{
           danger: true,
@@ -406,13 +406,17 @@ const SettingsModal = ({ isOpen, onClose }) => {
       >
         <div className='py-4'>
           <p className='mb-4 text-gray-700 dark:text-gray-300'>
-            Changing the schedule type (Staggered/Unstaggered) will <strong>delete all existing schedules</strong> for all grades in your school.
+            Changing the schedule type (Staggered/Unstaggered) will <strong>unassign all schedules from students</strong> in your school.
           </p>
           <p className='mb-2 text-gray-700 dark:text-gray-300'>
-            This action cannot be undone. You will need to create new schedules after this change.
+            <strong>Schedules will remain intact</strong>, but students will need to have their schedules reassigned based on the new validation rules:
           </p>
+          <ul className='mb-4 ml-6 list-disc text-gray-700 dark:text-gray-300'>
+            <li><strong>Staggered:</strong> Students can have multiple schedules per day, but no overlapping times</li>
+            <li><strong>Unstaggered:</strong> Students can have only one schedule per day</li>
+          </ul>
           <p className='text-gray-600 dark:text-gray-400 text-sm'>
-            Are you sure you want to proceed?
+            You can reassign schedules to students after this change. Are you sure you want to proceed?
           </p>
         </div>
       </Modal>

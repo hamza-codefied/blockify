@@ -11,6 +11,7 @@ import {
   deleteSession,
   overrideSession,
   cancelSession,
+  createUpcomingSessions,
 } from '@/api/sessions.api';
 import { message } from 'antd';
 
@@ -152,6 +153,31 @@ export const useCancelSession = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to cancel session';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
+/**
+ * Hook for creating upcoming sessions (next 30 minutes)
+ */
+export const useCreateUpcomingSessions = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createUpcomingSessions,
+    onSuccess: (data) => {
+      const messageText = data?.data?.message || `Created ${data?.data?.created || 0} upcoming session(s)`;
+      message.success(messageText);
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create upcoming sessions';
       message.error(errorMessage);
       throw error;
     },

@@ -10,6 +10,7 @@ import {
   updateStudent,
   deleteStudent,
   importStudentsCSV,
+  assignSchedulesToStudentsCSV,
 } from '@/api/students.api';
 import { message } from 'antd';
 import { showScheduleConflictModal, formatScheduleConflictError } from '@/utils/errorFormatter.jsx';
@@ -160,6 +161,43 @@ export const useImportStudentsCSV = () => {
         error?.response?.data?.message ||
         error?.message ||
         'Failed to import students';
+      message.error(errorMessage);
+      throw error;
+    },
+  });
+};
+
+/**
+ * Hook for assigning schedules to students from CSV
+ */
+export const useAssignSchedulesToStudentsCSV = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: assignSchedulesToStudentsCSV,
+    onSuccess: (data) => {
+      const { successful, failed, errorCSV } = data.data || {};
+      if (successful === 0 && failed > 0) {
+        message.warning(
+          `No schedules assigned. All ${failed} row(s) failed. Download the error CSV file to see details.`,
+          5
+        );
+      } else if (failed > 0) {
+        message.warning(
+          `Assignment completed: ${successful || 0} succeeded, ${failed || 0} failed`
+        );
+      } else {
+        message.success(`Successfully assigned schedules to ${successful || 0} ${successful === 1 ? 'student' : 'students'}`);
+      }
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['schedules'] });
+      return data;
+    },
+    onError: (error) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to assign schedules';
       message.error(errorMessage);
       throw error;
     },
