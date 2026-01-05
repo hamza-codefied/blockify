@@ -205,7 +205,7 @@ export const Session = () => {
 
       <div>
         <div className='flex justify-between items-center mb-4'>
-          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
+          <PageTitle variant='primary'>
             Sessions
           </PageTitle>
         </div>

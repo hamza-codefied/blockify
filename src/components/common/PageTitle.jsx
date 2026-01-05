@@ -29,8 +29,9 @@ export const PageTitle = ({
 
   const baseClasses = variantClasses[variant];
   const combinedClassName = `${baseClasses} ${className}`.trim();
+  // Default marginBottom to 0, can be overridden with Tailwind classes (mb-*)
   // Only keep fontFamily in style since it can't be done with Tailwind
-  const combinedStyle = { fontFamily: 'Helvetica, Arial, sans-serif', ...style };
+  const combinedStyle = { fontFamily: 'Helvetica, Arial, sans-serif', marginBottom: 0, ...style };
 
   return (
     <AntTitle

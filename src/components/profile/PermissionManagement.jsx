@@ -126,7 +126,7 @@ export const PermissionManagement = () => {
             flexWrap: 'wrap',
           }}
         >
-          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
+          <PageTitle variant='primary'>
             Permission Management
           </PageTitle>
           <Button

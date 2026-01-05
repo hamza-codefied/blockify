@@ -28,7 +28,7 @@ export const Attendance = () => {
       <StructuredData structuredData={structuredData} />
 
       <div className=''>
-        <PageTitle variant="primary" style={{ marginBottom: 16 }}>Attendance</PageTitle>
+        <PageTitle variant="primary" className="mb-4">Attendance</PageTitle>
 
         <LockedSection 
           permission={PERMISSIONS.ATTENDANCE_READ}

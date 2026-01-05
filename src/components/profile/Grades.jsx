@@ -116,7 +116,7 @@ export const Grades = () => {
             flexWrap: 'wrap',
           }}
         >
-          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
+          <PageTitle variant='primary'>
             Grades
           </PageTitle>
           <Button

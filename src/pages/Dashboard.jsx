@@ -29,7 +29,7 @@ export const Dashboard = () => {
       />
       <StructuredData structuredData={structuredData} />
 
-      <PageTitle variant="primary" style={{ marginBottom: 16 }}>Dashboard</PageTitle>
+      <PageTitle variant="primary" className="mb-4">Dashboard</PageTitle>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>

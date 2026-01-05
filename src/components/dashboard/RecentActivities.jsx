@@ -11,18 +11,18 @@ dayjs.extend(relativeTime);
 // Get icon based on activity type and action
 const getActivityIcon = (activityType, action) => {
   if (action === 'created' || action === 'activated') {
-    if (activityType === 'user') return <LogIn className='text-gray-700' size={18} />;
-    if (activityType === 'system') return <Settings className='text-gray-700' size={18} />;
-    return <UserPlus className='text-gray-700' size={18} />;
+    if (activityType === 'user') return <LogIn className='text-gray-700 my-2' size={28} />;
+    if (activityType === 'system') return <Settings className='text-gray-700 my-2' size={28} />;
+    return <UserPlus className='text-gray-700 my-2' size={28} />;
   }
   if (action === 'deleted' || action === 'deactivated' || action === 'signed out') {
-    if (activityType === 'user') return <LogOut className='text-gray-700' size={18} />;
-    return <UserMinus className='text-gray-700' size={18} />;
+    if (activityType === 'user') return <LogOut className='text-gray-700 my-2' size={28} />;
+    return <UserMinus className='text-gray-700 my-2' size={28} />;
   }
   if (action === 'updated') {
-    return <Settings className='text-gray-700' size={18} />;
+    return <Settings className='text-gray-700 my-2' size={28} />;
   }
-  return <FileText className='text-gray-700' size={18} />;
+  return <FileText className='text-gray-700 my-2' size={28} />;
 };
 
 export default function RecentActivities() {
@@ -71,11 +71,11 @@ export default function RecentActivities() {
           {/* Vertical line */}
           <div className='absolute left-[13px] top-0 bottom-0 w-[2px] bg-[#00B894]' />
 
-          <div className='flex flex-col gap-6 pl-8'>
+          <div className='flex flex-col gap-8'>
             {displayedActivities.map((item) => (
               <div key={item.id} className='relative flex items-start'>
                 {/* Icon circle */}
-                <div className='absolute -left-[25px] bg-white dark:bg-gray-800 z-10 flex items-center justify-center'>
+                <div className='bg-white dark:bg-gray-800 mr-2 z-10 flex items-center justify-center'>
                   {item.icon}
                 </div>
 

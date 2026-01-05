@@ -148,7 +148,7 @@ export const CustomGroups = () => {
             flexWrap: 'wrap',
           }}
         >
-          <PageTitle variant='primary' style={{ marginBottom: 0 }}>
+          <PageTitle variant='primary'>
             Custom Groups
           </PageTitle>
           <Button

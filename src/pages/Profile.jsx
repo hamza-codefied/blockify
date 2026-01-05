@@ -28,7 +28,7 @@ export const Profile = () => {
       <StructuredData structuredData={structuredData} />
 
       <div>
-        <PageTitle variant="primary" style={{ marginBottom: 16 }}>Profile</PageTitle>
+        <PageTitle variant="primary" className="mb-4">Profile</PageTitle>
 
         <div 
           className='grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch'

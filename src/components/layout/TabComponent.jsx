@@ -2,11 +2,11 @@ import { Tabs } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import './tabs.css';
-import { LuLayoutDashboard } from 'react-icons/lu';
-import { IoMdStats } from 'react-icons/io';
-import { CgCalendar } from 'react-icons/cg';
-import { UserOutlined } from '@ant-design/icons';
-import { FaRegUserCircle } from 'react-icons/fa';
+import dashboardIcon from '@/images/header-icons/dashboard.svg';
+import attendanceIcon from '@/images/header-icons/attendance.svg';
+import sessionsIcon from '@/images/header-icons/sessions.svg';
+import userManagementIcon from '@/images/header-icons/user-management.svg';
+import profileIcon from '@/images/header-icons/profile.svg';
 
 export const TabComponent = () => {
   const navigate = useNavigate();
@@ -17,23 +17,27 @@ export const TabComponent = () => {
     {
       key: '/dashboard',
       label: 'Dashboard',
-      icon: <LuLayoutDashboard size={18} />,
+      icon: dashboardIcon,
     },
     {
       key: '/attendance',
       label: 'Attendance',
-      icon: <IoMdStats size={18} />,
+      icon: attendanceIcon,
     },
-    { key: '/session', label: 'Sessions', icon: <CgCalendar size={18} /> },
+    { 
+      key: '/session', 
+      label: 'Sessions', 
+      icon: sessionsIcon 
+    },
     {
       key: '/users',
       label: 'User Management',
-      icon: <UserOutlined size={18} />,
+      icon: userManagementIcon,
     },
     {
       key: '/profile',
       label: 'Profile & Permissions',
-      icon: <FaRegUserCircle size={18} />,
+      icon: profileIcon,
     },
   ];
 
@@ -64,7 +68,22 @@ export const TabComponent = () => {
                     : 'text-gray-800 dark:text-gray-200 font-medium'
                 }`}
               >
-                {tab.icon}
+                <img
+                  src={tab.icon}
+                  alt={tab.label}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    ...(activeKey === tab.key && {
+                      filter: 'brightness(0) saturate(100%) invert(67%) sepia(64%) saturate(1234%) hue-rotate(120deg) brightness(95%) contrast(88%)',
+                    }),
+                  }}
+                  className={
+                    activeKey === tab.key
+                      ? ''
+                      : 'dark:brightness-0 dark:invert opacity-70'
+                  }
+                />
                 <span className='hidden sm:inline md:inline'>{tab.label}</span>
               </span>
             ),
