@@ -19,7 +19,7 @@ import { TbEdit, TbEye, TbTrash } from 'react-icons/tb';
 import { ManagerPermissionModal } from './ManagerPermissionModal';
 import { CreateRoleModal } from './CreateRoleModal';
 import { useGetRoles, useDeleteRole } from '@/hooks/useRoles';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 import './permission-management.css';
 
 const { Text } = Typography;
@@ -126,9 +126,7 @@ export const PermissionManagement = () => {
             flexWrap: 'wrap',
           }}
         >
-          <PageTitle variant='primary'>
-            Permission Management
-          </PageTitle>
+          <PageTitle variant='primary'>Permission Management</PageTitle>
           <Button
             type='primary'
             icon={<PlusOutlined />}

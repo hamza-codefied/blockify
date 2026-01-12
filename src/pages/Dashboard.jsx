@@ -9,7 +9,7 @@ import {
 import StatsCard from '@/components/dashboard/StatsCard';
 import RecentActivities from '@/components/dashboard/RecentActivities';
 import StudentTable from '@/components/dashboard/StudentTable';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 import { LockedSection } from '@/components/common/LockedSection';
 import { PERMISSIONS } from '@/utils/permissions';
 

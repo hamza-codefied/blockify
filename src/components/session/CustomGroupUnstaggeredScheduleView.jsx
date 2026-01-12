@@ -6,6 +6,7 @@ import { useGetCustomGroups } from '@/hooks/useCustomGroups';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useAuthStore } from '@/store/authStore';
 import { formatTime } from '@/utils/time';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 //>>> Full day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
 const ALL_DAY_NAMES = [
@@ -106,9 +107,7 @@ export const CustomGroupUnstaggeredScheduleView = () => {
     >
       {/* Header */}
       <div className='flex justify-between items-center mb-14 max-sm:flex-col max-sm:items-start max-sm:gap-3'>
-        <h2 className='text-lg font-semibold max-sm:text-base text-gray-800 dark:text-gray-200'>
-          Custom Group Schedules
-        </h2>
+        <PageTitle variant='primary'>Schedules</PageTitle>
         <Select
           value={selectedCustomGroupId}
           onChange={handleCustomGroupChange}

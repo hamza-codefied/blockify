@@ -8,7 +8,7 @@ import { InstituteDetails } from '@/components/profile/InstituteDetails';
 import { PermissionManagement } from '@/components/profile/PermissionManagement';
 import { Grades } from '@/components/profile/Grades';
 import { CustomGroups } from '@/components/profile/CustomGroups';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 import { LockedSection } from '@/components/common/LockedSection';
 import { PERMISSIONS } from '@/utils/permissions';
 

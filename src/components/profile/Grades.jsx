@@ -19,7 +19,7 @@ import { RiDeleteBinLine } from 'react-icons/ri';
 import { useGetGrades } from '@/hooks/useGrades';
 import { useDeleteGrade } from '@/hooks/useGrades';
 import { DeleteConfirmModal } from '@/components/userManagement/DeleteConfirmModal';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 const { Text } = Typography;
 
@@ -116,9 +116,7 @@ export const Grades = () => {
             flexWrap: 'wrap',
           }}
         >
-          <PageTitle variant='primary'>
-            Grades
-          </PageTitle>
+          <PageTitle variant='primary'>Grades</PageTitle>
           <Button
             type='primary'
             icon={<PlusOutlined />}

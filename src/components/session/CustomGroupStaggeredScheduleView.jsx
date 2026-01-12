@@ -5,6 +5,7 @@ import { useGetCustomGroups } from '@/hooks/useCustomGroups';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useAuthStore } from '@/store/authStore';
 import { formatTime } from '@/utils/time';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 // Full day mapping including weekends: Monday=1, Tuesday=2, ..., Saturday=6, Sunday=0
 const ALL_DAY_NAMES = [
@@ -88,9 +89,7 @@ export const CustomGroupStaggeredScheduleView = () => {
     >
       {/* Header */}
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-3'>
-        <h2 className='text-lg sm:text-xl font-semibold text-gray-800 dark:text-white'>
-          Custom Group Schedules
-        </h2>
+        <PageTitle variant='primary'>Schedules</PageTitle>
         <Select
           value={selectedCustomGroupId}
           onChange={handleCustomGroupChange}

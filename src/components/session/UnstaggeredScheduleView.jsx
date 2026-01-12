@@ -6,6 +6,8 @@ import { HiMiniSignal } from 'react-icons/hi2';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
 import { Select, Spin } from 'antd';
+
+const { Option } = Select;
 import { UploadOutlined } from '@ant-design/icons';
 import { useGetSchedules } from '@/hooks/useSchedules';
 import { useGetGrades } from '@/hooks/useGrades';
@@ -18,6 +20,7 @@ import {
   formatGradeDisplayName,
   getDefaultGradeQueryParams,
 } from '@/utils/grade.utils';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 //>>> Full day of week mapping (0=Sunday, 1=Monday, ..., 6=Saturday)
 const ALL_DAY_NAMES = [
@@ -192,9 +195,7 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
       {/* Header */}
       <div className='mb-14'>
         <div className='flex justify-between items-center mb-4 max-sm:flex-col max-sm:items-start max-sm:gap-3'>
-          <h2 className='text-lg font-semibold max-sm:text-base text-gray-800 dark:text-gray-200'>
-            Schedules
-          </h2>
+          <PageTitle variant='primary'>Schedules</PageTitle>
           {onAddSchedule && hasPermission(PERMISSIONS.SCHEDULES_CREATE) && (
             <div className='flex gap-2'>
               <button
@@ -217,35 +218,34 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
         </div>
         <div className='flex gap-2'>
           <Select
+            placeholder='Grade'
+            style={{ width: 120 }}
             value={selectedGradeId}
             onChange={handleGradeChange}
-            size='small'
-            style={{
-              width: 140,
-            }}
+            allowClear
             loading={!gradesData}
-            placeholder='Select Grade'
-            options={grades.map(grade => ({
-              value: grade.id,
-              label: formatGradeDisplayName(grade),
-            }))}
-          />
+          >
+            {grades.map(grade => (
+              <Option key={grade.id} value={grade.id}>
+                {formatGradeDisplayName(grade)}
+              </Option>
+            ))}
+          </Select>
           <Select
+            placeholder='Course'
+            style={{ width: 120 }}
             value={selectedCourseName}
             onChange={handleCourseChange}
-            size='small'
-            style={{
-              width: 180,
-            }}
-            loading={isLoading}
-            placeholder='Select Course'
             allowClear
+            loading={isLoading}
             disabled={!selectedGradeId || courseNames.length === 0}
-            options={courseNames.map(courseName => ({
-              value: courseName,
-              label: courseName,
-            }))}
-          />
+          >
+            {courseNames.map(courseName => (
+              <Option key={courseName} value={courseName}>
+                {courseName}
+              </Option>
+            ))}
+          </Select>
         </div>
       </div>
 

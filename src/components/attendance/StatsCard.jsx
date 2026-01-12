@@ -48,7 +48,7 @@ export default function StatsCard() {
   const COLORS2 = ['#80dcd4', '#e58080'];
 
   return (
-    <div className='grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8'>
+    <div className='grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6'>
       {/* ===== Card 1 ===== */}
       <div className='relative bg-white dark:bg-gray-800 bg-cover bg-right rounded-2xl shadow dark:shadow-gray-900/50 px-5 py-4 flex flex-col justify-between overflow-hidden border border-gray-100 dark:border-gray-700'>
         <img

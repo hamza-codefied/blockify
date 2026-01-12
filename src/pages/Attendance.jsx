@@ -8,7 +8,7 @@ import {
 
 import StatsCard from '@/components/attendance/StatsCard';
 import VisualOverview from '@/components/attendance/VisualOverview';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 import { LockedSection } from '@/components/common/LockedSection';
 import { PERMISSIONS } from '@/utils/permissions';
 

@@ -39,7 +39,7 @@ import {
   formatGradeDisplayName,
   getDefaultGradeQueryParams,
 } from '@/utils/grade.utils';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 import { Typography } from 'antd';
 import { LockedSection } from '@/components/common/LockedSection';
 import { PERMISSIONS } from '@/utils/permissions';
@@ -175,9 +175,18 @@ export const UserManagement = () => {
       ),
     },
     {
-      title: 'Contact',
+      title: 'Contact Information',
       render: (_, record) => (
-        <div>
+        <div className='flex flex-col'>
+          <div className='flex items-center gap-1'>
+            <MdPhone className='text-[#00B894] w-4 h-4' />
+            <a
+              href={`tel:${record.phone || ''}`}
+              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+            >
+              {record.phone || 'N/A'}
+            </a>
+          </div>
           <div className='flex items-center gap-1'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
             <a
@@ -195,15 +204,43 @@ export const UserManagement = () => {
       render: (_, record) => record.gradeName || 'N/A',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      render: status => (
-        <span
-          className={`capitalize ${status === 'active' ? 'text-green-600' : 'text-gray-500'}`}
-        >
-          {status}
-        </span>
+      title: 'Guardian Name',
+      render: (_, record) => record.guardian_name || 'N/A',
+    },
+    {
+      title: 'Guardian Contact',
+      render: (_, record) => (
+        <div className='flex flex-col'>
+          <div className='flex items-center gap-1'>
+            <MdPhone className='text-[#00B894] w-4 h-4' />
+            <a
+              href={`tel:${record.guardian_phone || ''}`}
+              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+            >
+              {record.guardian_phone || 'N/A'}
+            </a>
+          </div>
+          {record.guardian_email && (
+            <div className='flex items-center gap-1'>
+              <FaEnvelope className='text-[#00B894] w-4 h-4' />
+              <a
+                href={`mailto:${record.guardian_email}`}
+                className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+              >
+                {record.guardian_email}
+              </a>
+            </div>
+          )}
+        </div>
       ),
+    },
+    {
+      title: 'Address',
+      render: (_, record) => record.address || 'N/A',
+    },
+    {
+      title: 'Zip Code',
+      render: (_, record) => record.zipcode || 'N/A',
     },
     {
       title: 'Action',
@@ -234,9 +271,23 @@ export const UserManagement = () => {
       ),
     },
     {
-      title: 'Contact',
+      title: 'Role',
+      render: (_, record) =>
+        record.role?.displayName || record.role?.roleName || 'N/A',
+    },
+    {
+      title: 'Contact Information',
       render: (_, record) => (
-        <div>
+        <div className='flex flex-col'>
+          <div className='flex items-center gap-1'>
+            <MdPhone className='text-[#00B894] w-4 h-4' />
+            <a
+              href={`tel:${record.phone || ''}`}
+              className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+            >
+              {record.phone || 'N/A'}
+            </a>
+          </div>
           <div className='flex items-center gap-1'>
             <FaEnvelope className='text-[#00B894] w-4 h-4' />
             <a
@@ -250,20 +301,12 @@ export const UserManagement = () => {
       ),
     },
     {
-      title: 'Role',
-      render: (_, record) =>
-        record.role?.displayName || record.role?.roleName || 'N/A',
+      title: 'Address',
+      render: (_, record) => record.address || 'N/A',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      render: status => (
-        <span
-          className={`capitalize ${status === 'active' ? 'text-green-600' : 'text-gray-500'}`}
-        >
-          {status}
-        </span>
-      ),
+      title: 'Zip Code',
+      render: (_, record) => record.zipcode || 'N/A',
     },
     {
       title: 'Action',
@@ -285,15 +328,13 @@ export const UserManagement = () => {
   return (
     <>
       <div>
-        <div className='flex justify-between items-center mb-4'>
-          <PageTitle variant='primary'>
-            User Management
-          </PageTitle>
+        <div className='flex justify-between items-center'>
+          <PageTitle variant='primary' className="mb-4">User Management</PageTitle>
         </div>
 
         <Card
           variant='outlined'
-          className='dark:!bg-gray-800 dark:!border-gray-700 rounded-[10px] mt-6 shadow-sm'
+          className='dark:!bg-gray-800 dark:!border-gray-700 rounded-[10px] shadow-sm'
         >
           {/* Tabs */}
           <div className='flex justify-center mb-6'>
@@ -467,25 +508,28 @@ export const UserManagement = () => {
                     style={{
                       gridTemplateColumns:
                         activeTab === 'students'
-                          ? '2fr 2fr 1fr 2fr 2fr 1fr 1fr'
-                          : '2fr 2fr 1fr 2fr 1fr 1fr',
+                          ? '2fr 2fr 1fr 1.5fr 1.5fr 1.5fr 1fr 1fr'
+                          : '2fr 1fr 2fr 2fr 1fr 1fr',
+                      gap: '8px',
                     }}
                   >
                     <div>Name</div>
-                    <div>Contact</div>
                     {activeTab === 'students' ? (
                       <>
+                        <div>Contact Information</div>
                         <div>Grade</div>
-                        <div>Guardian</div>
+                        <div>Guardian Name</div>
+                        <div>Guardian Contact</div>
                         <div>Address</div>
-                        <div>Zip</div>
+                        <div>Zip Code</div>
                         <div>Action</div>
                       </>
                     ) : (
                       <>
                         <div>Role</div>
+                        <div>Contact Information</div>
                         <div>Address</div>
-                        <div>Zip</div>
+                        <div>Zip Code</div>
                         <div>Action</div>
                       </>
                     )}
@@ -538,109 +582,132 @@ export const UserManagement = () => {
                           }}
                         >
                           <Row align='middle' style={{ width: '100%' }}>
-                            <Col flex='2'>
+                            <Col flex='2' style={{ minWidth: 0, overflow: 'hidden' }}>
                               <Space>
                                 <Avatar
                                   src='https://i.pravatar.cc/50?img=10'
                                   size={40}
                                 />
-                                <Text className='dark:text-gray-200'>
+                                <Text className='dark:text-gray-200' style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                   {displayItem.name}
                                 </Text>
                               </Space>
                             </Col>
 
-                            <Col flex='2'>
-                              <div className='flex flex-col'>
-                                <div className='flex items-center gap-1'>
-                                  <MdPhone className='text-[#00B894] w-4 h-4' />
-                                  <a
-                                    href={`tel:${displayItem.contact}`}
-                                    className='text-inherit hover:text-[#00B894] dark:text-gray-300'
-                                  >
-                                    {displayItem.contact}
-                                  </a>
-                                </div>
-                                <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
-                                  <FaEnvelope className='text-[#00B894] w-4 h-4' />
-                                  <a
-                                    href={`mailto:${displayItem.email}`}
-                                    className='text-inherit hover:text-[#00B894] dark:text-gray-300'
-                                  >
-                                    {displayItem.email}
-                                  </a>
-                                </div>
-                              </div>
-                            </Col>
-
                             {activeTab === 'students' ? (
                               <>
-                                <Col flex='1' className='dark:text-gray-200'>
-                                  {displayItem.grade}
-                                </Col>
-                                <Col flex='2'>
-                                  <Text strong className='dark:text-gray-200'>
-                                    {displayItem.guardian}
-                                  </Text>
+                                <Col flex='2' style={{ minWidth: 0, overflow: 'hidden' }}>
                                   <div className='flex flex-col'>
                                     <div className='flex items-center gap-1'>
-                                      <MdPhone className='text-[#00B894] w-4 h-4' />
+                                      <MdPhone className='text-[#00B894] w-4 h-4 flex-shrink-0' />
                                       <a
-                                        href={`tel:${displayItem.guardianContact}`}
+                                        href={`tel:${displayItem.contact}`}
                                         className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+                                        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                                       >
-                                        {displayItem.guardianContact}
+                                        {displayItem.contact}
                                       </a>
                                     </div>
                                     <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
-                                      <FaEnvelope className='text-[#00B894] w-4 h-4' />
+                                      <FaEnvelope className='text-[#00B894] w-4 h-4 flex-shrink-0' />
                                       <a
-                                        href={`mailto:${displayItem.guardianEmail}`}
+                                        href={`mailto:${displayItem.email}`}
                                         className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+                                        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                                       >
-                                        {displayItem.guardianEmail}
+                                        {displayItem.email}
                                       </a>
                                     </div>
                                   </div>
                                 </Col>
-                                <Col flex='2' className='dark:text-gray-200'>
-                                  {displayItem.address}
+                                <Col flex='1' style={{ minWidth: 0, overflow: 'hidden' }} className='dark:text-gray-200'>
+                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayItem.grade}</div>
                                 </Col>
-                                <Col flex='1' className='dark:text-gray-200'>
-                                  {displayItem.zip}
+                                <Col flex='1.5' style={{ minWidth: 0, overflow: 'hidden' }} className='dark:text-gray-200'>
+                                  <Text strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{displayItem.guardian}</Text>
                                 </Col>
-                                <Col flex='1'>
-                                  <div className='flex space-x-4'>
-                                    <Col flex='1'>
-                                      <div className='flex space-x-4 justify-center'>
-                                        <RiDeleteBinLine
-                                          className='w-5 h-5 cursor-pointer text-[#801818]'
-                                          onClick={() =>
-                                            handleDeleteClick(item)
-                                          }
-                                        />
-                                        <TbEdit
-                                          className='w-5 h-5 cursor-pointer text-[#00B894]'
-                                          onClick={() => handleEditClick(item)}
-                                        />
+                                <Col flex='1.5' style={{ minWidth: 0, overflow: 'hidden' }}>
+                                  <div className='flex flex-col'>
+                                    <div className='flex items-center gap-1'>
+                                      <MdPhone className='text-[#00B894] w-4 h-4 flex-shrink-0' />
+                                      <a
+                                        href={`tel:${displayItem.guardianContact}`}
+                                        className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+                                        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                      >
+                                        {displayItem.guardianContact}
+                                      </a>
+                                    </div>
+                                    {displayItem.guardianEmail && displayItem.guardianEmail !== 'N/A' && (
+                                      <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
+                                        <FaEnvelope className='text-[#00B894] w-4 h-4 flex-shrink-0' />
+                                        <a
+                                          href={`mailto:${displayItem.guardianEmail}`}
+                                          className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+                                          style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                        >
+                                          {displayItem.guardianEmail}
+                                        </a>
                                       </div>
-                                    </Col>
+                                    )}
+                                  </div>
+                                </Col>
+                                <Col flex='1.5' style={{ minWidth: 0, overflow: 'hidden' }} className='dark:text-gray-200'>
+                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayItem.address}</div>
+                                </Col>
+                                <Col flex='1' style={{ minWidth: 0, overflow: 'hidden' }} className='dark:text-gray-200'>
+                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayItem.zip}</div>
+                                </Col>
+                                <Col flex='1' style={{ minWidth: 0 }}>
+                                  <div className='flex space-x-4 justify-center'>
+                                    <RiDeleteBinLine
+                                      className='w-5 h-5 cursor-pointer text-[#801818]'
+                                      onClick={() => handleDeleteClick(item)}
+                                    />
+                                    <TbEdit
+                                      className='w-5 h-5 cursor-pointer text-[#00B894]'
+                                      onClick={() => handleEditClick(item)}
+                                    />
                                   </div>
                                 </Col>
                               </>
                             ) : (
                               <>
-                                <Col flex='1' className='dark:text-gray-200'>
-                                  {displayItem.role}
+                                <Col flex='1' style={{ minWidth: 0, overflow: 'hidden' }} className='dark:text-gray-200'>
+                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayItem.role}</div>
                                 </Col>
-                                <Col flex='2' className='dark:text-gray-200'>
-                                  {displayItem.address}
+                                <Col flex='2' style={{ minWidth: 0, overflow: 'hidden' }}>
+                                  <div className='flex flex-col'>
+                                    <div className='flex items-center gap-1'>
+                                      <MdPhone className='text-[#00B894] w-4 h-4 flex-shrink-0' />
+                                      <a
+                                        href={`tel:${displayItem.contact}`}
+                                        className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+                                        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                      >
+                                        {displayItem.contact}
+                                      </a>
+                                    </div>
+                                    <div className='flex items-center gap-1 text-gray-600 dark:text-gray-400'>
+                                      <FaEnvelope className='text-[#00B894] w-4 h-4 flex-shrink-0' />
+                                      <a
+                                        href={`mailto:${displayItem.email}`}
+                                        className='text-inherit hover:text-[#00B894] dark:text-gray-300'
+                                        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                      >
+                                        {displayItem.email}
+                                      </a>
+                                    </div>
+                                  </div>
                                 </Col>
-                                <Col flex='1' className='dark:text-gray-200'>
-                                  {displayItem.zip}
+                                <Col flex='2' style={{ minWidth: 0, overflow: 'hidden' }} className='dark:text-gray-200'>
+                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayItem.address}</div>
                                 </Col>
-                                <Col flex='1'>
-                                  <div className='flex space-x-4'>
+                                <Col flex='1' style={{ minWidth: 0, overflow: 'hidden' }} className='dark:text-gray-200'>
+                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayItem.zip}</div>
+                                </Col>
+                                <Col flex='1' style={{ minWidth: 0 }}>
+                                  <div className='flex space-x-4 justify-center'>
                                     <RiDeleteBinLine
                                       className='w-5 h-5 cursor-pointer text-[#801818]'
                                       onClick={() => handleDeleteClick(item)}

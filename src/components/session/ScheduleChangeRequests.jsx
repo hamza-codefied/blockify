@@ -7,8 +7,9 @@ import { useGetGrades } from '@/hooks/useGrades';
 import { formatTime } from '@/utils/time';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
 import { RequestModal } from './RequestModal';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 // Generate avatar URL from name (for consistent avatars)
 const getAvatarUrl = (name) => {
@@ -122,9 +123,7 @@ export const ScheduleChangeRequests = () => {
       }}
     >
       <div className='flex justify-between items-center mb-4 flex-wrap gap-2'>
-        <h1 className='text-lg sm:text-xl font-semibold'>
-          Schedule Change Requests
-        </h1>
+        <PageTitle variant='primary'>Schedule Change Requests</PageTitle>
         <Space>
           <Select
             placeholder='Filter by Status'

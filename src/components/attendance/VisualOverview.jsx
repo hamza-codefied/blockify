@@ -22,8 +22,9 @@ import { useGetAttendanceSessionsList } from '@/hooks/useAttendance';
 import { useGetGrades } from '@/hooks/useGrades';
 import { formatTime } from '@/utils/time';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 // Generate avatar URL from name (for consistent avatars)
@@ -233,16 +234,14 @@ export default function VisualOverview() {
       variant='outlined'
       style={{
         borderRadius: 12,
-        marginTop: 24,
+        marginTop: 0,
         boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
       }}
     >
       {/* ===== Header ===== */}
       <Row justify='space-between' align='middle' gutter={[16, 16]}>
         <Col xs={24} md={8}>
-          <Title level={5} style={{ marginBottom: 0 }}>
-            Visual Overview
-          </Title>
+          <PageTitle variant='primary'>Visual Overview</PageTitle>
         </Col>
         <Col xs={24} md={16}>
           <Space wrap style={{ width: '100%', justifyContent: 'flex-end' }}>

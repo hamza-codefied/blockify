@@ -8,6 +8,7 @@ import {
   useUpdateSchoolInformation,
 } from '@/hooks/useSchool';
 import { Spin } from 'antd';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 export const InstituteDetails = () => {
   const { user } = useAuthStore();
@@ -202,9 +203,9 @@ export const InstituteDetails = () => {
             disabled={isUpdating}
           />
         </div>
-        <h2 className='mt-3 text-center text-base font-semibold text-[24px] text-[#000] dark:text-gray-200'>
+        <PageTitle variant='primary' className='mt-3 text-center'>
           {formData.name || 'Loading...'}
-        </h2>
+        </PageTitle>
       </div>
 
       {/* Details Section */}

@@ -1,28 +1,56 @@
 import React, { useState, useMemo } from 'react';
-import { LogIn, LogOut, ClipboardList, UserPlus, UserMinus, Settings, FileText } from 'lucide-react';
+import { LogIn, LogOut, ClipboardList, Clock, BarChart3, UserPlus, UserMinus, Settings, FileText } from 'lucide-react';
 import RecentActivitiesModal from './RecentActivitiesModal';
 import { useGetActivities } from '@/hooks/useDashboard';
 import { Spin } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 dayjs.extend(relativeTime);
 
-// Get icon based on activity type and action
-const getActivityIcon = (activityType, action) => {
+// Get icon based on activity description/type - matching Figma design
+const getActivityIcon = (description, activityType, action, entityType) => {
+  const desc = (description || '').toLowerCase();
+  
+  // App Login/Logout
+  if (desc.includes('signed in') || desc.includes('login')) {
+    return <LogIn className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+  }
+  if (desc.includes('signed out') || desc.includes('logout')) {
+    return <LogOut className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+  }
+  
+  // Session End/Request
+  if (desc.includes('session end') || desc.includes('session request') || desc.includes('end session') || entityType === 'Session') {
+    return <ClipboardList className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+  }
+  
+  // Schedule Request
+  if (desc.includes('schedule') || desc.includes('schedule change') || entityType === 'Schedule') {
+    return <Clock className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+  }
+  
+  // Attendance
+  if (desc.includes('attendance') || desc.includes('marked present') || desc.includes('marked absent')) {
+    return <BarChart3 className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+  }
+  
+  // User management
   if (action === 'created' || action === 'activated') {
-    if (activityType === 'user') return <LogIn className='text-gray-700 my-2' size={28} />;
-    if (activityType === 'system') return <Settings className='text-gray-700 my-2' size={28} />;
-    return <UserPlus className='text-gray-700 my-2' size={28} />;
+    if (activityType === 'user') return <UserPlus className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+    if (activityType === 'system') return <Settings className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+    return <UserPlus className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
   if (action === 'deleted' || action === 'deactivated' || action === 'signed out') {
-    if (activityType === 'user') return <LogOut className='text-gray-700 my-2' size={28} />;
-    return <UserMinus className='text-gray-700 my-2' size={28} />;
+    if (activityType === 'user') return <UserMinus className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
+    return <UserMinus className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
   if (action === 'updated') {
-    return <Settings className='text-gray-700 my-2' size={28} />;
+    return <Settings className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
-  return <FileText className='text-gray-700 my-2' size={28} />;
+  
+  return <FileText className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
 };
 
 export default function RecentActivities() {
@@ -36,7 +64,7 @@ export default function RecentActivities() {
   const displayedActivities = useMemo(() => {
     return allActivities.slice(0, 3).map(activity => ({
       id: activity.id,
-      icon: getActivityIcon(activity.activity_type, activity.action),
+      icon: getActivityIcon(activity.description, activity.activity_type, activity.action, activity.entity_type),
       action: activity.description || `${activity.action}: ${activity.entity_type || 'Activity'}`,
       time: dayjs(activity.created_at).fromNow(),
     }));
@@ -46,9 +74,7 @@ export default function RecentActivities() {
     <div className='bg-white dark:bg-gray-800 h-full rounded-2xl shadow-sm p-4 border border-gray-100 dark:border-gray-700'>
       {/* Header */}
       <div className='flex justify-between items-center mb-3'>
-        <h2 className='font-semibold text-gray-800 dark:text-gray-200 text-lg'>
-          Recent Activities
-        </h2>
+        <PageTitle variant='primary'>Recent Activities</PageTitle>
         <button
           onClick={() => setIsModalOpen(true)}
           className='text-[#00B894] text-sm font-medium hover:underline'

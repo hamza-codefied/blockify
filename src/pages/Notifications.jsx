@@ -21,6 +21,7 @@ import {
 import API from '@services/api.service';
 import { useAuthStore } from '@stores/useAuthStore';
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 const { Text, Title } = Typography;
 const { TabPane } = Tabs;

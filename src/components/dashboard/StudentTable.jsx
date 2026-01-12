@@ -23,8 +23,9 @@ import { useGetGrades } from '@/hooks/useGrades';
 import { useUpdateSession } from '@/hooks/useSessions';
 import { formatTime } from '@/utils/time';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 // Generate avatar URL from name (for consistent avatars)
@@ -275,9 +276,7 @@ export default function StudentTable() {
         {/* ===== Header ===== */}
         <Row justify='space-between' align='middle' gutter={[16, 16]}>
           <Col xs={24} lg={8}>
-            <Title level={5} style={{ marginBottom: 0 }}>
-              Student Information Log
-            </Title>
+            <PageTitle variant='primary'>Student Information Log</PageTitle>
           </Col>
 
           <Col xs={24} lg={16}>

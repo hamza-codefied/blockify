@@ -6,8 +6,9 @@ import { useGetRequests } from '@/hooks/useRequests';
 import { useGetGrades } from '@/hooks/useGrades';
 import { formatTime } from '@/utils/time';
 import { formatGradeDisplayName, getDefaultGradeQueryParams } from '@/utils/grade.utils';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 // Generate avatar URL from name (for consistent avatars)
 const getAvatarUrl = (name) => {
@@ -85,9 +86,7 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
       }}
     >
       <div className='flex justify-between items-center mb-4'>
-        <h1 className='text-lg sm:text-xl font-semibold'>
-          Early Session End Requests
-        </h1>
+        <PageTitle variant='primary'>Early Session End Requests</PageTitle>
         {sessionType === 'grade' && (
           <Select
             placeholder='Filter by Grade'

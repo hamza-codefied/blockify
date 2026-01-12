@@ -26,7 +26,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useGetSchoolSettings } from '@/hooks/useSchool';
 import { useGetCustomGroups } from '@/hooks/useCustomGroups';
 import { message } from 'antd';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 import { LockedSection } from '@/components/common/LockedSection';
 import { PERMISSIONS } from '@/utils/permissions';
 
@@ -89,7 +89,7 @@ export const Session = () => {
         permission={PERMISSIONS.SESSIONS_READ}
         lockMessage="You do not have permission to view sessions"
       >
-        <SessionChart />
+        <SessionChart mode="grade" />
       </LockedSection>
 
       <div className='grid grid-cols-1 xl:grid-cols-2 items-stretch gap-4 mt-4'>
@@ -204,15 +204,13 @@ export const Session = () => {
       <StructuredData structuredData={structuredData} />
 
       <div>
-        <div className='flex justify-between items-center mb-4'>
-          <PageTitle variant='primary'>
-            Sessions
-          </PageTitle>
+        <div className='flex justify-between items-center'>
+          <PageTitle variant='primary' className="mb-4">Sessions</PageTitle>
         </div>
 
         <Card
           variant='outlined'
-          className='dark:!bg-gray-800 dark:!border-gray-700 rounded-[10px] mt-6 shadow-sm'
+          className='dark:!bg-gray-800 dark:!border-gray-700 rounded-[10px] shadow-sm'
         >
           {/* Tabs */}
           <div className='flex justify-center mb-6'>

@@ -26,7 +26,7 @@ import {
   useDeleteCustomGroup,
   useGetCustomGroup,
 } from '@/hooks/useCustomGroups';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 const { Title, Text } = Typography;
 
@@ -148,9 +148,7 @@ export const CustomGroups = () => {
             flexWrap: 'wrap',
           }}
         >
-          <PageTitle variant='primary'>
-            Custom Groups
-          </PageTitle>
+          <PageTitle variant='primary'>Custom Groups</PageTitle>
           <Button
             type='primary'
             icon={<PlusOutlined />}
