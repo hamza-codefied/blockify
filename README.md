@@ -174,9 +174,14 @@ The project uses comprehensive path aliases for clean, maintainable imports:
 
 ### Prerequisites
 
-- **Node.js** (version 16 or higher)
+- **Node.js** (version 20.19+ or 22.12+) — required by Vite 7
 - **pnpm** package manager
 - **Git** for version control
+
+If you use `nvm`, this repo includes an `.nvmrc` so you can run:
+```bash
+nvm use
+```
 
 ### Installation
 
