@@ -9,7 +9,7 @@ console.log('🚀 Building and analyzing Blockify...\n')
 try {
   // Build the project
   console.log('📦 Building project...')
-  execSync('npm run build', { stdio: 'inherit' })
+  execSync('pnpm run build', { stdio: 'inherit' })
   
   // Check if stats.html was generated
   const statsPath = path.join(__dirname, '../dist/stats.html')

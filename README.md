@@ -175,7 +175,7 @@ The project uses comprehensive path aliases for clean, maintainable imports:
 ### Prerequisites
 
 - **Node.js** (version 16 or higher)
-- **npm** or **yarn** package manager
+- **pnpm** package manager
 - **Git** for version control
 
 ### Installation
@@ -188,12 +188,12 @@ cd codefied
 
 2. **Install dependencies:**
 ```bash
-npm install
+pnpm install
 ```
 
 3. **Start the development server:**
 ```bash
-npm run dev
+pnpm dev
 ```
 
 4. **Open your browser and navigate to `http://localhost:3000`**
@@ -202,16 +202,16 @@ npm run dev
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev` | Start development server with HMR |
-| `npm run build` | Build for production with optimizations |
-| `npm run build:analyze` | Build with bundle analysis report |
-| `npm run build:sitemap` | Generate sitemap.xml |
-| `npm run preview` | Preview production build locally |
-| `npm run serve` | Serve production build on port 4173 |
-| `npm run lint` | Run ESLint for code quality |
-| `npm run lint:fix` | Fix ESLint issues automatically |
-| `npm run format` | Format code with Prettier |
-| `npm run clean` | Clean dist directory |
+| `pnpm dev` | Start development server with HMR |
+| `pnpm build` | Build for production with optimizations |
+| `pnpm build:analyze` | Build with bundle analysis report |
+| `pnpm build:sitemap` | Generate sitemap.xml |
+| `pnpm preview` | Preview production build locally |
+| `pnpm serve` | Serve production build on port 4173 |
+| `pnpm lint` | Run ESLint for code quality |
+| `pnpm lint:fix` | Fix ESLint issues automatically |
+| `pnpm format` | Format code with Prettier |
+| `pnpm clean` | Clean dist directory |
 
 ## 🛠️ Configuration
 
