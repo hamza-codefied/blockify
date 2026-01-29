@@ -1,9 +1,7 @@
 'use client';
 import React, { useState, useMemo } from 'react';
 import { RiDeleteBinLine } from 'react-icons/ri';
-import { TbEdit } from 'react-icons/tb';
 import { HiMiniSignal } from 'react-icons/hi2';
-import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
 import { Select, Spin, Empty } from 'antd';
 
@@ -64,7 +62,6 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
   const [selectedGradeName, setSelectedGradeName] = useState(null);
   const [selectedCourseName, setSelectedCourseName] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   //>>> Fetch grades for dropdown
@@ -190,12 +187,6 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
     setSelectedCourseName(courseName);
   };
 
-  const handleEdit = schedule => {
-    if (schedule) {
-      setSelectedSchedule(schedule);
-      setIsEditOpen(true);
-    }
-  };
 
   const handleDelete = schedule => {
     if (schedule) {
@@ -345,47 +336,34 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
                   </div>
                 )} */}
 
-                <div className='flex flex-col sm:flex-row justify-start gap-24 max-md:gap-10 max-lg:gap-18 max-xl:gap-5 w-full'>
+                <div className='flex flex-col sm:flex-row justify-start gap-4 max-md:gap-10 max-lg:gap-4 max-xl:gap-5 w-full'>
                   {/* Day */}
                   <div className='font-medium text-base max-sm:text-sm w-[100px]'>
                     {dayData.day}
                   </div>
 
                   {/* Time line */}
-                  <div className='flex items-center max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full sm:w-[60%]'>
+                  <div className='flex items-center max-sm:flex-col max-sm:items-start max-sm:gap-2 w-full flex-1'>
                     {hasSchedules ? (
                       <div className='flex flex-col gap-3 w-full'>
                         {daySchedules.map((schedule, scheduleIndex) => (
                           <div key={schedule.id || scheduleIndex} className='flex items-center justify-between w-full'>
-                            <div className='flex items-center justify-between w-full max-sm:w-full'>
+                            <div className='flex items-center justify-start flex-1 max-sm:w-full'>
+                              {schedule.code && (
+                                <span className='mr-8 text-xs text-gray-500 dark:text-gray-400 font-mono max-sm:hidden'>
+                                  {schedule.code}
+                                </span>
+                              )}
                               <span className='mr-2 text-sm max-sm:text-xs'>
                                 {formatTime(schedule.startTime)}
                               </span>
                               <div
-                                className='flex-1 mx-2 h-[1px] w-full lg:w-20'
+                                className='mx-2 h-[1px] w-12 sm:w-20 lg:w-32'
                                 style={{ borderBottom: '3px dotted #00B894' }}
                               ></div>
                               <span className='ml-2 text-sm max-sm:text-xs'>
                                 {formatTime(schedule.endTime)}
                               </span>
-                              {schedule.code && (
-                                <span className='ml-3 text-xs text-gray-500 dark:text-gray-400 font-mono max-sm:hidden'>
-                                  {schedule.code}
-                                </span>
-                              )}
-                            </div>
-                            {/* Action icons */}
-                            <div className='flex space-x-2 ml-4'>
-                              <RiDeleteBinLine
-                                onClick={() => handleDelete(schedule)}
-                                className={`w-5 h-5 cursor-pointer ${dayData.active ? 'text-red-500' : 'text-[#801818]'
-                                  }`}
-                              />
-                              <TbEdit
-                                onClick={() => handleEdit(schedule)}
-                                className={`w-5 h-5 cursor-pointer ${dayData.active ? 'text-green-500' : 'text-[#00B894]'
-                                  }`}
-                              />
                             </div>
                           </div>
                         ))}
@@ -396,6 +374,15 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
                       </span>
                     )}
                   </div>
+
+                  {/* Action icons */}
+                  <div className='flex space-x-2 ml-4'>
+                    <RiDeleteBinLine
+                      onClick={() => handleDelete(schedule)}
+                      className={`w-5 h-5 cursor-pointer ${dayData.active ? 'text-red-500' : 'text-[#801818]'
+                        }`}
+                    />
+                  </div>
                 </div>
               </div>
             );
@@ -405,19 +392,6 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
       }
 
       {/* Modals */}
-      <EditSessionModal
-        open={isEditOpen}
-        onClose={() => {
-          setIsEditOpen(false);
-          setSelectedSchedule(null);
-        }}
-        session={selectedSchedule}
-        onSuccess={() => {
-          setIsEditOpen(false);
-          setSelectedSchedule(null);
-          refetch();
-        }}
-      />
       <DeleteSessionModal
         open={isDeleteOpen}
         onClose={() => {
