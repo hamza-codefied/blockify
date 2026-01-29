@@ -5,7 +5,7 @@ import { TbEdit } from 'react-icons/tb';
 import { HiMiniSignal } from 'react-icons/hi2';
 import { EditSessionModal } from './EditSessionModal';
 import { DeleteSessionModal } from './DeleteSessionModal';
-import { Select, Spin } from 'antd';
+import { Select, Spin, Empty } from 'antd';
 
 const { Option } = Select;
 import { UploadOutlined } from '@ant-design/icons';
@@ -59,6 +59,7 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
 
   const DAY_NUMBERS = ALL_DAY_NUMBERS;
 
+  const [viewMode, setViewMode] = useState('grade'); // 'grade' | 'custom'
   const [selectedGradeId, setSelectedGradeId] = useState(null);
   const [selectedGradeName, setSelectedGradeName] = useState(null);
   const [selectedCourseName, setSelectedCourseName] = useState(null);
@@ -71,42 +72,67 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
     page: 1,
     limit: 100,
     ...getDefaultGradeQueryParams(),
-  });
+  }, viewMode === 'grade'); // Only fetch grades if in grade mode
+
   //>>> API returns { success: true, data: [...grades], pagination: {...} }
   const grades = gradesData?.data || [];
 
-  //>>> Set default grade when grades load
+  //>>> Set default grade when grades load (only if in grade mode)
   React.useEffect(() => {
-    if (grades.length > 0 && !selectedGradeId) {
+    if (viewMode === 'grade' && grades.length > 0 && !selectedGradeId) {
       const firstGrade = grades[0];
       setSelectedGradeId(firstGrade.id);
       setSelectedGradeName(formatGradeDisplayName(firstGrade));
     }
-  }, [grades, selectedGradeId]);
+  }, [grades, selectedGradeId, viewMode]);
 
-  //>>> Fetch all schedules for the selected grade (to populate course dropdown)
+  //>>> Reset selections when viewing mode changes
+  React.useEffect(() => {
+    setSelectedCourseName(null);
+    if (viewMode === 'custom') {
+      setSelectedGradeId(null);
+      setSelectedGradeName(null);
+    } else if (grades.length > 0 && !selectedGradeId) {
+      // Restore default grade if switching back to grade mode
+      const firstGrade = grades[0];
+      setSelectedGradeId(firstGrade.id);
+      setSelectedGradeName(formatGradeDisplayName(firstGrade));
+    }
+  }, [viewMode, grades]);
+
+  //>>> Fetch all schedules:
+  // - If grade mode: fetch for selectedGradeId
+  // - If custom mode: fetch type=custom (no gradeId)
   const {
     data: schedulesData,
     isLoading,
     refetch,
   } = useGetSchedules({
-    gradeId: selectedGradeId,
+    gradeId: viewMode === 'grade' ? selectedGradeId : undefined,
+    type: viewMode === 'custom' ? 'custom' : undefined,
     page: 1,
     limit: 1000, // Get all schedules to extract unique course names
-  }, !!selectedGradeId);
+  }, (viewMode === 'grade' && !!selectedGradeId) || viewMode === 'custom');
 
   const deleteScheduleMutation = useDeleteSchedule();
 
   //>>> API returns { success: true, data: [...schedules], pagination: {...} }
   const allSchedules = schedulesData?.data || [];
 
-  //>>> Extract unique course names from schedules for the selected grade
+  //>>> Extract unique course names from schedules
   const courseNames = useMemo(() => {
     const uniqueNames = [...new Set(allSchedules.map(s => s.name).filter(Boolean))];
     return uniqueNames.sort();
   }, [allSchedules]);
 
-  //>>> Filter schedules by selected course name - only show when both grade and course are selected
+  //>>> Auto-select first course if none selected and courses exist
+  React.useEffect(() => {
+    if (courseNames.length > 0 && !selectedCourseName) {
+      setSelectedCourseName(courseNames[0]);
+    }
+  }, [courseNames, selectedCourseName]);
+
+  //>>> Filter schedules by selected course name - only show when (grade or custom) and course are selected
   const schedules = useMemo(() => {
     if (!selectedCourseName) {
       return []; // Don't show any schedules if course is not selected
@@ -156,6 +182,10 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
     setSelectedCourseName(null); // Reset course when grade changes
   };
 
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+  };
+
   const handleCourseChange = courseName => {
     setSelectedCourseName(courseName);
   };
@@ -188,12 +218,19 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
   };
 
   return (
-    <div 
-      className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-100 dark:border-gray-700'
-      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    <div
+      className='bg-white dark:bg-gray-800 p-4'
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '12px',
+        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+        border: '2px solid rgba(0, 0, 0, 0.05)', // Matches grades-card border
+      }}
     >
       {/* Header */}
-      <div className='mb-14'>
+      <div className='mb-4'>
         <div className='flex justify-between items-center mb-4 max-sm:flex-col max-sm:items-start max-sm:gap-3'>
           <PageTitle variant='primary'>Schedules</PageTitle>
           {onAddSchedule && hasPermission(PERMISSIONS.SCHEDULES_CREATE) && (
@@ -217,20 +254,35 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
           )}
         </div>
         <div className='flex gap-2'>
+          {/* View Mode Selector */}
           <Select
-            placeholder='Grade'
-            style={{ width: 120 }}
-            value={selectedGradeId}
-            onChange={handleGradeChange}
-            allowClear
-            loading={!gradesData}
+            value={viewMode}
+            onChange={handleViewModeChange}
+            style={{ width: 140 }}
           >
-            {grades.map(grade => (
-              <Option key={grade.id} value={grade.id}>
-                {formatGradeDisplayName(grade)}
-              </Option>
-            ))}
+            <Option value="grade">Class</Option>
+            <Option value="custom">Custom Group</Option>
           </Select>
+
+          {/* Grade Selector (Only in grade mode) */}
+          {viewMode === 'grade' && (
+            <Select
+              placeholder='Grade'
+              style={{ width: 120 }}
+              value={selectedGradeId}
+              onChange={handleGradeChange}
+              allowClear
+              loading={!gradesData}
+            >
+              {grades.map(grade => (
+                <Option key={grade.id} value={grade.id}>
+                  {formatGradeDisplayName(grade)}
+                </Option>
+              ))}
+            </Select>
+          )}
+
+          {/* Course Selector */}
           <Select
             placeholder='Course'
             style={{ width: 120 }}
@@ -238,7 +290,7 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
             onChange={handleCourseChange}
             allowClear
             loading={isLoading}
-            disabled={!selectedGradeId || courseNames.length === 0}
+            disabled={(viewMode === 'grade' && !selectedGradeId) || courseNames.length === 0}
           >
             {courseNames.map(courseName => (
               <Option key={courseName} value={courseName}>
@@ -254,20 +306,24 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
         <div className='flex justify-center items-center py-4'>
           <Spin size='large' />
         </div>
-      ) : !selectedGradeId ? (
-        <div className='text-center py-4 text-gray-500'>
-          Please select a grade to view schedules
+      ) : viewMode === 'grade' && !selectedGradeId ? (
+        <div className='flex justify-center items-center py-12'>
+          <Empty description="Please select a grade to view schedules" />
         </div>
       ) : !selectedCourseName ? (
-        <div className='text-center py-8 text-gray-500'>
-          Please select a course to view schedules
+        <div className='flex justify-center items-center py-12'>
+          <Empty
+            description={courseNames.length === 0
+              ? `No ${viewMode === 'custom' ? 'custom' : ''} schedules found ${viewMode === 'grade' ? `for ${selectedGradeName || 'this grade'}` : ''}`
+              : 'Please select a course to view schedules'}
+          />
         </div>
       ) : allDaysWithSchedules.length === 0 || allDaysWithSchedules.every(day => day.schedules.length === 0) ? (
-        <div className='text-center py-8 text-gray-500'>
-          No schedules found for {selectedCourseName} in {selectedGradeName || 'this grade'}
+        <div className='flex justify-center items-center py-12'>
+          <Empty description={`No schedules found for ${selectedCourseName} in ${viewMode === 'grade' ? (selectedGradeName || 'this grade') : 'Custom Groups'}`} />
         </div>
       ) : (
-        <div className='flex flex-col justify-between gap-[28px]' style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+        <div className='flex flex-col gap-[10px]' style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {allDaysWithSchedules.map((dayData, index) => {
             const daySchedules = dayData.schedules || [];
             const hasSchedules = daySchedules.length > 0;
@@ -275,20 +331,19 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
             return (
               <div
                 key={index}
-                className={`relative py-4 flex items-center justify-between gap-5 border-2 shadow-lg rounded-lg px-4 transition-all duration-300
-                  max-sm:flex-col max-sm:items-start max-sm:gap-3 ${
-                  dayData.active
-                    ? 'bg-[#2f2f2f] dark:bg-gray-700 text-white border-[#2f2f2f] dark:border-gray-600'
-                    : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700'
-                }`}
+                className={`relative py-3 flex items-center justify-between gap-5 border-2 rounded-[12px] px-4 transition-all duration-300
+                  max-sm:flex-col max-sm:items-start max-sm:gap-3 ${dayData.active
+                    ? 'bg-[#2f2f2f] dark:bg-gray-700 text-white border-[#2f2f2f] dark:border-gray-600 shadow-lg'
+                    : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-[#0000000d] dark:border-gray-700 shadow-[0_0_8px_0px_rgba(0,0,0,0.05)]'
+                  }`}
               >
                 {/* Active badge */}
-                {dayData.active && (
+                {/* {dayData.active && (
                   <div className='absolute -top-[26px] right-0 flex items-center justify-center gap-2 text-[#00B894] text-sm max-sm:text-xs'>
                     <HiMiniSignal className='text-[#00B894] w-5 h-5 max-sm:w-4 max-sm:h-4' />
                     <span>Active</span>
                   </div>
-                )}
+                )} */}
 
                 <div className='flex flex-col sm:flex-row justify-start gap-24 max-md:gap-10 max-lg:gap-18 max-xl:gap-5 w-full'>
                   {/* Day */}
@@ -323,15 +378,13 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
                             <div className='flex space-x-2 ml-4'>
                               <RiDeleteBinLine
                                 onClick={() => handleDelete(schedule)}
-                                className={`w-5 h-5 cursor-pointer ${
-                                  dayData.active ? 'text-red-500' : 'text-[#801818]'
-                                }`}
+                                className={`w-5 h-5 cursor-pointer ${dayData.active ? 'text-red-500' : 'text-[#801818]'
+                                  }`}
                               />
                               <TbEdit
                                 onClick={() => handleEdit(schedule)}
-                                className={`w-5 h-5 cursor-pointer ${
-                                  dayData.active ? 'text-green-500' : 'text-[#00B894]'
-                                }`}
+                                className={`w-5 h-5 cursor-pointer ${dayData.active ? 'text-green-500' : 'text-[#00B894]'
+                                  }`}
                               />
                             </div>
                           </div>
@@ -348,7 +401,8 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
             );
           })}
         </div>
-      )}
+      )
+      }
 
       {/* Modals */}
       <EditSessionModal
@@ -374,6 +428,6 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
         onConfirm={handleDeleteConfirm}
         loading={deleteScheduleMutation.isPending}
       />
-    </div>
+    </div >
   );
 };

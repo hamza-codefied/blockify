@@ -26,7 +26,7 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
 
   // Fetch grades for filter dropdown (only for grade sessions)
   const { data: gradesData } = useGetGrades(
-    sessionType === 'grade' 
+    sessionType === 'grade'
       ? { page: 1, limit: 100, ...getDefaultGradeQueryParams() }
       : {}
   );
@@ -73,7 +73,8 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
       variant='outlined'
       style={{
         borderRadius: 12,
-        boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+        border: '2px solid rgba(0, 0, 0, 0.05)',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -110,14 +111,14 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
           justify='space-between'
           className='early-session-header'
           style={{
-            marginTop: 24,
-            marginBottom: 8,
+            marginTop: 10,
+            marginBottom: 10,
             fontWeight: 500,
             background: '#fff',
             boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
             border: '2px solid rgba(0,0,0,0.05)',
             borderRadius: 12,
-            padding: '20px 16px',
+            padding: '16px',
           }}
         >
           <Col flex='2'>Name</Col>
@@ -140,57 +141,57 @@ export const EarlySessionRequests = ({ sessionType = 'grade' }) => {
               itemLayout='horizontal'
               dataSource={requests}
               renderItem={req => {
-              const studentName = req.student?.fullName || 'Unknown';
-              const studentGrade = req.student?.grade;
-              const gradeName = studentGrade ? formatGradeDisplayName(studentGrade) : 'N/A';
-              const scheduleEndTime = req.session?.schedule?.endTime;
-              const formattedTime = scheduleEndTime ? formatTime(scheduleEndTime) : 'N/A';
+                const studentName = req.student?.fullName || 'Unknown';
+                const studentGrade = req.student?.grade;
+                const gradeName = studentGrade ? formatGradeDisplayName(studentGrade) : 'N/A';
+                const scheduleEndTime = req.session?.schedule?.endTime;
+                const formattedTime = scheduleEndTime ? formatTime(scheduleEndTime) : 'N/A';
 
-              return (
-                <List.Item
-                  style={{
-                    background: '#fff',
-                    borderRadius: 12,
-                    marginBottom: 8,
-                    padding: '12px 16px',
-                    boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
-                    border: '2px solid rgba(0,0,0,0.05)',
-                  }}
-                >
-                  <Row align='middle' style={{ width: '100%' }}>
-                    <Col flex='2'>
-                      <div className='flex items-center gap-2'>
-                        <Avatar src={getAvatarUrl(studentName)} size={40} />
-                        <Text>{studentName}</Text>
-                      </div>
-                    </Col>
-                    <Col flex='1'>
-                      <Text>{gradeName}</Text>
-                    </Col>
-                    <Col flex='1'>
-                      <Tag
-                        color='cyan'
-                        style={{
-                          borderRadius: 12,
-                          fontWeight: 500,
-                          padding: '2px 10px',
-                        }}
-                      >
-                        {formattedTime}
-                      </Tag>
-                    </Col>
-                    <Col flex='1'>
-                      <button
-                        className='view-request-btn'
-                        onClick={() => handleView(req)}
-                      >
-                        View Request
-                      </button>
-                    </Col>
-                  </Row>
-                </List.Item>
-              );
-            }}
+                return (
+                  <List.Item
+                    style={{
+                      background: '#fff',
+                      borderRadius: 12,
+                      marginBottom: 8,
+                      padding: '12px 16px',
+                      boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
+                      border: '2px solid rgba(0,0,0,0.05)',
+                    }}
+                  >
+                    <Row align='middle' style={{ width: '100%' }}>
+                      <Col flex='2'>
+                        <div className='flex items-center gap-2'>
+                          <Avatar src={getAvatarUrl(studentName)} size={40} />
+                          <Text>{studentName}</Text>
+                        </div>
+                      </Col>
+                      <Col flex='1'>
+                        <Text>{gradeName}</Text>
+                      </Col>
+                      <Col flex='1'>
+                        <Tag
+                          color='cyan'
+                          style={{
+                            borderRadius: 12,
+                            fontWeight: 500,
+                            padding: '2px 10px',
+                          }}
+                        >
+                          {formattedTime}
+                        </Tag>
+                      </Col>
+                      <Col flex='1'>
+                        <button
+                          className='view-request-btn'
+                          onClick={() => handleView(req)}
+                        >
+                          View Request
+                        </button>
+                      </Col>
+                    </Row>
+                  </List.Item>
+                );
+              }}
             />
           </div>
         )}

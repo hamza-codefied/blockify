@@ -12,8 +12,8 @@ export const Layout = ({ children }) => {
       <TabComponent />
 
       {/* Page content */}
-      <main className='flex-1'>
-        <div className='w-full bg-[#fafafa] dark:bg-gray-900 px-4 sm:px-6 lg:px-16 py-6'>
+      <main className='flex-1 flex flex-col'>
+        <div className='w-full bg-[#fafafa] dark:bg-gray-900 px-4 sm:px-6 lg:px-16 py-6 flex-1'>
           {/* If children passed (older usage), render that; otherwise render nested routes via Outlet */}
           {children ? children : <Outlet />}
         </div>

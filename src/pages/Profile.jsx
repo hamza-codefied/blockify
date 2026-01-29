@@ -6,8 +6,8 @@ import {
 } from '@utils/seo';
 import { InstituteDetails } from '@/components/profile/InstituteDetails';
 import { PermissionManagement } from '@/components/profile/PermissionManagement';
-import { Grades } from '@/components/profile/Grades';
-import { CustomGroups } from '@/components/profile/CustomGroups';
+// import { Grades } from '@/components/profile/Grades';
+// import { Schedules } from '@/components/profile/Schedules';
 import { Typography as PageTitle } from '@/components/common/PageTitle';
 import { LockedSection } from '@/components/common/LockedSection';
 import { PERMISSIONS } from '@/utils/permissions';
@@ -27,46 +27,28 @@ export const Profile = () => {
       />
       <StructuredData structuredData={structuredData} />
 
-      <div>
+      <div className="flex flex-col">
         <PageTitle variant="primary" className="mb-4">Profile</PageTitle>
 
-        <div 
-          className='grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch'
-          style={{ gridTemplateRows: 'auto auto' }}
+        <div
+          className='grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch'
+          style={{}}
         >
           {/* Top Row */}
           <div className='lg:row-start-1 lg:col-start-1' style={{ display: 'flex', alignItems: 'stretch' }}>
-            <LockedSection 
+            <LockedSection
               permission={PERMISSIONS.SCHOOLS_READ}
               lockMessage="You do not have permission to view school information"
             >
               <InstituteDetails />
             </LockedSection>
           </div>
-          <div className='lg:row-start-1 lg:col-start-2 lg:col-span-2' style={{ display: 'flex', alignItems: 'stretch' }}>
-            <LockedSection 
+          <div className='lg:row-start-1 lg:col-start-2' style={{ display: 'flex', alignItems: 'stretch' }}>
+            <LockedSection
               permission={PERMISSIONS.ROLES_READ}
               lockMessage="You do not have permission to view roles and permissions"
             >
               <PermissionManagement />
-            </LockedSection>
-          </div>
-
-          {/* Bottom Row */}
-          <div className='lg:row-start-2 lg:col-start-1' style={{ display: 'flex' }}>
-            <LockedSection 
-              permission={PERMISSIONS.CUSTOM_GROUPS_READ}
-              lockMessage="You do not have permission to view custom groups"
-            >
-              <CustomGroups />
-            </LockedSection>
-          </div>
-          <div className='lg:row-start-2 lg:col-start-2 lg:col-span-2' style={{ display: 'flex' }}>
-            <LockedSection 
-              permission={PERMISSIONS.GRADES_READ}
-              lockMessage="You do not have permission to view grades"
-            >
-              <Grades />
             </LockedSection>
           </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { LogIn, LogOut, ClipboardList, Clock, BarChart3, UserPlus, UserMinus, Settings, FileText } from 'lucide-react';
 import RecentActivitiesModal from './RecentActivitiesModal';
 import { useGetActivities } from '@/hooks/useDashboard';
-import { Spin } from 'antd';
+import { Spin, Empty } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Typography as PageTitle } from '@/components/common/PageTitle';
@@ -12,7 +12,7 @@ dayjs.extend(relativeTime);
 // Get icon based on activity description/type - matching Figma design
 const getActivityIcon = (description, activityType, action, entityType) => {
   const desc = (description || '').toLowerCase();
-  
+
   // App Login/Logout
   if (desc.includes('signed in') || desc.includes('login')) {
     return <LogIn className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
@@ -20,22 +20,22 @@ const getActivityIcon = (description, activityType, action, entityType) => {
   if (desc.includes('signed out') || desc.includes('logout')) {
     return <LogOut className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
-  
+
   // Session End/Request
   if (desc.includes('session end') || desc.includes('session request') || desc.includes('end session') || entityType === 'Session') {
     return <ClipboardList className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
-  
+
   // Schedule Request
   if (desc.includes('schedule') || desc.includes('schedule change') || entityType === 'Schedule') {
     return <Clock className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
-  
+
   // Attendance
   if (desc.includes('attendance') || desc.includes('marked present') || desc.includes('marked absent')) {
     return <BarChart3 className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
-  
+
   // User management
   if (action === 'created' || action === 'activated') {
     if (activityType === 'user') return <UserPlus className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
@@ -49,17 +49,17 @@ const getActivityIcon = (description, activityType, action, entityType) => {
   if (action === 'updated') {
     return <Settings className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
   }
-  
+
   return <FileText className='text-gray-700 dark:text-gray-300 my-2' size={28} />;
 };
 
 export default function RecentActivities() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Fetch 10 activities, display first 3
   const { data: activitiesData, isLoading } = useGetActivities({ page: 1, limit: 10 });
   const allActivities = activitiesData?.data || [];
-  
+
   // Display only first 3 activities
   const displayedActivities = useMemo(() => {
     return allActivities.slice(0, 3).map(activity => ({
@@ -89,8 +89,8 @@ export default function RecentActivities() {
           <Spin size='small' />
         </div>
       ) : displayedActivities.length === 0 ? (
-        <div className='text-center py-4 text-gray-500 text-sm'>
-          No recent activities
+        <div className='flex justify-center items-center py-6'>
+          <Empty description="No recent activities" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </div>
       ) : (
         <div className='relative'>

@@ -1,6 +1,7 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { Card, List, Row, Col, Avatar, Typography, Tag, Select, Pagination, Spin, Empty, Button, Space } from 'antd';
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { Card, List, Row, Col, Typography, Tag, Select, Pagination, Spin, Empty, Button, Space } from 'antd';
+import { TbEye } from 'react-icons/tb';
 import './early-session-requests.css';
 import { useGetAllScheduleChangeRequests, useApproveScheduleChangeRequest, useDenyScheduleChangeRequest } from '@/hooks/useScheduleChangeRequests';
 import { useGetGrades } from '@/hooks/useGrades';
@@ -11,16 +12,9 @@ import { Typography as PageTitle } from '@/components/common/PageTitle';
 
 const { Text } = Typography;
 
-// Generate avatar URL from name (for consistent avatars)
-const getAvatarUrl = (name) => {
-  if (!name) return null;
-  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return `https://i.pravatar.cc/40?img=${(hash % 70) + 1}`;
-};
-
 // Format day name
 const getDayName = (dayOfWeek) => {
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return dayNames[dayOfWeek] || `Day ${dayOfWeek}`;
 };
 
@@ -33,10 +27,10 @@ export const ScheduleChangeRequests = () => {
   const [status, setStatus] = useState('pending');
 
   // Fetch grades for filter dropdown
-  const { data: gradesData } = useGetGrades({ 
-    page: 1, 
-    limit: 100, 
-    ...getDefaultGradeQueryParams() 
+  const { data: gradesData } = useGetGrades({
+    page: 1,
+    limit: 100,
+    ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
 
@@ -119,7 +113,17 @@ export const ScheduleChangeRequests = () => {
       variant='outlined'
       style={{
         borderRadius: 12,
-        boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+        border: '2px solid rgba(0, 0, 0, 0.05)',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      bodyStyle={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
       }}
     >
       <div className='flex justify-between items-center mb-4 flex-wrap gap-2'>
@@ -156,108 +160,114 @@ export const ScheduleChangeRequests = () => {
         </Space>
       </div>
 
-      <div className='early-session-wrapper'>
+      <div className='early-session-wrapper' style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <Row
+          justify='space-between'
+          className='early-session-header'
+          style={{
+            marginTop: 10,
+            marginBottom: 10,
+            fontWeight: 500,
+            background: '#fff',
+            boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
+            border: '2px solid rgba(0,0,0,0.05)',
+            borderRadius: 12,
+            padding: '16px',
+          }}
+        >
+          <Col flex='2'>Student</Col>
+          <Col flex='2'>Change from</Col>
+          <Col flex='2'>Change to</Col>
+          <Col flex='1'>Status</Col>
+          <Col flex='1' style={{ textAlign: 'right' }}>Action</Col>
+        </Row>
+
         {isLoading ? (
           <div className='flex justify-center items-center py-8'>
             <Spin size='large' />
           </div>
         ) : requests.length === 0 ? (
-          <Empty description='No schedule change requests found' />
+          <div className='text-center py-8 text-gray-500'>
+            <Empty description='No schedule change requests found' />
+          </div>
         ) : (
-          <>
+          <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
             <List
               dataSource={requests}
               renderItem={(request) => (
                 <List.Item
                   key={request.id}
-                  className='early-session-item'
-                  actions={[
-                    request.status === 'pending' && (
-                      <Space key="actions">
-                        <Button
-                          type='primary'
-                          icon={<CheckOutlined />}
-                          size='small'
-                          onClick={() => handleApprove(request.id)}
-                          loading={approveMutation.isPending}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          danger
-                          icon={<CloseOutlined />}
-                          size='small'
-                          onClick={() => handleDeny(request.id)}
-                          loading={denyMutation.isPending}
-                        >
-                          Deny
-                        </Button>
-                      </Space>
-                    ),
-                    <Button
-                      key="view"
-                      type='link'
-                      onClick={() => handleView(request)}
-                    >
-                      View Details
-                    </Button>,
-                  ].filter(Boolean)}
+                  style={{
+                    background: '#fff',
+                    borderRadius: 12,
+                    marginBottom: 8,
+                    padding: '12px 16px',
+                    boxShadow: '0 0 8px 0px rgba(0,0,0,0.05)',
+                    border: '2px solid rgba(0,0,0,0.05)',
+                  }}
                 >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        src={getAvatarUrl(request.student?.fullName)}
-                        size={40}
-                      >
-                        {request.student?.fullName?.charAt(0) || 'S'}
-                      </Avatar>
-                    }
-                    title={
-                      <div className='flex items-center gap-2'>
-                        <Text strong>{request.student?.fullName || 'Unknown Student'}</Text>
-                        <Tag color={getStatusColor(request.status)}>
-                          {request.status?.toUpperCase()}
-                        </Tag>
-                      </div>
-                    }
-                    description={
-                      <div>
-                        <div className='text-sm text-gray-600 mb-1'>
-                          <Text type='secondary'>From: </Text>
-                          {request.fromSchedule?.name || 'Unknown'} - {getDayName(request.fromSchedule?.dayOfWeek)} {request.fromSchedule?.startTime} - {request.fromSchedule?.endTime}
-                        </div>
-                        <div className='text-sm text-gray-600 mb-1'>
-                          <Text type='secondary'>To: </Text>
-                          {request.toSchedule?.name || 'Unknown'} - {getDayName(request.toSchedule?.dayOfWeek)} {request.toSchedule?.startTime} - {request.toSchedule?.endTime}
-                        </div>
-                        <div className='text-sm text-gray-500'>
-                          {request.student?.grade && (
-                            <Tag size='small'>{formatGradeDisplayName(request.student.grade)}</Tag>
-                          )}
-                          <Text type='secondary' className='ml-2'>
-                            {formatTime(request.createdAt)}
-                          </Text>
-                        </div>
-                      </div>
-                    }
-                  />
+                  <Row align='middle' style={{ width: '100%' }}>
+                    {/* Student Column */}
+                    <Col flex='2'>
+                      <Text strong className="text-base">
+                        {request.student?.fullName || 'Unknown'}
+                      </Text>
+                    </Col>
+
+                    {/* Change From */}
+                    <Col flex='2'>
+                      <Text className="text-base">
+                        {request.fromSchedule ?
+                          `${getDayName(request.fromSchedule.dayOfWeek)} ${request.fromSchedule.startTime?.substring(0, 5)} - ${request.fromSchedule.endTime?.substring(0, 5)}`
+                          : 'N/A'}
+                      </Text>
+                    </Col>
+
+                    {/* Change To */}
+                    <Col flex='2'>
+                      <Text className="text-base">
+                        {request.toSchedule ?
+                          `${getDayName(request.toSchedule.dayOfWeek)} ${request.toSchedule.startTime?.substring(0, 5)} - ${request.toSchedule.endTime?.substring(0, 5)}`
+                          : 'N/A'}
+                      </Text>
+                    </Col>
+
+                    {/* Status Column */}
+                    <Col flex='1'>
+                      <Tag color={getStatusColor(request.status)}>
+                        {request.status?.toUpperCase()}
+                      </Tag>
+                    </Col>
+
+                    {/* Action Column */}
+                    <Col flex='1' style={{ textAlign: 'right' }}>
+                      <TbEye
+                        className='text-[#00B894] cursor-pointer w-5 h-5 hover:text-[#019a7d] transition inline-block'
+                        onClick={() => handleView(request)}
+                        title='View Request'
+                      />
+                    </Col>
+                  </Row>
                 </List.Item>
               )}
             />
-            {pagination.totalPages > 1 && (
-              <div className='flex justify-center mt-4'>
-                <Pagination
-                  current={page}
-                  total={pagination.total}
-                  pageSize={limit}
-                  onChange={handlePageChange}
-                  showSizeChanger={false}
-                />
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {!isLoading && requests.length > 0 && pagination.totalPages > 1 && (
+        <div className='flex justify-center mt-4'>
+          <Pagination
+            current={page}
+            total={pagination.total}
+            pageSize={limit}
+            onChange={handlePageChange}
+            showSizeChanger={false}
+            size='small'
+          />
+        </div>
+      )}
 
       {isModalOpen && selectedRequest && (
         <RequestModal
@@ -270,4 +280,3 @@ export const ScheduleChangeRequests = () => {
     </Card>
   );
 };
-

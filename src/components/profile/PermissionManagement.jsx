@@ -103,12 +103,14 @@ export const PermissionManagement = () => {
   return (
     <>
       <Card
-        className='permission-management-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
+        className='permission-management-card w-full shadow-lg flex flex-col'
         style={{
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '100%',
+          borderRadius: '12px',
+          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+          border: '2px solid rgba(0, 0, 0, 0.05)',
         }}
         bodyStyle={{
           flex: 1,

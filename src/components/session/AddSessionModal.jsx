@@ -10,6 +10,7 @@ import {
   TimePicker,
   Typography,
   Input,
+  InputNumber,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useCreateSchedule } from '@/hooks/useSchedules';
@@ -51,6 +52,8 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const [pendingTimes, setPendingTimes] = useState({});
   const createScheduleMutation = useCreateSchedule();
 
+  const [scheduleType, setScheduleType] = useState('grade'); // 'grade' | 'custom'
+
   const { user } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
 
@@ -81,7 +84,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
 
   // Watch selected grade to filter managers
   const selectedGradeId = Form.useWatch('gradeId', form);
-  
+
   // Filter managers by selected grade
   const managers = useMemo(() => {
     if (!selectedGradeId) {
@@ -97,6 +100,8 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
     if (!open) {
       form.resetFields();
       setSelectedDays([]);
+      setScheduleType('grade');
+      form.setFieldsValue({ type: 'grade' });
     }
   }, [open, form]);
 
@@ -128,7 +133,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const { gradeId, managerId, name, additionalGradeIds } = values;
+      const { gradeId, managerId, name, additionalGradeIds, type, capacity } = values;
 
       // Filter out primary grade from additional grades if it's included
       const filteredAdditionalGradeIds = (additionalGradeIds || []).filter(
@@ -147,15 +152,25 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
         const startTimeStr = startTime ? startTime.format('HH:mm') : null;
         const endTimeStr = endTime ? endTime.format('HH:mm') : null;
 
-        return createScheduleMutation.mutateAsync({
-          gradeId,
-          managerId,
+        const payload = {
+          type,
           name: name.trim(),
           dayOfWeek,
           startTime: startTimeStr,
           endTime: endTimeStr,
-          additionalGradeIds: filteredAdditionalGradeIds.length > 0 ? filteredAdditionalGradeIds : undefined,
-        });
+        };
+
+        if (type === 'grade') {
+          payload.gradeId = gradeId;
+          payload.managerId = managerId;
+          if (filteredAdditionalGradeIds.length > 0) {
+            payload.additionalGradeIds = filteredAdditionalGradeIds;
+          }
+        } else {
+          payload.capacity = capacity;
+        }
+
+        return createScheduleMutation.mutateAsync(payload);
       });
 
       await Promise.all(schedulePromises);
@@ -181,73 +196,77 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
       bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }}
       className='rounded-xl'
     >
-      <Form form={form} layout='vertical'>
-        {/* ===== Grade Select ===== */}
-        <Form.Item
-          label='Primary Grade'
-          name='gradeId'
-          rules={[{ required: true, message: 'Please select primary grade' }]}
-          tooltip='The primary grade for this schedule. You can add additional grades below.'
-        >
-          <Select placeholder='Select primary grade' loading={!gradesData}>
-            {grades.map(grade => (
-              <Select.Option key={grade.id} value={grade.id}>
-                {formatGradeDisplayName(grade)}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+      <Form form={form} layout='vertical' initialValues={{ type: 'grade' }}>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              label="Schedule Type"
+              name="type"
+              rules={[{ required: true, message: 'Please select type' }]}
+            >
+              <Select onChange={setScheduleType}>
+                <Select.Option value="grade">Grade Schedule</Select.Option>
+                <Select.Option value="custom">Custom Group</Select.Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label='Course Name'
+              name='name'
+              rules={[
+                { required: true, message: 'Please enter course name' },
+                { whitespace: true, message: 'Course name cannot be empty' }
+              ]}
+              tooltip='Enter the course name for this schedule (e.g., "Math", "English", "Science")'
+            >
+              <Input placeholder='e.g., Math, English, Science' maxLength={200} />
+            </Form.Item>
+          </Col>
+        </Row>
 
-        {/* ===== Additional Grades Select ===== */}
-        {/* Hidden for now - backend functionality kept intact for future use */}
-        {/* <Form.Item
-          label='Additional Grades (Optional)'
-          name='additionalGradeIds'
-          tooltip='Select additional grades that can also use this schedule (e.g., for cross-grade classes)'
-        >
-          <Select
-            mode='multiple'
-            placeholder='Select additional grades (optional)'
-            loading={!gradesData}
-            filterOption={(input, option) =>
-              (option?.children?.toLowerCase() ?? '').includes(input.toLowerCase())
-            }
+        {scheduleType === 'grade' ? (
+          <>
+            {/* ===== Grade Select ===== */}
+            <Form.Item
+              label='Primary Grade'
+              name='gradeId'
+              rules={[{ required: true, message: 'Please select primary grade' }]}
+              tooltip='The primary grade for this schedule. You can add additional grades below.'
+            >
+              <Select placeholder='Select primary grade' loading={!gradesData}>
+                {grades.map(grade => (
+                  <Select.Option key={grade.id} value={grade.id}>
+                    {formatGradeDisplayName(grade)}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            {/* ===== Manager Select ===== */}
+            <Form.Item
+              label='Manager'
+              name='managerId'
+              rules={[{ required: true, message: 'Please select manager' }]}
+            >
+              <Select placeholder='Select manager' loading={!managersData}>
+                {managers.map(manager => (
+                  <Select.Option key={manager.id} value={manager.id}>
+                    {manager.fullName}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </>
+        ) : (
+          <Form.Item
+            label="Capacity (Optional)"
+            name="capacity"
+            tooltip="Maximum number of students allowed in this group"
           >
-            {grades.map(grade => (
-              <Select.Option key={grade.id} value={grade.id}>
-                {formatGradeDisplayName(grade)}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item> */}
-
-        {/* ===== Manager Select ===== */}
-        <Form.Item
-          label='Manager'
-          name='managerId'
-          rules={[{ required: true, message: 'Please select manager' }]}
-        >
-          <Select placeholder='Select manager' loading={!managersData}>
-            {managers.map(manager => (
-              <Select.Option key={manager.id} value={manager.id}>
-                {manager.fullName}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {/* ===== Course Name (Required) ===== */}
-        <Form.Item
-          label='Course Name'
-          name='name'
-          rules={[
-            { required: true, message: 'Please enter course name' },
-            { whitespace: true, message: 'Course name cannot be empty' }
-          ]}
-          tooltip='Enter the course name for this schedule (e.g., "Math", "English", "Science")'
-        >
-          <Input placeholder='e.g., Math, English, Science' maxLength={200} />
-        </Form.Item>
+            <InputNumber min={1} style={{ width: '100%' }} placeholder="Max students" />
+          </Form.Item>
+        )}
 
         {/* ===== Select Days (Mon–Fri) ===== */}
         <Form.Item
@@ -265,11 +284,10 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
                 <div
                   key={day}
                   onClick={() => toggleDay(day)}
-                  className={`cursor-pointer px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                    selected
-                      ? 'bg-[#151515] text-white border-b-4 border-[#00B894]'
-                      : 'bg-white hover:bg-gray-200 text-black border-2 border-gray-200 shadow-lg'
-                  }`}
+                  className={`cursor-pointer px-4 py-2 rounded-lg border text-sm font-medium transition-all ${selected
+                    ? 'bg-[#151515] text-white border-b-4 border-[#00B894]'
+                    : 'bg-white hover:bg-gray-200 text-black border-2 border-gray-200 shadow-lg'
+                    }`}
                 >
                   {day}
                 </div>

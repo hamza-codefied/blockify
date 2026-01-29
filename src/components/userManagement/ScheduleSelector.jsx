@@ -1,6 +1,6 @@
 'use client';
 import React, { useMemo, useState, useEffect } from 'react';
-import { Checkbox, Collapse, Empty, Spin, Typography, Tag } from 'antd';
+import { Checkbox, Collapse, Empty, Spin, Typography, Tag, Divider } from 'antd';
 
 const { Text } = Typography;
 const { Panel } = Collapse;
@@ -19,13 +19,8 @@ const getDayName = (dayOfWeek) => {
   return DAY_NAMES[dayOfWeek] || `Day ${dayOfWeek}`;
 };
 
-export const ScheduleSelector = ({ 
-  schedules = [], 
-  selectedScheduleIds = [], 
-  onChange, 
-  loading = false,
-  disabled = false 
-}) => {
+// Internal component for rendering a group of schedules
+const ScheduleGroup = ({ schedules, selectedScheduleIds, onToggle, disabled, title }) => {
   // Group schedules by course name
   const schedulesByCourse = useMemo(() => {
     const grouped = {};
@@ -36,7 +31,7 @@ export const ScheduleSelector = ({
       }
       grouped[courseName].push(schedule);
     });
-    
+
     // Sort schedules within each course by day and time
     Object.keys(grouped).forEach(courseName => {
       grouped[courseName].sort((a, b) => {
@@ -46,52 +41,26 @@ export const ScheduleSelector = ({
         return a.startTime.localeCompare(b.startTime);
       });
     });
-    
+
     return grouped;
   }, [schedules]);
 
   const courseNames = Object.keys(schedulesByCourse).sort();
-  
+
   // Keep track of expanded panel (only one at a time)
-  const [expandedPanel, setExpandedPanel] = useState(() => courseNames.length > 0 ? courseNames[0] : null);
-  
-  // Update expanded panel when course names change (keep first one expanded)
-  useEffect(() => {
-    if (courseNames.length > 0 && !expandedPanel) {
-      setExpandedPanel(courseNames[0]);
-    }
-  }, [courseNames.join(',')]);
+  // Logic: Expand first panel by default if it's the first render? 
+  // Simpler: Just allow user to expand.
+  // Original logic:
+  // const [expandedPanel, setExpandedPanel] = useState(() => courseNames.length > 0 ? courseNames[0] : null);
+  // We can keep it simple for now and let Antd Collapse handle state if we don't force controlled mode,
+  // or use local state per group.
+  const [expandedPanel, setExpandedPanel] = useState(null);
 
-  const handleScheduleToggle = (scheduleId, checked) => {
-    if (disabled) return;
-    
-    const newSelectedIds = checked
-      ? [...selectedScheduleIds, scheduleId]
-      : selectedScheduleIds.filter(id => id !== scheduleId);
-    
-    onChange?.(newSelectedIds);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8">
-        <Spin size="large" />
-        <Text type="secondary" className="mt-4 block text-center">Loading schedules...</Text>
-      </div>
-    );
-  }
-
-  if (schedules.length === 0) {
-    return (
-      <Empty 
-        description="No schedules available for this grade"
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
-      />
-    );
-  }
+  if (schedules.length === 0) return null;
 
   return (
-    <div className="py-2">
+    <div className="mb-4">
+      {title && <Divider orientation="left" style={{ margin: '12px 0 8px 0', fontSize: '14px' }}>{title}</Divider>}
       <Collapse
         activeKey={expandedPanel}
         onChange={(key) => setExpandedPanel(key)}
@@ -103,7 +72,7 @@ export const ScheduleSelector = ({
         {courseNames.map(courseName => {
           const courseSchedules = schedulesByCourse[courseName];
           const selectedCount = courseSchedules.filter(s => selectedScheduleIds.includes(s.id)).length;
-          
+
           return (
             <Panel
               key={courseName}
@@ -128,7 +97,7 @@ export const ScheduleSelector = ({
                   const isSelected = selectedScheduleIds.includes(schedule.id);
                   const dayName = getDayName(schedule.dayOfWeek);
                   const timeRange = `${formatTime(schedule.startTime)} - ${formatTime(schedule.endTime)}`;
-                  
+
                   return (
                     <div
                       key={schedule.id}
@@ -139,14 +108,14 @@ export const ScheduleSelector = ({
                     >
                       <Checkbox
                         checked={isSelected}
-                        onChange={(e) => handleScheduleToggle(schedule.id, e.target.checked)}
+                        onChange={(e) => onToggle(schedule.id, e.target.checked)}
                         disabled={disabled}
                         className="text-sm"
                       />
                       <div className="ml-2 flex items-center justify-between flex-1">
                         <Text strong className="text-sm">
                           {dayName}
-                        </Text  >
+                        </Text>
                         <Text strong className="text-sm">
                           {timeRange}
                         </Text>
@@ -159,7 +128,66 @@ export const ScheduleSelector = ({
           );
         })}
       </Collapse>
-      
+    </div>
+  );
+};
+
+export const ScheduleSelector = ({
+  schedules = [],
+  selectedScheduleIds = [],
+  onChange,
+  loading = false,
+  disabled = false
+}) => {
+  const handleScheduleToggle = (scheduleId, checked) => {
+    if (disabled) return;
+
+    const newSelectedIds = checked
+      ? [...selectedScheduleIds, scheduleId]
+      : selectedScheduleIds.filter(id => id !== scheduleId);
+
+    onChange?.(newSelectedIds);
+  };
+
+  const gradeSchedules = useMemo(() => schedules.filter(s => s.type !== 'custom'), [schedules]);
+  const customSchedules = useMemo(() => schedules.filter(s => s.type === 'custom'), [schedules]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8">
+        <Spin size="large" />
+        <Text type="secondary" className="mt-4 block text-center">Loading schedules...</Text>
+      </div>
+    );
+  }
+
+  if (schedules.length === 0) {
+    return (
+      <Empty
+        description="No schedules available"
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+      />
+    );
+  }
+
+  return (
+    <div className="py-2">
+      <ScheduleGroup
+        title="Grade Schedules"
+        schedules={gradeSchedules}
+        selectedScheduleIds={selectedScheduleIds}
+        onToggle={handleScheduleToggle}
+        disabled={disabled}
+      />
+
+      <ScheduleGroup
+        title="Custom Schedules"
+        schedules={customSchedules}
+        selectedScheduleIds={selectedScheduleIds}
+        onToggle={handleScheduleToggle}
+        disabled={disabled}
+      />
+
       {selectedScheduleIds.length > 0 && (
         <div className="mt-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded text-center">
           <Text type="secondary" className="text-xs">

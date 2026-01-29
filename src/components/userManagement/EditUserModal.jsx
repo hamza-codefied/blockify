@@ -19,10 +19,10 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   const queryClient = useQueryClient();
   const updateStudentMutation = useUpdateStudent();
   const updateManagerMutation = useUpdateManager();
-  
+
   // Fetch grades for dropdown
-  const { data: gradesData } = useGetGrades({ 
-    limit: 100, 
+  const { data: gradesData } = useGetGrades({
+    limit: 100,
     ...getDefaultGradeQueryParams()
   });
   const grades = gradesData?.data || [];
@@ -30,18 +30,18 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   // Fetch roles for manager role selection
   const { data: rolesData } = useGetRoles(activeTab === 'managers');
   const roles = rolesData?.data || [];
-  
+
   // Filter roles: only "manager" default role OR custom roles (isSystemRole = false)
   const availableRoles = useMemo(() => {
     if (activeTab !== 'managers') return [];
-    return roles.filter(role => 
+    return roles.filter(role =>
       role.roleName === 'manager' || !role.isSystemRole
     );
   }, [roles, activeTab]);
 
   // Get selected grade ID for schedule fetching (from form watch)
   const selectedGradeId = Form.useWatch('gradeId', form);
-  
+
   // Also compute gradeId from user object for initial load (fallback)
   const userGradeId = React.useMemo(() => {
     if (!user || !grades.length || activeTab !== 'students') return null;
@@ -54,22 +54,23 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
     }
     return null;
   }, [user, grades, activeTab]);
-  
+
   // Use selectedGradeId from form if available, otherwise fall back to userGradeId
   const effectiveGradeId = selectedGradeId || userGradeId;
-  
+
   // Get selected schedule IDs (must be at top level, not conditional)
   const selectedScheduleIds = Form.useWatch('scheduleIds', form) || [];
-  
+
   // Fetch schedules for selected grade (students only)
   // When editing a student, include studentId to get isSelected flags
   const { data: schedulesData, isLoading: schedulesLoading } = useGetSchedules(
     activeTab === 'students' && effectiveGradeId
-      ? { 
-          gradeId: effectiveGradeId, 
-          limit: 1000,
-          ...(user?.id && activeTab === 'students' ? { studentId: user.id } : {})
-        }
+      ? {
+        gradeId: effectiveGradeId,
+        includeCustom: true,
+        limit: 1000,
+        ...(user?.id && activeTab === 'students' ? { studentId: user.id } : {})
+      }
       : {},
     activeTab === 'students' && !!effectiveGradeId
   );
@@ -91,8 +92,8 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   useEffect(() => {
     if (open && user && activeTab === 'students' && effectiveGradeId) {
       // Invalidate schedules query to force refetch when modal opens
-      queryClient.invalidateQueries({ 
-        queryKey: ['schedules', { gradeId: effectiveGradeId, studentId: user.id }] 
+      queryClient.invalidateQueries({
+        queryKey: ['schedules', { gradeId: effectiveGradeId, studentId: user.id }]
       });
       // Also invalidate student details so scheduleIds are always fresh
       queryClient.invalidateQueries({
@@ -135,7 +136,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         });
         gradeId = matchingGrade?.id || null;
       }
-      
+
       // Find grade IDs from gradeNames for managers
       let gradeIds = [];
       if (user.grades && user.grades.length > 0) {
@@ -149,7 +150,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
           return matchingGrade?.id;
         }).filter(Boolean);
       }
-      
+
       const formValues = {
         fullName: user.fullName,
         email: user.email,
@@ -168,7 +169,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         scheduleIds: [], // Will be updated by schedules useEffect after API loads with isSelected flags
         status: user.status,
       };
-      
+
       form.setFieldsValue(formValues);
       //>>> Store initial values for change detection (without scheduleIds - will be set by schedules useEffect)
       setInitialValues({ ...formValues, scheduleIds: [] });
@@ -190,11 +191,11 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
   //>>> Helper to get only changed fields
   const getChangedFields = (currentValues, initialValues) => {
     const changed = {};
-    
+
     for (const key in currentValues) {
       const currentValue = currentValues[key];
       const initialValue = initialValues[key];
-      
+
       //>>> Handle arrays (scheduleIds, gradeIds)
       if (Array.isArray(currentValue) || Array.isArray(initialValue)) {
         if (!arraysEqual(currentValue || [], initialValue || [])) {
@@ -212,27 +213,27 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         }
       }
     }
-    
+
     return changed;
   };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      
+
       if (activeTab === 'students') {
         //>>> Get only changed fields
         const changedFields = getChangedFields(values, initialValues || {});
-        
+
         //>>> If nothing changed, don't send request
         if (Object.keys(changedFields).length === 0) {
           onClose();
           return;
         }
-        
+
         //>>> Build update data with only changed fields
         const updateData = {};
-        
+
         if ('fullName' in changedFields) updateData.fullName = changedFields.fullName;
         if ('email' in changedFields) updateData.email = changedFields.email;
         if ('gradeId' in changedFields) {
@@ -250,7 +251,7 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         if ('status' in changedFields) updateData.status = changedFields.status;
         if ('scheduleIds' in changedFields) updateData.scheduleIds = changedFields.scheduleIds || [];
         if ('password' in changedFields && changedFields.password) updateData.password = changedFields.password;
-        
+
         await updateStudentMutation.mutateAsync({
           studentId: user.id,
           data: updateData,
@@ -258,16 +259,16 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
       } else {
         //>>> Get only changed fields
         const changedFields = getChangedFields(values, initialValues || {});
-        
+
         //>>> If nothing changed, don't send request
         if (Object.keys(changedFields).length === 0) {
           onClose();
           return;
         }
-        
+
         //>>> Build update data with only changed fields
         const updateData = {};
-        
+
         if ('fullName' in changedFields) updateData.fullName = changedFields.fullName;
         if ('email' in changedFields) updateData.email = changedFields.email;
         if ('roleId' in changedFields) updateData.roleId = changedFields.roleId;
@@ -277,13 +278,13 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
         if ('gradeIds' in changedFields) updateData.gradeIds = changedFields.gradeIds || [];
         if ('status' in changedFields) updateData.status = changedFields.status;
         if ('password' in changedFields && changedFields.password) updateData.password = changedFields.password;
-        
+
         await updateManagerMutation.mutateAsync({
           managerId: user.id,
           data: updateData,
         });
       }
-      
+
       //>>> Call onSuccess callback before closing to allow parent to refetch data
       if (onSuccess) onSuccess();
       onClose();
@@ -292,18 +293,18 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
     }
   };
 
-  const isLoading = activeTab === 'students' 
-    ? updateStudentMutation.isPending 
+  const isLoading = activeTab === 'students'
+    ? updateStudentMutation.isPending
     : updateManagerMutation.isPending;
 
   return (
-      <Modal
-        title={<div className="user-modal-header">{`Edit ${activeTab === 'students' ? 'Student' : 'Manager'}`}</div>}
-        open={open}
-        destroyOnClose
-        onCancel={() => {
-          onClose();
-        }}
+    <Modal
+      title={<div className="user-modal-header">{`Edit ${activeTab === 'students' ? 'Student' : 'Manager'}`}</div>}
+      open={open}
+      destroyOnClose
+      onCancel={() => {
+        onClose();
+      }}
       footer={
         <div className="user-modal-footer">
           <Button key="cancel" onClick={() => {
@@ -357,246 +358,246 @@ export const EditUserModal = ({ open, onClose, user, activeTab, onSuccess }) => 
     >
       <div className="user-modal-body">
         <Form form={form} layout='vertical'>
-        <Form.Item 
-          label='Full Name' 
-          name='fullName'
-          rules={[{ required: true, message: 'Full name is required' }]}
-        >
-          <Input placeholder='Enter full name' />
-        </Form.Item>
-        
-        <Form.Item 
-          label='Email' 
-          name='email'
-          rules={[
-            { required: true, message: 'Email is required' },
-            { type: 'email', message: 'Please enter a valid email' }
-          ]}
-        >
-          <Input placeholder='Enter email' />
-        </Form.Item>
+          <Form.Item
+            label='Full Name'
+            name='fullName'
+            rules={[{ required: true, message: 'Full name is required' }]}
+          >
+            <Input placeholder='Enter full name' />
+          </Form.Item>
 
-        {activeTab === 'students' ? (
-          <>
-            <Form.Item 
-              label='Grade' 
-              name='gradeId'
-              rules={[{ required: true, message: 'Grade is required' }]}
-            >
-              <Select 
-                placeholder='Select grade'
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                }
-                options={grades.map(grade => ({
-                  value: grade.id,
-                  label: formatGradeDisplayName(grade)
-                }))}
-              />
-            </Form.Item>
+          <Form.Item
+            label='Email'
+            name='email'
+            rules={[
+              { required: true, message: 'Email is required' },
+              { type: 'email', message: 'Please enter a valid email' }
+            ]}
+          >
+            <Input placeholder='Enter email' />
+          </Form.Item>
 
-            <Form.Item 
-              label='Schedules (Optional)' 
-              name='scheduleIds'
-              tooltip='Select schedules for this student. Schedules must not conflict (same day, overlapping times).'
-            >
-              {activeTab === 'students' && selectedGradeId ? (
-                <ScheduleSelector
-                  schedules={availableSchedules}
-                  selectedScheduleIds={selectedScheduleIds}
-                  onChange={(scheduleIds) => form.setFieldsValue({ scheduleIds })}
-                  loading={schedulesLoading}
-                  disabled={!selectedGradeId || schedulesLoading}
+          {activeTab === 'students' ? (
+            <>
+              <Form.Item
+                label='Grade'
+                name='gradeId'
+                rules={[{ required: true, message: 'Grade is required' }]}
+              >
+                <Select
+                  placeholder='Select grade'
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={grades.map(grade => ({
+                    value: grade.id,
+                    label: formatGradeDisplayName(grade)
+                  }))}
                 />
-              ) : (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
-                  {!selectedGradeId ? 'Please select a grade first' : 'Schedules are only available for students'}
-                </div>
-              )}
-            </Form.Item>
+              </Form.Item>
 
-            <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
+              <Form.Item
+                label='Schedules (Optional)'
+                name='scheduleIds'
+                tooltip='Select schedules for this student. Schedules must not conflict (same day, overlapping times).'
+              >
+                {activeTab === 'students' && selectedGradeId ? (
+                  <ScheduleSelector
+                    schedules={availableSchedules}
+                    selectedScheduleIds={selectedScheduleIds}
+                    onChange={(scheduleIds) => form.setFieldsValue({ scheduleIds })}
+                    loading={schedulesLoading}
+                    disabled={!selectedGradeId || schedulesLoading}
+                  />
+                ) : (
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                    {!selectedGradeId ? 'Please select a grade first' : 'Schedules are only available for students'}
+                  </div>
+                )}
+              </Form.Item>
 
-            <Form.Item 
-              label='Phone' 
-              name='phone'
-              rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
-            >
-              <Input placeholder='Enter phone number (optional)' />
-            </Form.Item>
+              <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
 
-            <Form.Item 
-              label='Address' 
-              name='address'
-              rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
-            >
-              <Input.TextArea 
-                placeholder='Enter address (optional)' 
-                rows={2}
-                maxLength={500}
-                showCount
-              />
-            </Form.Item>
+              <Form.Item
+                label='Phone'
+                name='phone'
+                rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
+              >
+                <Input placeholder='Enter phone number (optional)' />
+              </Form.Item>
 
-            <Form.Item 
-              label='Zipcode' 
-              name='zipcode'
-              rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
-            >
-              <Input placeholder='Enter zipcode (optional)' />
-            </Form.Item>
+              <Form.Item
+                label='Address'
+                name='address'
+                rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
+              >
+                <Input.TextArea
+                  placeholder='Enter address (optional)'
+                  rows={2}
+                  maxLength={500}
+                  showCount
+                />
+              </Form.Item>
 
-            <Divider orientation="left" style={{ margin: '16px 0' }}>Guardian Information</Divider>
+              <Form.Item
+                label='Zipcode'
+                name='zipcode'
+                rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
+              >
+                <Input placeholder='Enter zipcode (optional)' />
+              </Form.Item>
 
-            <Form.Item 
-              label='Guardian Name' 
-              name='guardian_name'
-              rules={[{ max: 200, message: 'Guardian name must not exceed 200 characters' }]}
-            >
-              <Input placeholder='Enter guardian name (optional)' />
-            </Form.Item>
+              <Divider orientation="left" style={{ margin: '16px 0' }}>Guardian Information</Divider>
 
-            <Form.Item 
-              label='Guardian Phone' 
-              name='guardian_phone'
-              rules={[{ max: 20, message: 'Guardian phone must not exceed 20 characters' }]}
-            >
-              <Input placeholder='Enter guardian phone (optional)' />
-            </Form.Item>
+              <Form.Item
+                label='Guardian Name'
+                name='guardian_name'
+                rules={[{ max: 200, message: 'Guardian name must not exceed 200 characters' }]}
+              >
+                <Input placeholder='Enter guardian name (optional)' />
+              </Form.Item>
 
-            <Form.Item 
-              label='Guardian Email' 
-              name='guardian_email'
-              rules={[
-                { type: 'email', message: 'Please enter a valid email address' },
-                { max: 200, message: 'Guardian email must not exceed 200 characters' }
-              ]}
-            >
-              <Input placeholder='Enter guardian email (optional)' />
-            </Form.Item>
+              <Form.Item
+                label='Guardian Phone'
+                name='guardian_phone'
+                rules={[{ max: 20, message: 'Guardian phone must not exceed 20 characters' }]}
+              >
+                <Input placeholder='Enter guardian phone (optional)' />
+              </Form.Item>
 
-            <Form.Item 
-              label='Guardian Address' 
-              name='guardian_address'
-              rules={[{ max: 500, message: 'Guardian address must not exceed 500 characters' }]}
-            >
-              <Input.TextArea 
-                placeholder='Enter guardian address (optional)' 
-                rows={2}
-                maxLength={500}
-                showCount
-              />
-            </Form.Item>
+              <Form.Item
+                label='Guardian Email'
+                name='guardian_email'
+                rules={[
+                  { type: 'email', message: 'Please enter a valid email address' },
+                  { max: 200, message: 'Guardian email must not exceed 200 characters' }
+                ]}
+              >
+                <Input placeholder='Enter guardian email (optional)' />
+              </Form.Item>
 
-            <Form.Item 
-              label='Guardian Zipcode' 
-              name='guardian_zipcode'
-              rules={[{ max: 20, message: 'Guardian zipcode must not exceed 20 characters' }]}
-            >
-              <Input placeholder='Enter guardian zipcode (optional)' />
-            </Form.Item>
+              <Form.Item
+                label='Guardian Address'
+                name='guardian_address'
+                rules={[{ max: 500, message: 'Guardian address must not exceed 500 characters' }]}
+              >
+                <Input.TextArea
+                  placeholder='Enter guardian address (optional)'
+                  rows={2}
+                  maxLength={500}
+                  showCount
+                />
+              </Form.Item>
 
-            <Form.Item 
-              label='Password (Optional)' 
-              name='password'
-              tooltip='Leave empty to keep current password. Students authenticate via email/NFC tokens.'
-            >
-              <Input.Password placeholder='Enter new password (optional)' />
-            </Form.Item>
-          </>
-        ) : (
-          <>
-            <Form.Item 
-              label='Role' 
-              name='roleId'
-              rules={[{ required: true, message: 'Role is required' }]}
-              tooltip='Select a role for this manager. Only manager default role and custom roles are available.'
-            >
-              <Select 
-                placeholder='Select role'
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                }
-                options={availableRoles.map(role => ({
-                  value: role.id,
-                  label: role.displayName || role.roleName
-                }))}
-              />
-            </Form.Item>
+              <Form.Item
+                label='Guardian Zipcode'
+                name='guardian_zipcode'
+                rules={[{ max: 20, message: 'Guardian zipcode must not exceed 20 characters' }]}
+              >
+                <Input placeholder='Enter guardian zipcode (optional)' />
+              </Form.Item>
 
-            <Form.Item 
-              label='Grades' 
-              name='gradeIds'
-              rules={[
-                { required: true, message: 'At least one grade is required' },
-                { type: 'array', min: 1, message: 'Manager must be assigned to at least one grade' }
-              ]}
-              tooltip='Select one or more grades this manager will manage'
-            >
-              <Select
-                mode="multiple"
-                placeholder='Select grades'
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                }
-                options={grades.map(grade => ({
-                  value: grade.id,
-                  label: formatGradeDisplayName(grade)
-                }))}
-              />
-            </Form.Item>
+              <Form.Item
+                label='Password (Optional)'
+                name='password'
+                tooltip='Leave empty to keep current password. Students authenticate via email/NFC tokens.'
+              >
+                <Input.Password placeholder='Enter new password (optional)' />
+              </Form.Item>
+            </>
+          ) : (
+            <>
+              <Form.Item
+                label='Role'
+                name='roleId'
+                rules={[{ required: true, message: 'Role is required' }]}
+                tooltip='Select a role for this manager. Only manager default role and custom roles are available.'
+              >
+                <Select
+                  placeholder='Select role'
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={availableRoles.map(role => ({
+                    value: role.id,
+                    label: role.displayName || role.roleName
+                  }))}
+                />
+              </Form.Item>
 
-            <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
+              <Form.Item
+                label='Grades'
+                name='gradeIds'
+                rules={[
+                  { required: true, message: 'At least one grade is required' },
+                  { type: 'array', min: 1, message: 'Manager must be assigned to at least one grade' }
+                ]}
+                tooltip='Select one or more grades this manager will manage'
+              >
+                <Select
+                  mode="multiple"
+                  placeholder='Select grades'
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  options={grades.map(grade => ({
+                    value: grade.id,
+                    label: formatGradeDisplayName(grade)
+                  }))}
+                />
+              </Form.Item>
 
-            <Form.Item 
-              label='Phone' 
-              name='phone'
-              rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
-            >
-              <Input placeholder='Enter phone number (optional)' />
-            </Form.Item>
+              <Divider orientation="left" style={{ margin: '16px 0' }}>Contact Information</Divider>
 
-            <Form.Item 
-              label='Address' 
-              name='address'
-              rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
-            >
-              <Input.TextArea 
-                placeholder='Enter address (optional)' 
-                rows={2}
-                maxLength={500}
-                showCount
-              />
-            </Form.Item>
+              <Form.Item
+                label='Phone'
+                name='phone'
+                rules={[{ max: 20, message: 'Phone must not exceed 20 characters' }]}
+              >
+                <Input placeholder='Enter phone number (optional)' />
+              </Form.Item>
 
-            <Form.Item 
-              label='Zipcode' 
-              name='zipcode'
-              rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
-            >
-              <Input placeholder='Enter zipcode (optional)' />
-            </Form.Item>
+              <Form.Item
+                label='Address'
+                name='address'
+                rules={[{ max: 500, message: 'Address must not exceed 500 characters' }]}
+              >
+                <Input.TextArea
+                  placeholder='Enter address (optional)'
+                  rows={2}
+                  maxLength={500}
+                  showCount
+                />
+              </Form.Item>
 
-            <Form.Item 
-              label='Password (Optional)' 
-              name='password'
-              tooltip='Leave empty to keep current password'
-            >
-              <Input.Password placeholder='Enter new password (optional)' />
-            </Form.Item>
-          </>
-        )}
+              <Form.Item
+                label='Zipcode'
+                name='zipcode'
+                rules={[{ max: 20, message: 'Zipcode must not exceed 20 characters' }]}
+              >
+                <Input placeholder='Enter zipcode (optional)' />
+              </Form.Item>
 
-        <Form.Item label='Status' name='status'>
-          <Select>
-            <Option value='active'>Active</Option>
-            <Option value='inactive'>Inactive</Option>
-            <Option value='suspended'>Suspended</Option>
-          </Select>
-        </Form.Item>
+              <Form.Item
+                label='Password (Optional)'
+                name='password'
+                tooltip='Leave empty to keep current password'
+              >
+                <Input.Password placeholder='Enter new password (optional)' />
+              </Form.Item>
+            </>
+          )}
+
+          <Form.Item label='Status' name='status'>
+            <Select>
+              <Option value='active'>Active</Option>
+              <Option value='inactive'>Inactive</Option>
+              <Option value='suspended'>Suspended</Option>
+            </Select>
+          </Form.Item>
         </Form>
       </div>
     </Modal>

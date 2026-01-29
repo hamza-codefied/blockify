@@ -92,12 +92,15 @@ export const Grades = () => {
   return (
     <>
       <Card
-        className='grades-card border-2 border-gray-200 w-full shadow-lg flex flex-col'
+        className='grades-card w-full shadow-lg flex flex-col'
         style={{
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100%',
+          borderRadius: '12px',
+          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+          border: '2px solid rgba(0, 0, 0, 0.05)',
         }}
         bodyStyle={{
           flex: 1,

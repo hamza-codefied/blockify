@@ -173,12 +173,14 @@ export const InstituteDetails = () => {
 
   return (
     <div
-      className='w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 flex flex-col items-center lg:items-start border-2 border-gray-200 dark:border-gray-700'
+      className='w-full bg-white dark:bg-gray-800 p-6 flex flex-col items-center lg:items-start'
       style={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '100%',
+        borderRadius: '12px',
+        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+        border: '2px solid rgba(0, 0, 0, 0.05)',
       }}
     >
       {/* Image Section */}
