@@ -1,0 +1,54 @@
+/* Allowed Apps Component Styles */
+.allowed-apps-card {
+    border-radius: 12px !important;
+    border: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.allowed-apps-header {
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: #374151;
+}
+
+.allowed-apps-list-item {
+    padding: 12px !important;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s ease;
+}
+
+.allowed-apps-list-item:hover {
+    background-color: #f8fafc;
+}
+
+.allowed-apps-list-item:last-child {
+    border-bottom: none;
+}
+
+/* Toggle switch styling */
+.allowed-apps-card .ant-switch-checked {
+    background-color: #00B894 !important;
+}
+
+.allowed-apps-card .ant-switch-checked:hover {
+    background-color: #019a7d !important;
+}
+
+/* Dark mode support */
+.dark .allowed-apps-header {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #e5e7eb !important;
+}
+
+.dark .allowed-apps-list-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e5e7eb !important;
+}
+
+.dark .allowed-apps-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .allowed-apps-card {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}

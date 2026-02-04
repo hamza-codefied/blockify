@@ -6,6 +6,7 @@ import {
 } from '@utils/seo';
 import { InstituteDetails } from '@/components/profile/InstituteDetails';
 import { PermissionManagement } from '@/components/profile/PermissionManagement';
+import { AllowedApps } from '@/components/profile/AllowedApps';
 // import { Grades } from '@/components/profile/Grades';
 // import { Schedules } from '@/components/profile/Schedules';
 import { Typography as PageTitle } from '@/components/common/PageTitle';
@@ -49,6 +50,16 @@ export const Profile = () => {
               lockMessage="You do not have permission to view roles and permissions"
             >
               <PermissionManagement />
+            </LockedSection>
+          </div>
+
+          {/* Second Row - Allowed Apps (full width) */}
+          <div className='lg:col-span-2' style={{ display: 'flex', alignItems: 'stretch' }}>
+            <LockedSection
+              permission={PERMISSIONS.ALLOWED_APPS_READ}
+              lockMessage="You do not have permission to manage allowed apps"
+            >
+              <AllowedApps />
             </LockedSection>
           </div>
         </div>
