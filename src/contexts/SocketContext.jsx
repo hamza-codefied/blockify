@@ -17,14 +17,35 @@ const SocketContext = createContext(null);
 const isProduction = import.meta.env.MODE === 'production' || import.meta.env.PROD;
 const envBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
-// Extract socket URL (root, without /api/v1)
+// Socket URL configuration
+// IMPORTANT: Netlify redirects only work for HTTP, NOT WebSockets
+// For production with Netlify frontend + separate backend, we MUST set VITE_SOCKET_URL
+// to the direct backend URL (e.g., https://api.yourserver.com)
+const envSocketUrl = import.meta.env.VITE_SOCKET_URL;
+
 const getSocketUrl = () => {
+    // 1. Prefer explicit VITE_SOCKET_URL if set
+    if (envSocketUrl) {
+        console.log('[Socket] Using explicit VITE_SOCKET_URL');
+        return envSocketUrl;
+    }
+
+    // 2. If VITE_API_BASE_URL is a full URL, extract root for socket
     if (envBaseUrl && (envBaseUrl.startsWith('http://') || envBaseUrl.startsWith('https://'))) {
         // Remove /api/v1 suffix if present
-        return envBaseUrl.replace(/\/api\/v1\/?$/, '');
+        const socketUrl = envBaseUrl.replace(/\/api\/v1\/?$/, '');
+        console.log('[Socket] Extracted socket URL from VITE_API_BASE_URL:', socketUrl);
+        return socketUrl;
     }
-    // Default to localhost in development
-    return isProduction ? '' : 'http://localhost:5004';
+
+    // 3. In development, use localhost
+    // In production without explicit URL, socket won't work (Netlify can't proxy WebSockets)
+    if (isProduction) {
+        console.warn('[Socket] No VITE_SOCKET_URL set in production. Socket.io will NOT work with Netlify proxy.');
+        return undefined;
+    }
+
+    return 'http://localhost:5004';
 };
 
 const SOCKET_URL = getSocketUrl();
