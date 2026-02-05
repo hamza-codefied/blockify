@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import { SEOProvider } from '@contexts/SEOContext';
 import { DarkModeProvider, useDarkMode } from '@contexts/DarkModeContext';
+import { SocketProvider } from '@contexts/SocketContext';
 import { getAntdTheme } from '@config/antdTheme';
 import { Layout } from '@layouts/Layout';
 import { ProtectedRoute } from '@components/auth/ProtectedRoute';
@@ -44,30 +45,32 @@ function AppContent() {
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={getAntdTheme(darkMode)}>
         <SEOProvider>
-          <Router>
-            <Routes>
-              {/* Public routes */}
-              <Route path='/' element={<Login />} />
-              <Route path='/forgot-password' element={<ForgotPassword />} />
+          <SocketProvider>
+            <Router>
+              <Routes>
+                {/* Public routes */}
+                <Route path='/' element={<Login />} />
+                <Route path='/forgot-password' element={<ForgotPassword />} />
 
-              {/* Protected routes under layout */}
-              <Route element={<ProtectedRoute />}>
-                <Route element={<Layout />}>
-                  <Route path='/dashboard' element={<Dashboard />} />
-                  <Route path='/attendance' element={<Attendance />} />
-                  <Route path='/session' element={<Session />} />
-                  <Route path='/users' element={<UserManagement />} />
-                  <Route path='/profile' element={<Profile />} />
+                {/* Protected routes under layout */}
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<Layout />}>
+                    <Route path='/dashboard' element={<Dashboard />} />
+                    <Route path='/attendance' element={<Attendance />} />
+                    <Route path='/session' element={<Session />} />
+                    <Route path='/users' element={<UserManagement />} />
+                    <Route path='/profile' element={<Profile />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              <Route path='*' element={<NotFound />} />
-            </Routes>
+                <Route path='*' element={<NotFound />} />
+              </Routes>
 
-            <PWAInstallPrompt />
-            <PWAUpdatePrompt />
-            <PerformanceMonitor enabled={process.env.NODE_ENV === 'development'} />
-          </Router>
+              <PWAInstallPrompt />
+              <PWAUpdatePrompt />
+              <PerformanceMonitor enabled={process.env.NODE_ENV === 'development'} />
+            </Router>
+          </SocketProvider>
         </SEOProvider>
       </ConfigProvider>
     </QueryClientProvider>

@@ -3,8 +3,12 @@ import { Outlet } from 'react-router-dom';
 import { Header } from '@components/layout/Header';
 import { Footer } from '@components/layout/Footer';
 import { TabComponent } from '@/components/layout/TabComponent';
+import { useSessionForceEndListener } from '@hooks/useSocketNotifications.jsx';
 
 export const Layout = ({ children }) => {
+  // Enable real-time notifications for force-ended sessions
+  useSessionForceEndListener();
+
   return (
     <div className='min-h-screen flex flex-col bg-white dark:bg-gray-900'>
       <Header />
