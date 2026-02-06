@@ -33,9 +33,12 @@ if (envBaseUrl) {
   }
 }
 
+// const API_BASE_URL =
+//   envBaseUrl ||
+//   (isProduction ? '/api/v1' : 'http://localhost:5004/api/v1');
 const API_BASE_URL =
   envBaseUrl ||
-  (isProduction ? '/api/v1' : 'http://localhost:5004/api/v1');
+  (isProduction ? '/api/v1' : 'http://192.168.100.41:5004/api/v1');
 
 // Debug logging (remove in production if needed)
 if (typeof window !== 'undefined' && import.meta.env.DEV) {

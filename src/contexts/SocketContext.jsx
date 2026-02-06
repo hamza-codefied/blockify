@@ -23,10 +23,18 @@ const envBaseUrl = import.meta.env.VITE_API_BASE_URL;
 // to the direct backend URL (e.g., https://api.yourserver.com)
 const envSocketUrl = import.meta.env.VITE_SOCKET_URL;
 
+// DEBUG: Log all environment values at module load
+console.log('[Socket] === CONFIG DEBUG ===');
+console.log('[Socket] MODE:', import.meta.env.MODE);
+console.log('[Socket] PROD:', import.meta.env.PROD);
+console.log('[Socket] isProduction:', isProduction);
+console.log('[Socket] VITE_API_BASE_URL:', envBaseUrl);
+console.log('[Socket] VITE_SOCKET_URL:', envSocketUrl);
+
 const getSocketUrl = () => {
     // 1. Prefer explicit VITE_SOCKET_URL if set
     if (envSocketUrl) {
-        console.log('[Socket] Using explicit VITE_SOCKET_URL');
+        console.log('[Socket] Using explicit VITE_SOCKET_URL:', envSocketUrl);
         return envSocketUrl;
     }
 
@@ -41,14 +49,17 @@ const getSocketUrl = () => {
     // 3. In development, use localhost
     // In production without explicit URL, socket won't work (Netlify can't proxy WebSockets)
     if (isProduction) {
-        console.warn('[Socket] No VITE_SOCKET_URL set in production. Socket.io will NOT work with Netlify proxy.');
+        console.warn('[Socket] ⚠️ No VITE_SOCKET_URL or VITE_API_BASE_URL set in production!');
+        console.warn('[Socket] ⚠️ Socket.io will NOT work. Set one of these env vars in Netlify.');
         return undefined;
     }
 
-    return 'http://localhost:5004';
+    // return 'http://localhost:5004';
+    return 'http://192.168.100.41:5004';
 };
 
 const SOCKET_URL = getSocketUrl();
+console.log('[Socket] Final SOCKET_URL:', SOCKET_URL);
 
 export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
@@ -57,7 +68,8 @@ export const SocketProvider = ({ children }) => {
     const maxReconnectAttempts = 5;
 
     useEffect(() => {
-        console.log('[Socket] SocketProvider mounted, URL:', SOCKET_URL);
+        console.log('[Socket] SocketProvider useEffect running...');
+        console.log('[Socket] SOCKET_URL at mount:', SOCKET_URL);
 
         // Token is stored in Zustand's persisted 'auth-storage' key as: { state: { token: '...' }, version: 0 }
         let token = null;
