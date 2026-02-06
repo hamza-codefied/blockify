@@ -38,20 +38,25 @@ const getSocketUrl = () => {
         return envSocketUrl;
     }
 
-    // 2. If VITE_API_BASE_URL is a full URL, extract root for socket
+    // 2. If VITE_API_BASE_URL is a full HTTP URL in production, DON'T use it directly
+    // (would cause mixed content error). Instead use same-origin to go through Netlify proxy.
+    // In development, extract the URL for direct connection.
     if (envBaseUrl && (envBaseUrl.startsWith('http://') || envBaseUrl.startsWith('https://'))) {
-        // Remove /api/v1 suffix if present
+        if (isProduction) {
+            // In production, use same-origin to route through Netlify's /socket.io/* proxy
+            console.log('[Socket] Production: using same-origin (Netlify proxy)');
+            return '';
+        }
+        // In development, connect directly
         const socketUrl = envBaseUrl.replace(/\/api\/v1\/?$/, '');
-        console.log('[Socket] Extracted socket URL from VITE_API_BASE_URL:', socketUrl);
+        console.log('[Socket] Dev: extracted socket URL from VITE_API_BASE_URL:', socketUrl);
         return socketUrl;
     }
 
-    // 3. In development, use localhost
-    // In production without explicit URL, socket won't work (Netlify can't proxy WebSockets)
+    // 3. In production without env URL, use same-origin (Netlify proxy)
     if (isProduction) {
-        console.warn('[Socket] ⚠️ No VITE_SOCKET_URL or VITE_API_BASE_URL set in production!');
-        console.warn('[Socket] ⚠️ Socket.io will NOT work. Set one of these env vars in Netlify.');
-        return undefined;
+        console.log('[Socket] Production fallback: using same-origin (Netlify proxy)');
+        return '';
     }
 
     // return 'http://localhost:5004';
@@ -98,10 +103,15 @@ export const SocketProvider = ({ children }) => {
 
         console.log('[Socket] Attempting connection to:', SOCKET_URL);
 
+        // In production over HTTPS, WebSocket to HTTP backend will be blocked (mixed content)
+        // Use polling only as fallback - it's slower but works through Netlify's proxy
+        const transports = isProduction ? ['polling'] : ['websocket', 'polling'];
+        console.log('[Socket] Using transports:', transports);
+
         // Create socket connection with authentication
         const socketInstance = io(SOCKET_URL, {
             auth: { token },
-            transports: ['websocket', 'polling'],
+            transports,
             reconnection: true,
             reconnectionAttempts: maxReconnectAttempts,
             reconnectionDelay: 1000,

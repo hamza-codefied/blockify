@@ -5,6 +5,13 @@
   status = 200
   force = true
 
+# Proxy socket.io polling requests (WebSocket upgrade won't work through Netlify)
+[[redirects]]
+  from = "/socket.io/*"
+  to = "http://development.test-school.148.230.94.171.sslip.io/socket.io/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/__/auth/*"
   to = "/"
