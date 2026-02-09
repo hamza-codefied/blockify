@@ -338,8 +338,8 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
 
                 <div className='flex flex-col sm:flex-row justify-start gap-4 max-md:gap-10 max-lg:gap-4 max-xl:gap-5 w-full'>
                   {/* Day */}
-                  <div className='font-medium text-base max-sm:text-sm w-[100px]'>
-                    {dayData.day}
+                  <div className='font-medium text-base max-sm:text-sm w-[100px] flex flex-col gap-2'>
+                    <span>{dayData.day}</span>
                   </div>
 
                   {/* Time line */}
@@ -365,23 +365,24 @@ export const UnstaggeredScheduleView = ({ onAddSchedule, onImportCSV }) => {
                                 {formatTime(schedule.endTime)}
                               </span>
                             </div>
+
+                            {/* Action icons - Now correctly scoped to this specific schedule */}
+                            <div className='flex space-x-2 ml-4'>
+                              <RiDeleteBinLine
+                                onClick={() => handleDelete(schedule)}
+                                className={`w-5 h-5 cursor-pointer hover:opacity-80 transition-opacity ${dayData.active ? 'text-red-400' : 'text-[#801818]'
+                                  }`}
+                                title="Delete schedule"
+                              />
+                            </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <span className='text-sm text-gray-400 italic'>
+                      <span className={`text-sm italic ${dayData.active ? 'text-gray-400' : 'text-gray-400'}`}>
                         No schedule
                       </span>
                     )}
-                  </div>
-
-                  {/* Action icons */}
-                  <div className='flex space-x-2 ml-4'>
-                    <RiDeleteBinLine
-                      onClick={() => handleDelete(schedule)}
-                      className={`w-5 h-5 cursor-pointer ${dayData.active ? 'text-red-500' : 'text-[#801818]'
-                        }`}
-                    />
                   </div>
                 </div>
               </div>

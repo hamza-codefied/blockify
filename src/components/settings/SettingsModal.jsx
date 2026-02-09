@@ -9,14 +9,14 @@ import './settings.css';
 const SettingsModal = ({ isOpen, onClose }) => {
   const { user } = useAuthStore();
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
-  
+
   const [formData, setFormData] = useState(null);
   const [originalSettings, setOriginalSettings] = useState(null); // Store original values
   const [acceptingEnrollment, setAcceptingEnrollment] = useState(true); // Keep in localStorage
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [pendingSaveData, setPendingSaveData] = useState(null);
   const logoutMutation = useLogout();
-  
+
   // Fetch school settings from API
   const { data: settingsData, isLoading } = useGetSchoolSettings(schoolId, isOpen && !!schoolId);
   const updateSettingsMutation = useUpdateSchoolSettings();
@@ -35,8 +35,8 @@ const SettingsModal = ({ isOpen, onClose }) => {
     if (settingsData?.data) {
       const data = settingsData.data;
       const newFormData = {
-        schoolDomain: data.schoolDomain && data.schoolDomain.length > 0 
-          ? data.schoolDomain.join(', ') 
+        schoolDomain: data.schoolDomain && data.schoolDomain.length > 0
+          ? data.schoolDomain.join(', ')
           : '',
         studentEmergencySessionEnd: data.allowStudentEarlySessionEndRequests ?? true,
         studentScheduleChangeRequests: data.allowStudentScheduleChangeRequests ?? true,
@@ -58,12 +58,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
   // ✅ Check if schedule type is changing
   const isScheduleTypeChanging = () => {
     if (!originalSettings || !formData) return false;
-    
+
     const oldStaggered = originalSettings.enableStaggeredSessions;
     const oldUnstaggered = originalSettings.enableUnstaggeredSessions;
     const newStaggered = formData.weekendSettings.staggeredSession;
     const newUnstaggered = formData.weekendSettings.unstaggeredSession;
-    
+
     return (oldStaggered !== newStaggered) || (oldUnstaggered !== newUnstaggered);
   };
 
@@ -353,16 +353,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
           </p>
         </div>
 
-        {/* ====== Logout ====== */}
-        <Button
-          type='text'
-          danger
-          onClick={() => logoutMutation.mutate()}
-          loading={logoutMutation.isPending}
-          className='text-red-700 hover:text-red-800 focus:text-red-800 text-[16px] font-bold p-0 h-auto'
-        >
-          Logout
-        </Button>
+
 
         {/* ====== Save Button ====== */}
         <div className='flex justify-end mt-4'>

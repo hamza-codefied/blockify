@@ -264,8 +264,9 @@ export const AllowedApps = () => {
                                                             checked={app.status === 'enabled'}
                                                             onChange={() => handleToggleStatus(app)}
                                                             loading={updateMutation.isPending}
-                                                            checkedChildren="On"
-                                                            unCheckedChildren="Off"
+                                                            style={{
+                                                                backgroundColor: app.status === 'enabled' ? '#00B894' : undefined,
+                                                            }}
                                                         />
                                                     </Col>
                                                     <Col flex="1" style={{ textAlign: 'right' }}>

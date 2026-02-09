@@ -35,6 +35,7 @@ export const Session = () => {
   const [activeTab, setActiveTab] = useState('grades');
   const [openScheduleModal, setOpenScheduleModal] = useState(false); // For schedules (AddSessionModal)
   const [openSessionModal, setOpenSessionModal] = useState(false); // For actual sessions (SessionModal)
+
   const [isCSVImportModalOpen, setIsCSVImportModalOpen] = useState(false); // For CSV import
 
   const { user, hasPermission } = useAuthStore();
@@ -48,9 +49,7 @@ export const Session = () => {
   // Grades Tab Content
   const GradesTabContent = () => (
     <>
-      <div className='flex justify-between items-center mb-4'>
-        <div></div>
-        <div className='flex gap-2'>
+      {/* <div className='flex gap-2'>
           {hasPermission(PERMISSIONS.SESSIONS_CREATE) && (
             <button
               onClick={async () => {
@@ -66,8 +65,7 @@ export const Session = () => {
               {createUpcomingSessionsMutation.isPending ? 'Creating...' : 'Create Upcoming Sessions'}
             </button>
           )}
-        </div>
-      </div>
+        </div> */}
 
       <LockedSection
         permission={PERMISSIONS.SESSIONS_READ}
@@ -79,8 +77,8 @@ export const Session = () => {
               type={activeTab === 'grades' ? 'primary' : 'text'}
               onClick={() => setActiveTab('grades')}
               className={`flex w-[256px] h-[52px] justify-center items-center gap-3 shrink-0 rounded-[10px] text-base ${activeTab === 'grades'
-                  ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                  : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+                ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
                 }`}
             >
               Grades
@@ -89,8 +87,8 @@ export const Session = () => {
               type={activeTab === 'groups' ? 'primary' : 'text'}
               onClick={() => setActiveTab('groups')}
               className={`flex w-[256px] h-[52px] justify-center items-center gap-3 shrink-0 rounded-[10px] text-base ${activeTab === 'groups'
-                  ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
-                  : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+                ? 'bg-[#00B894] text-white hover:!bg-[#00b894]'
+                : 'bg-[#f2f3f4] dark:bg-gray-700 text-gray-700 dark:text-gray-200'
                 }`}
             >
               Groups
@@ -184,10 +182,11 @@ export const Session = () => {
         }}
       />
 
-      {/* Schedule Modal - For creating Schedule templates */}
       <AddSessionModal
         open={openScheduleModal}
-        onClose={() => setOpenScheduleModal(false)}
+        onClose={() => {
+          setOpenScheduleModal(false);
+        }}
         onSuccess={() => {
           setOpenScheduleModal(false);
         }}

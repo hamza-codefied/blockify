@@ -46,10 +46,9 @@ const DAY_NUMBERS = {
   Saturday: 6,
 };
 
-export const AddSessionModal = ({ open, onClose, onSuccess }) => {
+export const AddSessionModal = ({ open, onClose, onSuccess, defaultDay }) => {
   const [form] = Form.useForm();
   const [selectedDays, setSelectedDays] = useState([]);
-  const [pendingTimes, setPendingTimes] = useState({});
   const createScheduleMutation = useCreateSchedule();
 
   const [scheduleType, setScheduleType] = useState('grade'); // 'grade' | 'custom'
@@ -102,8 +101,17 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
       setSelectedDays([]);
       setScheduleType('grade');
       form.setFieldsValue({ type: 'grade' });
+    } else if (defaultDay && typeof defaultDay === 'string') {
+      // If a default day is provided (from clicking "+" on row), pre-select it
+      setSelectedDays([defaultDay]);
+      // Initialize with one empty slot for the default day
+      form.setFieldsValue({
+        times: {
+          [defaultDay]: [{ startTime: null, endTime: null }]
+        }
+      });
     }
-  }, [open, form]);
+  }, [open, form, defaultDay]);
 
   //>>> Clear manager selection when grade changes
   useEffect(() => {
@@ -124,54 +132,73 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
 
   const toggleDay = day => {
     if (selectedDays.includes(day)) {
-      setSelectedDays(selectedDays.filter(d => d !== day));
+      const newSelectedDays = selectedDays.filter(d => d !== day);
+      setSelectedDays(newSelectedDays);
+
+      // Clear times for unselected day
+      const currentTimes = form.getFieldValue('times') || {};
+      const newTimes = { ...currentTimes };
+      delete newTimes[day];
+      form.setFieldValue('times', newTimes);
     } else {
       setSelectedDays([...selectedDays, day]);
+      // Initialize with one empty slot for the new day
+      const currentTimes = form.getFieldValue('times') || {};
+      form.setFieldValue('times', {
+        ...currentTimes,
+        [day]: [{ startTime: null, endTime: null }]
+      });
     }
   };
 
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      const { gradeId, managerId, name, additionalGradeIds, type, capacity } = values;
+      const { gradeId, managerId, name, additionalGradeIds, type, capacity, times } = values;
 
       // Filter out primary grade from additional grades if it's included
       const filteredAdditionalGradeIds = (additionalGradeIds || []).filter(
         id => id !== gradeId
       );
 
-      // Create a schedule for each selected day with its specific times
-      const schedulePromises = selectedDays.map(day => {
+      const schedulePromises = [];
+
+      selectedDays.forEach(day => {
         const dayOfWeek = DAY_NUMBERS[day];
-        const startTimeKey = `startTime_${day}`;
-        const endTimeKey = `endTime_${day}`;
-        const startTime = values[startTimeKey];
-        const endTime = values[endTimeKey];
+        const dayTimes = times[day] || [];
 
-        // Convert dayjs to HH:mm format
-        const startTimeStr = startTime ? startTime.format('HH:mm') : null;
-        const endTimeStr = endTime ? endTime.format('HH:mm') : null;
+        dayTimes.forEach(({ startTime, endTime }) => {
+          if (!startTime || !endTime) return;
 
-        const payload = {
-          type,
-          name: name.trim(),
-          dayOfWeek,
-          startTime: startTimeStr,
-          endTime: endTimeStr,
-        };
+          // Convert dayjs to HH:mm format
+          const startTimeStr = startTime.format('HH:mm');
+          const endTimeStr = endTime.format('HH:mm');
 
-        if (type === 'grade') {
-          payload.gradeId = gradeId;
-          payload.managerId = managerId;
-          if (filteredAdditionalGradeIds.length > 0) {
-            payload.additionalGradeIds = filteredAdditionalGradeIds;
+          const payload = {
+            type,
+            name: name.trim(),
+            dayOfWeek,
+            startTime: startTimeStr,
+            endTime: endTimeStr,
+          };
+
+          if (type === 'grade') {
+            payload.gradeId = gradeId;
+            payload.managerId = managerId;
+            if (filteredAdditionalGradeIds.length > 0) {
+              payload.additionalGradeIds = filteredAdditionalGradeIds;
+            }
+          } else {
+            payload.capacity = capacity;
           }
-        } else {
-          payload.capacity = capacity;
-        }
 
-        return createScheduleMutation.mutateAsync(payload);
+          schedulePromises.push(createScheduleMutation.mutateAsync(payload));
+        });
       });
+
+      if (schedulePromises.length === 0) {
+        return; // No valid times to save
+      }
 
       await Promise.all(schedulePromises);
 
@@ -296,94 +323,98 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
           </div>
         </Form.Item>
 
-        {/* ===== Time Selection (Separate for each selected day) ===== */}
+        {/* ===== Time Selection (Dynamic List per Day) ===== */}
         {selectedDays.length > 0 && (
-          <div className='space-y-4'>
+          <div className='space-y-6'>
             {selectedDays.map(day => (
               <div
                 key={day}
-                className='border border-gray-200 dark:border-gray-700 rounded-lg p-4'
+                className='border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50/50 dark:bg-gray-800/50'
               >
-                <Text strong className='text-base mb-3 block'>
-                  {day}
-                </Text>
-                <Row gutter={16}>
-                  <Col xs={12}>
-                    <Form.Item
-                      label='Start Time'
-                      name={`startTime_${day}`}
-                      rules={[
-                        { required: true, message: 'Please select start time' },
-                      ]}
-                    >
-                      <TimePicker
-                        style={{ width: '100%' }}
-                        use12Hours
-                        format='hh:mm A'
-                        defaultOpenValue={dayjs('08:00', 'HH:mm')}
-                        placeholder='Select start time'
-                        onSelect={time => {
-                          const key = `startTime_${day}`;
-                          setPendingTimes(prev => ({ ...prev, [key]: time }));
-                          form.setFieldValue(key, time);
-                        }}
-                        onOpenChange={open => {
-                          const key = `startTime_${day}`;
-                          if (!open && pendingTimes[key]) {
-                            form.setFieldValue(key, pendingTimes[key]);
-                            setPendingTimes(prev => {
-                              const newState = { ...prev };
-                              delete newState[key];
-                              return newState;
-                            });
-                          }
-                        }}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={12}>
-                    <Form.Item
-                      label='End Time'
-                      name={`endTime_${day}`}
-                      rules={[
-                        { required: true, message: 'Please select end time' },
-                      ]}
-                    >
-                      <TimePicker
-                        style={{ width: '100%' }}
-                        use12Hours
-                        format='hh:mm A'
-                        defaultOpenValue={dayjs('17:00', 'HH:mm')}
-                        placeholder='Select end time'
-                        onSelect={time => {
-                          const key = `endTime_${day}`;
-                          setPendingTimes(prev => ({ ...prev, [key]: time }));
-                          form.setFieldValue(key, time);
-                        }}
-                        onOpenChange={open => {
-                          const key = `endTime_${day}`;
-                          if (!open && pendingTimes[key]) {
-                            form.setFieldValue(key, pendingTimes[key]);
-                            setPendingTimes(prev => {
-                              const newState = { ...prev };
-                              delete newState[key];
-                              return newState;
-                            });
-                          }
-                        }}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
+                <div className='flex justify-between items-center mb-3'>
+                  <Text strong className='text-base'>
+                    {day}
+                  </Text>
+                </div>
+
+                <Form.List name={['times', day]}>
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }, index) => (
+                        <Row key={key} gutter={16} align="middle" className="mb-3">
+                          <Col flex="1">
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'startTime']}
+                              rules={[{ required: true, message: 'Required' }]}
+                              className="mb-0"
+                            >
+                              <TimePicker
+                                style={{ width: '100%' }}
+                                use12Hours
+                                format='hh:mm A'
+                                placeholder='Start'
+                                defaultOpenValue={dayjs('08:00', 'HH:mm')}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col flex="none">
+                            <span className="text-gray-400 font-medium">-</span>
+                          </Col>
+                          <Col flex="1">
+                            <Form.Item
+                              {...restField}
+                              name={[name, 'endTime']}
+                              rules={[{ required: true, message: 'Required' }]}
+                              className="mb-0"
+                            >
+                              <TimePicker
+                                style={{ width: '100%' }}
+                                use12Hours
+                                format='hh:mm A'
+                                placeholder='End'
+                                defaultOpenValue={dayjs('09:00', 'HH:mm')}
+                              />
+                            </Form.Item>
+                          </Col>
+                          <Col flex="none">
+                            {fields.length > 1 ? (
+                              <Button
+                                type="text"
+                                danger
+                                onClick={() => remove(name)}
+                                className="flex items-center justify-center"
+                              >
+                                Using
+                                <span className="text-xl">×</span>
+                              </Button>
+                            ) : (
+                              <div className="w-[32px]"></div> // Placeholder for alignment
+                            )}
+                          </Col>
+                        </Row>
+                      ))}
+
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        block
+                        className="mt-2 text-gray-500 hover:text-[#00B894] hover:border-[#00B894]"
+                      >
+                        + Add Time Slot
+                      </Button>
+                    </>
+                  )}
+                </Form.List>
               </div>
             ))}
           </div>
         )}
 
         {selectedDays.length > 0 && (
-          <div className='mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg'>
+          <div className='mt-6 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg'>
             <Text type='secondary' className='text-sm'>
-              This will create schedules for: {selectedDays.join(', ')}
+              This will create separate schedule entries for each time slot.
             </Text>
           </div>
         )}
@@ -397,7 +428,7 @@ export const AddSessionModal = ({ open, onClose, onSuccess }) => {
             disabled={selectedDays.length === 0}
             className='bg-[#00B894] hover:bg-[#019a7d] font-semibold px-10'
           >
-            Save
+            Save Schedules
           </Button>
         </Form.Item>
       </Form>

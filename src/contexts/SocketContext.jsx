@@ -59,8 +59,8 @@ const getSocketUrl = () => {
         return '';
     }
 
-    // return 'http://localhost:5004';
-    return 'http://192.168.100.41:5004';
+    return 'http://localhost:5004';
+    // return 'http://192.168.100.92:5004';
 };
 
 const SOCKET_URL = getSocketUrl();

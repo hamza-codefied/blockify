@@ -11,6 +11,7 @@ import client from '@/images/user_client.png';
 import SettingsModal from '@/components/settings/SettingsModal';
 import { useDarkMode } from '@contexts/DarkModeContext';
 import { useAuthStore } from '@/store/authStore';
+import { useNotificationStore } from '@/store/notificationStore';
 import { useGetSchoolInformation } from '@/hooks/useSchool';
 import { useGetNotifications, useMarkAllNotificationsAsRead } from '@/hooks/useNotifications';
 import dayjs from 'dayjs';
@@ -25,47 +26,41 @@ export const Header = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationPage, setNotificationPage] = useState(1);
-  const [allNotifications, setAllNotifications] = useState([]);
   const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0); // Force refresh when reopening
   const notificationListRef = useRef(null);
   const { darkMode, toggleDarkMode } = useDarkMode();
   const { user } = useAuthStore();
-  
+
+  // Get notifications from Zustand store (populated by Layout.jsx)
+  const { notifications: storeNotifications, unreadCount, isLoading: isStoreLoading, hasMore, appendNotifications } = useNotificationStore();
+
+  // Local state for displaying notifications (combine store + paginated older ones)
+  const [displayNotifications, setDisplayNotifications] = useState([]);
+
   // Get schoolId from user object
   const schoolId = user?.schoolId || user?.school_id || user?.school?.id;
-  
+
   // Fetch school information (only for logo)
   const { data: schoolInfoData, isLoading: isLoadingSchoolInfo } = useGetSchoolInformation(
     schoolId,
     !!schoolId
   );
-  
+
   const schoolInfo = schoolInfoData?.data || {};
   const schoolLogo = schoolInfo.image || client;
-  
+
   // Get user information
   const userName = user?.fullName || 'User';
   const userRole = user?.roleDisplayName || user?.role || 'Role';
 
-  // Fetch unread count (always fetch page 1 to get unread count, even when popover is closed)
-  const { data: unreadCountData, refetch: refetchUnreadCount } = useGetNotifications({
-    page: 1,
-    limit: 1, // Just need unread count, minimal data
-    sort: 'created_at',
-    sortOrder: 'DESC'
-  });
-
-  // Fetch notifications with pagination (only when popover is open)
-  // Add refreshKey to query params to force fresh fetch when reopening
-  const { data: notificationsData, isLoading: isLoadingNotifications, refetch: refetchNotifications } = useGetNotifications({
+  // Only fetch more notifications when scrolling (page > 1)
+  const { data: paginatedData, isLoading: isLoadingPaginated } = useGetNotifications({
     page: notificationPage,
     limit: 10,
     sort: 'created_at',
-    sortOrder: 'DESC',
-    _refresh: refreshKey // Add refresh key to force new query
+    sortOrder: 'DESC'
   }, {
-    enabled: isNotificationOpen // Only fetch when popover is open
+    enabled: isNotificationOpen && notificationPage > 1 // Only fetch older pages
   });
 
   const markAllAsReadMutation = useMarkAllNotificationsAsRead();
@@ -73,50 +68,36 @@ export const Header = () => {
   // Track if we've already marked as read for this open session
   const [hasMarkedAsRead, setHasMarkedAsRead] = useState(false);
 
-  // Get unread count from the unread count query (always available)
-  const unreadCount = unreadCountData?.data?.unreadCount || 0;
-
-  // Update notifications list when data changes
+  // Combine store notifications with display
   useEffect(() => {
-    if (isNotificationOpen && notificationsData?.data) {
-      const { notifications, pagination } = notificationsData.data;
-      
-      // Ensure we have valid data
+    setDisplayNotifications(storeNotifications);
+    setHasMoreNotifications(hasMore);
+  }, [storeNotifications, hasMore]);
+
+  // Append paginated data when scrolling
+  useEffect(() => {
+    if (paginatedData?.data && notificationPage > 1) {
+      const { notifications, pagination } = paginatedData.data;
       if (Array.isArray(notifications)) {
-        // Always replace when page is 1, append when page > 1
-        if (notificationPage === 1) {
-          setAllNotifications(notifications);
-        } else {
-          setAllNotifications(prev => {
-            // Avoid duplicates
-            const existingIds = new Set(prev.map(n => n.id));
-            const newNotifications = notifications.filter(n => !existingIds.has(n.id));
-            return [...prev, ...newNotifications];
-          });
-        }
-        
-        // Check if there are more pages
+        // Append to display notifications (avoiding duplicates)
+        setDisplayNotifications(prev => {
+          const existingIds = new Set(prev.map(n => n.id));
+          const newNotifications = notifications.filter(n => !existingIds.has(n.id));
+          return [...prev, ...newNotifications];
+        });
+
         if (pagination) {
           setHasMoreNotifications(notificationPage < pagination.totalPages);
         }
       }
     }
-  }, [notificationsData, notificationPage, isNotificationOpen]);
+  }, [paginatedData, notificationPage]);
 
-  // Reset when notification popover is closed, prepare when opening
+  // Reset pagination when popover closes
   useEffect(() => {
     if (!isNotificationOpen) {
-      // Reset state when closing
       setNotificationPage(1);
-      setAllNotifications([]);
-      setHasMoreNotifications(true);
       setHasMarkedAsRead(false);
-    } else {
-      // When opening, reset to page 1, clear notifications, and increment refresh key
-      setNotificationPage(1);
-      setAllNotifications([]);
-      setHasMoreNotifications(true);
-      setRefreshKey(prev => prev + 1); // Force new query
     }
   }, [isNotificationOpen]);
 
@@ -126,9 +107,6 @@ export const Header = () => {
       markAllAsReadMutation.mutate(undefined, {
         onSuccess: () => {
           setHasMarkedAsRead(true);
-          // Refetch to get updated unread count and notifications
-          refetchUnreadCount();
-          refetchNotifications();
         }
       });
     }
@@ -139,10 +117,10 @@ export const Header = () => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     const isNearBottom = scrollHeight - scrollTop - clientHeight < 50; // 50px threshold
 
-    if (isNearBottom && hasMoreNotifications && !isLoadingNotifications) {
+    if (isNearBottom && hasMoreNotifications && !isLoadingPaginated) {
       setNotificationPage(prev => prev + 1);
     }
-  }, [hasMoreNotifications, isLoadingNotifications]);
+  }, [hasMoreNotifications, isLoadingPaginated]);
 
   const notificationContent = (
     <div className='w-80 rounded-lg shadow-lg bg-white dark:bg-gray-800'>
@@ -151,7 +129,7 @@ export const Header = () => {
           Notifications
         </h3>
         {unreadCount > 0 && (
-          <Text 
+          <Text
             className='text-[#00B894] text-xs cursor-pointer hover:underline'
             onClick={() => markAllAsReadMutation.mutate()}
           >
@@ -160,28 +138,27 @@ export const Header = () => {
         )}
       </div>
 
-      <div 
+      <div
         ref={notificationListRef}
         className='overflow-y-auto'
         style={{ maxHeight: '384px' }} // ~3 items visible at a time (128px per item)
         onScroll={handleScroll}
       >
-        {isLoadingNotifications && allNotifications.length === 0 ? (
+        {isStoreLoading && displayNotifications.length === 0 ? (
           <div className='flex justify-center items-center py-8'>
             <Spin size='small' />
           </div>
-        ) : allNotifications.length === 0 ? (
+        ) : displayNotifications.length === 0 ? (
           <div className='py-8'>
             <Empty description='No notifications' image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </div>
         ) : (
           <List
-            dataSource={allNotifications}
+            dataSource={displayNotifications}
             renderItem={item => (
-              <List.Item 
-                className={`hover:bg-[#f2fbfa] dark:hover:bg-gray-700 transition-colors cursor-pointer px-4 py-3 ${
-                  !item.read ? 'bg-blue-50 dark:bg-gray-700/50' : ''
-                }`}
+              <List.Item
+                className={`hover:bg-[#f2fbfa] dark:hover:bg-gray-700 transition-colors cursor-pointer px-4 py-3 ${!item.read ? 'bg-blue-50 dark:bg-gray-700/50' : ''
+                  }`}
               >
                 <List.Item.Meta
                   className='px-4 !max-w-80'
@@ -205,7 +182,7 @@ export const Header = () => {
             )}
           />
         )}
-        {isLoadingNotifications && allNotifications.length > 0 && (
+        {isLoadingPaginated && displayNotifications.length > 0 && (
           <div className='flex justify-center items-center py-2'>
             <Spin size='small' />
           </div>
@@ -270,29 +247,49 @@ export const Header = () => {
               </Popover>
             </div>
 
-            {/* User Info */}
-            <div className='bg-[#f2fbfa] dark:bg-gray-800 h-[100%] flex items-center justify-center gap-1 p-3 rounded-lg'>
-              {isLoadingSchoolInfo ? (
-                <Spin size='small' />
-              ) : (
-                <>
-                  <div>
-                    <img
-                      src={schoolLogo}
-                      alt='School Logo'
-                      className='w-12 h-12 rounded-full object-cover'
-                      onError={(e) => {
-                        e.target.src = client;
-                      }}
-                    />
+            {/* User Info - Now with Dropdown */}
+            <Popover
+              placement="bottomRight"
+              trigger="click"
+              content={
+                <div className="w-48 py-1">
+                  <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{userName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{userRole}</p>
                   </div>
-                  <div className='text-sm dark:text-gray-200'>
-                    {userName} <br />
-                    <span className='text-[#00B894] text-xs'>{userRole}</span>
-                  </div>
-                </>
-              )}
-            </div>
+                  <button
+                    onClick={() => useAuthStore.getState().logout()}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center gap-2"
+                  >
+                    <span>Logout</span>
+                  </button>
+                </div>
+              }
+              overlayInnerStyle={{ padding: 0 }}
+            >
+              <div className='bg-[#f2fbfa] dark:bg-gray-800 h-[100%] flex items-center justify-center gap-1 p-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'>
+                {isLoadingSchoolInfo ? (
+                  <Spin size='small' />
+                ) : (
+                  <>
+                    <div>
+                      <img
+                        src={schoolLogo}
+                        alt='School Logo'
+                        className='w-12 h-12 rounded-full object-cover'
+                        onError={(e) => {
+                          e.target.src = client;
+                        }}
+                      />
+                    </div>
+                    <div className='text-sm dark:text-gray-200'>
+                      {userName} <br />
+                      <span className='text-[#00B894] text-xs'>{userRole}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </Popover>
           </div>
 
           {/* Mobile Menu Button */}

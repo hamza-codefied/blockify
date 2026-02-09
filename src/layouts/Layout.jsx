@@ -4,10 +4,18 @@ import { Header } from '@components/layout/Header';
 import { Footer } from '@components/layout/Footer';
 import { TabComponent } from '@/components/layout/TabComponent';
 import { useSessionForceEndListener } from '@hooks/useSocketNotifications.jsx';
+import { useInitialNotificationFetch } from '@hooks/useNotifications';
+import { useNotificationListener } from '@hooks/useNotificationListener';
 
 export const Layout = ({ children }) => {
   // Enable real-time notifications for force-ended sessions
   useSessionForceEndListener();
+
+  // Fetch notifications once on layout mount
+  useInitialNotificationFetch();
+
+  // Listen for new notifications via socket
+  useNotificationListener();
 
   return (
     <div className='min-h-screen flex flex-col bg-white dark:bg-gray-900'>
